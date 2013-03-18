@@ -52,8 +52,8 @@ define_server "feature_branch" do
   set :password, "something long and safe and stuff" # optional
   set :releases, false
   set :project_root, "/var/www/branches.mailchimp.com"
-  set :public_dir, ServerAssistant::Util.current_git_branch.to_slug
-  set :git_check_branch, ServerAssistant::Util.current_git_branch
+  set :public_dir, Statistrano::Util.current_git_branch.to_slug
+  set :git_check_branch, Statistrano::Util.current_git_branch
 end
 ```
 
