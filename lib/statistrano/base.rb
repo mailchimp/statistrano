@@ -119,6 +119,8 @@ module Statistrano
       # Setup tasks for remote
       steps = []
 
+      release_name = @public_dir
+
       # make sure release_path is created & create new release
       steps << { cmd: "mkdir -p #{public_path}", env: :remote, log: "Preparing release directory" }
       # rsync build to the @public_path
@@ -128,6 +130,7 @@ module Statistrano
       run_commands(steps)
 
       LOG.msg "Created release at #{public_dir}"
+      add_manifest_release release_name
 
     end
 
