@@ -223,7 +223,7 @@ module Statistrano
     # List releases and open the selected one
     # @return [Void]
     def browse_releases
-      unless @base_domain
+      unless @base_domain.nil?
         manifest = get_manifest
         if manifest && manifest.length > 0
           puts "\nPick a release\n------------------------------------------\n"
