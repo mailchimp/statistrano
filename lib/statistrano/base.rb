@@ -13,7 +13,8 @@ module Statistrano
     # @method password [String]
     # @method keys [Array]
     # @method forward_agent [Boolean]
-    attr_accessor :remote, :user, :password, :keys, :forward_agent
+    # @method base_domain [String]
+    attr_accessor :remote, :user, :password, :keys, :forward_agent, :base_domain
     # @method build_task [String]
     # @method releases [Boolean]
     # @method release_count [Integer]
@@ -219,6 +220,31 @@ module Statistrano
       return
     end
 
+    # List releases and open the selected one
+    # @return [Void]
+    def browse_releases
+      unless @base_domain
+        manifest = get_manifest
+        if manifest && manifest.length > 0
+          puts "\nPick a release\n------------------------------------------\n"
+          manifest.each_with_index do |release,idx|
+            puts "[#{idx}] #{release["name"]}"
+          end
+          print "\n\nrelease: "
+          release_idx = get_input.to_i
+
+          if (0..(manifest.length-1)).to_a.include? release_idx
+            release = manifest[release_idx]
+            system "open http://#{release["name"]}.#{@base_domain}"
+          else
+            LOG.warn "sorry, that's not a valid release idx"
+          end
+        end
+      else
+        LOG.warn "You must define a base domain"
+      end
+    end
+
     private
 
       # run commands
@@ -295,6 +321,10 @@ module Statistrano
           releases.delete_at(idx) if release['name'] == release_name
         end
         run_ssh_command "echo '#{releases.to_json}' > #{manifest_path}"
+      end
+
+      def get_input
+        STDIN.gets.chomp
       end
 
       # Invoke the build task

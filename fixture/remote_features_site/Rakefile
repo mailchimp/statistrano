@@ -10,6 +10,7 @@ define_server "remote" do
   set :releases, false
   set :local_dir, "build"
   set :project_root, '/var/www/testing.statistrano/remote_features_site'
+  set :base_domain, 'polar-refuge.com'
   set :public_dir, Statistrano::Util.monkey_name
 end
 

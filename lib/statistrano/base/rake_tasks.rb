@@ -53,6 +53,11 @@ module Statistrano
               task :list do
                 server.get_releases
               end
+
+              desc "browse releases"
+              task :browse do
+                server.browse_releases
+              end
             end
             task :releases => ['releases:list']
           end
