@@ -51,10 +51,16 @@ define_server "feature_branch" do
   set :user, 'freddie' # optional
   set :password, "something long and safe and stuff" # optional
   set :releases, false
+  set :base_domain, "yourdomain.com"
   set :project_root, "/var/www/branches.mailchimp.com"
   set :public_dir, Statistrano::Util.current_git_branch.to_slug
   set :git_check_branch, Statistrano::Util.current_git_branch
 end
+```
+
+You can then browse your feature releases using:
+```bash
+$ rake feature_branch:releases:browse
 ```
 
 Testing
