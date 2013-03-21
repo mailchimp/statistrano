@@ -25,6 +25,7 @@ require 'statistrano/log'
 # [+:password (String)+] The user's password
 # [+:keys (Array)+] List of local keys
 # [+:forward_agent (Boolean)+] Run ssh forward agent
+# [+:base_domain (String)+] Domain to base release links off
 # [+:build_task (String)+] The rake task to invoke locally
 # [+:releases (Boolean)+] Whether to use the release system or not
 # [+:release_count (Integer)+] Number of releases to keep on remote
