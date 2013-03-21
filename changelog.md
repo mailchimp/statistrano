@@ -1,3 +1,6 @@
+# 0.0.3
+- fixed bug with manifest for releases that have the same name
+
 # 0.0.2
 - fix manifest creation for feature releases
 - add a releases:browse task
