@@ -304,6 +304,12 @@ module Statistrano
       # @return [Void]
       def add_manifest_release release_name
         releases = get_manifest || []
+
+        # filter existing releases with the same name
+        releases.keep_if do |r|
+          r["name"] != release_name
+        end
+
         releases << {
           name: "#{release_name}",
           time: Time.now.to_i,
