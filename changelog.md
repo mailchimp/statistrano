@@ -1,3 +1,6 @@
+# 0.0.4
+- fix log order bug, standardize the printed output
+
 # 0.0.3
 - fixed bug with manifest for releases that have the same name
 
