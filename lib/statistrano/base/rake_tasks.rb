@@ -81,7 +81,7 @@ module Statistrano
                   releases_string << "."
                   releases_string << server.base_domain
                   releases_string << "'>"
-                  releases_string << server.name
+                  releases_string << release["name"]
                   releases_string << "</a></li>"
                 end
                 template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) ).gsub( '{{release_list}}', releases_string )
