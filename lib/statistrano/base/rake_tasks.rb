@@ -60,6 +60,35 @@ module Statistrano
               end
             end
             task :releases => ['releases:list']
+
+            desc "group of generate tasks"
+            namespace :generate do
+              task :setup do
+                index_dir = File.join( server.project_root, "index")
+                server.run_ssh_command "mkdir #{index_dir}"
+              end
+
+              desc "generate a feature index page"
+              task :index do
+                releases = server.array_of_releases
+                index_dir = File.join( server.project_root, "index")
+                index_path = File.join( index_dir, "index.html")
+                releases_string = ""
+                releases.each do |release|
+                  releases_string << "<li>"
+                  releases_string << "<a href='http://"
+                  releases_string << release["name"]
+                  releases_string << "."
+                  releases_string << server.base_domain
+                  releases_string << "'>"
+                  releases_string << server.name
+                  releases_string << "</a></li>"
+                end
+                template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) ).gsub( '{{release_list}}', releases_string )
+                server.run_ssh_command "touch #{index_path}"
+                server.run_ssh_command "echo '#{template}' > #{index_path}"
+              end
+            end
           end
         end
       end

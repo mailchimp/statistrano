@@ -205,6 +205,18 @@ module Statistrano
       end
     end
 
+    # list all releases
+    # @return [Arra]
+    def array_of_releases
+      releases = []
+      manifest = get_manifest
+      if manifest && manifest.length > 0
+        return manifest
+      else
+        puts "No releases exist"
+      end
+    end
+
     # Get all releases echoed to shell in table format
     # @return [Void]
     def get_releases

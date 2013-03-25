@@ -12,7 +12,7 @@ define_server "remote" do
   set :project_root, '/var/www/testing.statistrano/remote_post_deploy_task'
   set :base_domain, 'polar-refuge.com'
   set :public_dir, Statistrano::Util.monkey_name
-  set :post_deploy_task, "post_deploy_task:run"
+  set :post_deploy_task, "remote:generate:index"
 end
 
 namespace :remote do
