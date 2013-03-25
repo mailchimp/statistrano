@@ -1,3 +1,6 @@
+# 0.1.1
+- add updated at to feature index page
+
 # 0.1.0
 - add post_deploy_task to servers
 - add generate namespace, and generate:index task to rake tasks
