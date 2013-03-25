@@ -1,3 +1,7 @@
+# 0.1.0
+- add post_deploy_task to servers
+- add generate namespace, and generate:index task to rake tasks
+
 # 0.0.4
 - fix log order bug, standardize the printed output
 
