@@ -22,7 +22,8 @@ module Statistrano
     # @method public_dir [String]
     # @method local_dir [String]
     # @method project_root [String]
-    attr_accessor :build_task, :releases, :release_count, :release_dir, :public_dir, :local_dir, :project_root
+    # @method post_deploy_task [String]
+    attr_accessor :build_task, :releases, :release_count, :release_dir, :public_dir, :local_dir, :project_root, :post_deploy_task
     # @method git_check_branch [String]
     attr_accessor :git_check_branch
     # @return [Void]
@@ -34,6 +35,7 @@ module Statistrano
       @public_dir           ||= 'current'
       @local_dir            ||= 'build'
       @build_task           ||= 'middleman:build'
+      @post_deploy_task     ||= false
 
       RakeTasks.register self
     end
@@ -93,6 +95,11 @@ module Statistrano
 
       LOG.msg "Cleaning up", nil
       FileUtils.rm_r local_path
+
+      if @post_deploy_task
+        LOG.msg "Running Post Deploy Task", nil
+        Rake::Task[@post_deploy_task].invoke
+      end
     end
 
     # Deploy with git checks
