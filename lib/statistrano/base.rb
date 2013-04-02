@@ -105,13 +105,13 @@ module Statistrano
     # Deploy with git checks
     # @return [Void]
     def safe_deploy
-      if !Util.working_tree_clean?
+      if !Git.working_tree_clean?
         LOG.error "You need to commit or stash your changes before deploying"
       # make sure you're on the branch selected to check against
-      elsif Util.current_git_branch != @git_check_branch
+      elsif Git.current_branch != @git_check_branch
         LOG.error "You shouldn't deploy from any branch but #{@git_check_branch}"
       # make sure you're up to date
-      elsif !Util.remote_up_to_date?
+      elsif !Git.remote_up_to_date?
         LOG.error "You need to update or push your changes before deploying"
       # do all that deployment stuff
       else
@@ -332,7 +332,7 @@ module Statistrano
         releases << {
           name: "#{release_name}",
           time: Time.now.to_i,
-          commit: Util.current_git_commit
+          commit: Git.current_commit
         }
         run_ssh_command "echo '#{releases.to_json}' > #{manifest_path}"
       end
