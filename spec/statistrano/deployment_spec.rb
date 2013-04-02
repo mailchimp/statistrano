@@ -9,12 +9,11 @@ describe Statistrano::Deployment::Base do
       deployment.name.should == "name"
     end
 
-    it "creates a configuration if a block is given" do
-      deployment = Statistrano::Deployment::Base.new("name") do |config|
-        config.remote_dir = "hello"
-        config.local_dir = "world"
-        config.remote = "foo"
-      end
+    it "configuration is configurable" do
+      deployment = Statistrano::Deployment::Base.new("name")
+      deployment.config.remote_dir = "hello"
+      deployment.config.local_dir = "world"
+      deployment.config.remote = "foo"
 
       deployment.config.remote_dir.should == "hello"
       deployment.config.local_dir.should == "world"

@@ -19,7 +19,6 @@ module Statistrano
       def initialize name
         @name = name
         @config = Config.new
-        yield(@config) if block_given?
       end
     end
 
