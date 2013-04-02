@@ -12,7 +12,7 @@ module Statistrano
         attr_accessor :local_dir
         attr_accessor :remote
         attr_accessor :build_task
-        attr_accessor :check_git?
+        attr_accessor :check_git
         attr_accessor :post_deploy_task
       end
 
