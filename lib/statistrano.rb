@@ -38,37 +38,14 @@ require 'statistrano/log'
 # [+:git_check_branch (String)+] The git branch to check with +:git_checks+
 module Statistrano
 
-  # The main Statistrano class
-  class << self
-    # @param [String] name
-    # @return [Object] The added server
-    def new(name)
-      @_servers ||= []
-      @_servers << Base.new(name)
-      @_servers.last
-    end
+  # Define a deployment
+  # @param [String] name of the deployment
+  # @return [Statistrano::Deployment::Base]
+  def define_deployment name
+    @deployment = Statistrano::Deployment::Base.new( name )
+    yield(@deployment.config) if block_given?
 
-    # Get all of the added servers
-    # @return [Hash] List of added servers
-    def all
-      @_servers
-    end
-  end
-
-  # Define a server server
-  # @param [Symbol] name The name of the server
-  # @return [Void]
-  def define_server name # :yields: :server
-    @server = Statistrano.new(name)
-    yield(@server) if block_given?
-  end
-
-  # Set an argument with a value for a server
-  # @param [Symbol] arg The server argument
-  # @param [String] value The argument value
-  # @return [Void]
-  def set arg, value
-    @server.send "#{arg.to_sym}=", value
+    return @deployment
   end
 
 end
