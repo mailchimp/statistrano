@@ -6,7 +6,7 @@ group :document do
   gem 'yard'
 end
 
-group :development do
+group :development, :test do
   gem "pry-debugger"
 end
 
