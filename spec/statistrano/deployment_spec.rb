@@ -20,6 +20,7 @@ describe Statistrano::Deployment::Base do
       deployment.config.local_dir.should == "world"
       deployment.config.remote.should == "foo"
     end
+
   end
 
 end
