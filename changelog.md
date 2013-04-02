@@ -1,3 +1,6 @@
+# 0.1.2
+- updated apearance of index page
+
 # 0.1.1
 - add updated at to feature index page
 

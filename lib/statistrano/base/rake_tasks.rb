@@ -82,7 +82,7 @@ module Statistrano
                   releases_string << server.base_domain
                   releases_string << "'>"
                   releases_string << release["name"]
-                  releases_string << "</a> <small>updated: #{Time.at(release["time"]).strftime('%A %b %d, %Y at %l:%M %P')}</small></li>"
+                  releases_string << "</a><small>updated: #{Time.at(release["time"]).strftime('%A %b %d, %Y at %l:%M %P')}</small></li>"
                 end
                 template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) ).gsub( '{{release_list}}', releases_string )
                 server.run_ssh_command "touch #{index_path}"
