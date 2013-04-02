@@ -7,6 +7,8 @@ require 'fileutils'
 # required modules
 # require 'statistrano/base'
 require 'statistrano/deployment'
+require 'statistrano/deployment/releases'
+require 'statistrano/deployment/branches'
 require 'statistrano/utility'
 require 'statistrano/git'
 require 'statistrano/log'
