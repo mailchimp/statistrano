@@ -5,7 +5,8 @@ require 'json'
 require 'fileutils'
 
 # required modules
-require 'statistrano/base'
+# require 'statistrano/base'
+require 'statistrano/deployment'
 require 'statistrano/utility'
 require 'statistrano/git'
 require 'statistrano/log'
