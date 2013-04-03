@@ -22,7 +22,7 @@ module Statistrano
       # Get current git commit based on exec directory
       # @return [String] the current commit level
       def current_commit
-        `git rev-parse HEAD 2> /dev/null`
+        `git rev-parse HEAD 2> /dev/null`.strip
       end
 
       # Check if branch is in sync with remote
