@@ -3,6 +3,7 @@ require 'net/ssh'
 require 'colorize'
 require 'json'
 require 'fileutils'
+require 'slugity/extend_string'
 
 # required modules
 # require 'statistrano/base'
