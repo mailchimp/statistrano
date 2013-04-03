@@ -1,3 +1,6 @@
+# 0.1.3
+- fix error with newlines in the current_git_commit
+
 # 0.1.2
 - updated apearance of index page
 
