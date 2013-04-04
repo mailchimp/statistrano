@@ -134,7 +134,7 @@ module Statistrano
         # @return [Void]
         def run_ssh_command command # :yields: :channel, :stream, :data
           begin
-            Net::SSH.start @remote, @user, ssh_options do |ssh|
+            Net::SSH.start @config.remote, @config.user, ssh_options do |ssh|
               ssh.exec command do |channel, stream, data|
                 if stream == :stderr
                   LOG.error "Error executing the command:\n\t\"#{command}\"" +
