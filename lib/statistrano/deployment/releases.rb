@@ -7,7 +7,6 @@ module Statistrano
         attr_accessor :release_count
         attr_accessor :release_dir
         attr_accessor :public_dir
-        attr_accessor :git_branch
 
         def initialize
           yield(self) if block_given?
