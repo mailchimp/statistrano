@@ -47,11 +47,15 @@ module Statistrano
   # @return [Statistrano::Deployment::Base]
   def define_deployment name, type=:base
 
-    @deployment = Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
+    begin
+      @deployment = Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
+    rescue NameError
+      LOG.error "The deployment type '#{type}' is not defined"
+    end
 
     yield(@deployment.config) if block_given?
-
     return @deployment
+
   end
 
 end
