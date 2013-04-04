@@ -48,7 +48,7 @@ module Statistrano
   def define_deployment name, type=:base
 
     begin
-      @deployment = Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
+      @deployment = Deployment.const_get(type.to_s.capitalize).new( name )
     rescue NameError
       LOG.error "The deployment type '#{type}' is not defined"
     end
