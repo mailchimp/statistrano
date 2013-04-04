@@ -22,6 +22,24 @@ module Statistrano
         end
       end
 
+      # Return array of releases on the remote
+      # @return [Array]
+      def list_releases
+        releases = []
+        run_ssh_command("ls -m #{release_path}") do |ch, stream, data|
+          releases = data.strip.split
+        end
+        return releases
+      end
+
+      private
+
+        # Full path to release directory
+        # @return [String]
+        def release_path
+          File.join( @config.remote_dir, @config.release_dir )
+        end
+
     end
 
   end
