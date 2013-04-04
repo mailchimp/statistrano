@@ -47,16 +47,7 @@ module Statistrano
   # @return [Statistrano::Deployment::Base]
   def define_deployment name, type=:base
 
-    if type == :base
-      @deployment = Statistrano::Deployment::Base.new( name )
-    elsif type == :releases
-      @deployment = Statistrano::Deployment::Releases.new( name )
-    elsif type == :branches
-      @deployment = Statistrano::Deployment::Branches.new( name )
-    else
-      LOG.error "Sorry, the deployment type #{type} is not defined"
-      abort
-    end
+    @deployment = Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
 
     yield(@deployment.config) if block_given?
 
