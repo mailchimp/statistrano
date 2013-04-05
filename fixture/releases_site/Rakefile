@@ -1,0 +1,22 @@
+# Add ./lib to the load path
+$LOAD_PATH << File.expand_path( '../../lib' )
+
+# require_relative '../../lib/statistrano'
+require 'statistrano'
+
+dep = define_deployment "remote", :releases do |c|
+  c.build_task = 'remote:copy'
+  c.remote = 'digitalocean'
+  c.local_dir = "build"
+  c.remote_dir = '/var/www/testing.statistrano/remote_site'
+end
+
+namespace :remote do
+  task :copy do
+    `cp -r source/ build/`
+  end
+end
+
+task :test do
+  p dep.get_releases.class
+end
