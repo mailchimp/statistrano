@@ -48,7 +48,7 @@ module Statistrano
         clean_up
         invoke_post_deploy_task
 
-        LOG.msg "Deployment Complete"
+        LOG.success "Deployment Complete"
       end
 
       private
@@ -79,7 +79,7 @@ module Statistrano
           host_connection = @config.user ? "#{@config.user}@#{@config.remote}" : @config.remote
           LOG.msg "Syncing files to remote"
           if system "rsync -avqz -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
-            LOG.msg "Files synced to remote"
+            LOG.success "Files synced to remote"
           else
             LOG.error "Error syncing files to remote"
             abort

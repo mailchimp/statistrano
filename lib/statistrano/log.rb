@@ -8,11 +8,13 @@ module Statistrano
 
     # Log a regular message
     # @param [String] text
-    def msg text, status="success", color=:green
-      if status.nil?
-        color = :black
-        status = ''
-      end
+    def msg text, status=nil, color=:black
+      status ||= ''
+      shell_say text, status, color
+    end
+
+    # Log a success message
+    def success text, status="success", color=:green
       shell_say text, status, color
     end
 
