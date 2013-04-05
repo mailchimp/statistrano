@@ -62,7 +62,7 @@ module Statistrano
       def get_releases
         releases = []
         run_ssh_command("ls -m #{release_dir_path}") do |ch, stream, data|
-          releases = data.strip.split
+          releases = data.strip.split(',').map { |r| r.strip }
         end
         return releases
       end
@@ -74,20 +74,20 @@ module Statistrano
         def create_release
           current_release = release_name
 
-          setup_release_dir_path( release_path(current_release) )
+          setup_release_path( release_path(current_release) )
           rsync_to_remote( release_path(current_release) )
           symlink_release( current_release )
 
           # TODO: add_manifest
 
-          LOG.msg "Created release at #{public_dir}"
+          LOG.msg "Created release at #{public_path}"
         end
 
         # remove a release
         # @param name [String]
         # @return [Void]
         def remove_release name
-          LOG.msg "Removing release '#{release}'"
+          LOG.msg "Removing release '#{name}'"
           run_ssh_command "rm -rf #{release_dir_path}/#{name}"
         end
 
