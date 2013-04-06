@@ -57,16 +57,6 @@ module Statistrano
         end
       end
 
-      # Return array of releases on the remote
-      # @return [Array]
-      def get_releases
-        releases = []
-        run_ssh_command("ls -m #{release_dir_path}") do |ch, stream, data|
-          releases = data.strip.split(',').map { |r| r.strip }.reverse
-        end
-        return releases
-      end
-
       # Output a list of releases & their date
       # @return [Void]
       def list_releases
@@ -78,6 +68,16 @@ module Statistrano
       end
 
       private
+
+        # Return array of releases on the remote
+        # @return [Array]
+        def get_releases
+          releases = []
+          run_ssh_command("ls -m #{release_dir_path}") do |ch, stream, data|
+            releases = data.strip.split(',').map { |r| r.strip }.reverse
+          end
+          return releases
+        end
 
         # send code to remote server
         # @return [Void]
