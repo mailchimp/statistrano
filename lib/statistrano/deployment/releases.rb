@@ -62,9 +62,18 @@ module Statistrano
       def get_releases
         releases = []
         run_ssh_command("ls -m #{release_dir_path}") do |ch, stream, data|
-          releases = data.strip.split(',').map { |r| r.strip }
+          releases = data.strip.split(',').map { |r| r.strip }.reverse
         end
         return releases
+      end
+
+      # Output a list of releases & their date
+      # @return [Void]
+      def list_releases
+        releases = get_releases
+        releases.each do |release|
+          LOG.msg Time.at(release.to_i).strftime('%A %b %d, %Y at %l:%M %P')
+        end
       end
 
       private
