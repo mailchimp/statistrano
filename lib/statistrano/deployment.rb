@@ -68,7 +68,7 @@ module Statistrano
 
           # TODO: add_manifest
 
-          LOG.msg "Created release at #{public_dir}"
+          LOG.msg "Created release at #{@config.remote_dir}"
         end
 
         # create the release dir on the remote
