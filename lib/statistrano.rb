@@ -6,7 +6,6 @@ require 'fileutils'
 require 'slugity/extend_string'
 
 # utility modules
-require 'statistrano/utility'
 require 'statistrano/git'
 require 'statistrano/log'
 
