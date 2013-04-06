@@ -5,15 +5,16 @@ require 'json'
 require 'fileutils'
 require 'slugity/extend_string'
 
-# required modules
-# require 'statistrano/base'
+# utility modules
+require 'statistrano/utility'
+require 'statistrano/git'
+require 'statistrano/log'
+
+# deployment modules
 require 'statistrano/deployment'
 require 'statistrano/deployment/releases'
 require 'statistrano/deployment/branches'
 require 'statistrano/deployment/rake_tasks'
-require 'statistrano/utility'
-require 'statistrano/git'
-require 'statistrano/log'
 
 
 # DSL for defining server servers
