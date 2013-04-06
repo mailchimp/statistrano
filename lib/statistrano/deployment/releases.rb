@@ -11,6 +11,14 @@ module Statistrano
         def initialize
           yield(self) if block_given?
         end
+
+        def tasks
+          super.merge({
+            :rollback => :rollback_release,
+            :prune => :prune_releases,
+            :list => :list_releases
+          })
+        end
       end
 
       def initialize name
@@ -20,6 +28,7 @@ module Statistrano
           c.release_dir = "releases"
           c.public_dir = "current"
         end
+        RakeTasks.register(self)
       end
 
       def deploy

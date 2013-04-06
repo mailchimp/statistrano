@@ -22,6 +22,12 @@ module Statistrano
         attr_accessor :check_git
         attr_accessor :git_branch
         attr_accessor :post_deploy_task
+
+        def tasks
+          {
+            :deploy => :deploy
+          }
+        end
       end
 
       # create a new deployment instance
@@ -30,6 +36,7 @@ module Statistrano
       def initialize name
         @name = name
         @config = Config.new
+        RakeTasks.register(self)
       end
 
       # Standard deployment flow
