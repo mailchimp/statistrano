@@ -47,7 +47,7 @@ module Statistrano
       # Remove old releases
       # @return [Void]
       def prune_releases
-        releases = get_releases
+        releases = get_releases.reverse
         if releases && releases.length > @config.release_count
           releases[@config.release_count..-1].each do |release|
             remove_release(release)
@@ -71,8 +71,9 @@ module Statistrano
       # @return [Void]
       def list_releases
         releases = get_releases
-        releases.each do |release|
-          LOG.msg Time.at(release.to_i).strftime('%A %b %d, %Y at %l:%M %P')
+        releases.each_with_index do |release, idx|
+          current = ( idx == 0 ) ? "current" : nil
+          LOG.msg Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P'), current, :blue
         end
       end
 
@@ -110,7 +111,7 @@ module Statistrano
         # Return a release name based on current time
         # @return [String]
         def release_name
-          Time.now.strftime("%Y%m%d%H%M%S")
+          Time.now.to_i.to_s
         end
 
         # Full public_path
