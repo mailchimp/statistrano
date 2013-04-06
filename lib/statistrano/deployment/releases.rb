@@ -22,7 +22,7 @@ module Statistrano
       end
 
       def initialize name
-        super name
+        @name = name
         @config = Config.new do |c|
           c.release_count = 5
           c.release_dir = "releases"

@@ -1,3 +1,4 @@
+
 module Statistrano
   module Deployment
 
@@ -12,11 +13,32 @@ module Statistrano
       end
 
       def initialize name
-        super name
+        @name = name
         @config = Config.new do |c|
           c.public_dir = Git.current_branch.to_slug
         end
+        RakeTasks.register(self)
       end
+
+      private
+
+        # send code to remote server
+        # @return [Void]
+        def create_release
+          setup_release_path(release_path)
+          rsync_to_remote(release_path)
+
+          # TODO: add_manifest
+
+          LOG.msg "Created release at #{@config.public_dir}"
+        end
+
+        # path to the current release
+        # this is based on the git branch
+        # @return [String]
+        def release_path
+          File.join( @config.remote_dir, @config.public_dir )
+        end
 
     end
 
