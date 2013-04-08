@@ -3,6 +3,7 @@ require 'net/ssh'
 require 'colorize'
 require 'json'
 require 'fileutils'
+require 'rake'
 require 'slugity/extend_string'
 
 # utility modules
@@ -10,6 +11,7 @@ require 'statistrano/git'
 require 'statistrano/log'
 
 # deployment modules
+require 'statistrano/deployment/ssh'
 require 'statistrano/deployment'
 require 'statistrano/deployment/releases'
 require 'statistrano/deployment/branches'

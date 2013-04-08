@@ -28,6 +28,7 @@ module Statistrano
           c.release_dir = "releases"
           c.public_dir = "current"
         end
+        @ssh = SSH.new( @config )
         RakeTasks.register(self)
       end
 
@@ -82,7 +83,7 @@ module Statistrano
         # @return [Array]
         def get_releases
           releases = []
-          run_ssh_command("ls -m #{release_dir_path}") do |ch, stream, data|
+          @ssh.run_command("ls -m #{release_dir_path}") do |ch, stream, data|
             releases = data.strip.split(',').map { |r| r.strip }.reverse
           end
           return releases
@@ -107,7 +108,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           LOG.msg "Removing release '#{name}'"
-          run_ssh_command "rm -rf #{release_dir_path}/#{name}"
+          @ssh.run_command "rm -rf #{release_dir_path}/#{name}"
         end
 
         # Symlink a release to the public path

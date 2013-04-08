@@ -5,9 +5,10 @@ module Statistrano
 
       attr_reader :releases
 
-      def initialize path
+      def initialize config
         @releases = []
-        @path = path
+        @config = config
+        @path = @config.remote_dir
       end
 
       def update

@@ -17,6 +17,7 @@ module Statistrano
         @config = Config.new do |c|
           c.public_dir = Git.current_branch.to_slug
         end
+        @ssh = SSH.new( @config )
         RakeTasks.register(self)
       end
 
