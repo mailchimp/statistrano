@@ -8,6 +8,7 @@ module Statistrano
       def initialize config
         @releases = []
         @config = config
+        @ssh = SSH.new( @config )
         @path = @config.remote_dir
       end
 
@@ -18,6 +19,11 @@ module Statistrano
       end
 
       def get
+        cmd = 'tail -n 1000 #{manifest_path}'
+        @ssh.run_command(cmd) do |ch, stream, data|
+          manifest = JSON.parse(data).sort_by { |r| r["time"] }.reverse
+        end
+        return manifest
       end
 
       class Release
