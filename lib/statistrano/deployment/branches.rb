@@ -6,6 +6,7 @@ module Statistrano
 
       class Config < Base::Config
         attr_accessor :public_dir
+        attr_accessor :manifest
 
         def initialize
           yield(self) if block_given?
@@ -18,6 +19,7 @@ module Statistrano
           c.public_dir = Git.current_branch.to_slug
         end
         @ssh = SSH.new( @config )
+        @manifest = Manifest.new( @config )
         RakeTasks.register(self)
       end
 

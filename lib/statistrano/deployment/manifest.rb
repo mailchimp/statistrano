@@ -12,12 +12,36 @@ module Statistrano
         @path = @config.remote_dir
       end
 
-      def update
+      # create a manifest for the first time
+      # @param first_release [Release]
+      # @return [Void]
+      def create first_release
+        cmd = 'touch #{manifest_path}'
+        @ssh.run_command(cmd)
+
+        manifest = "[#{first_release.to_json}]"
+        cmd = "echo '#{manifest}' > #{manifest_path}"
+        @ssh.run_command(cmd)
       end
 
-      def create
+      # add a release to the manifest
+      # @param release [Release]
+      # @return [Void]
+      def add_release release
+        manifest = get
+        manifest << release
+        cmd = "echo '#{manifest}' > #{manifest_path}"
+        @ssh.run_command(cmd)
       end
 
+      # remove a release to the manifest
+      # @param name [String]
+      # @return [Void]
+      def remove_release name
+      end
+
+      # get the manifest for this deployment
+      # @return [Array]
       def get
         cmd = 'tail -n 1000 #{manifest_path}'
         @ssh.run_command(cmd) do |ch, stream, data|
@@ -56,6 +80,13 @@ module Statistrano
           return hash.to_json
         end
       end
+
+      private
+
+        def manifest_path
+          File.join( @path, 'manifest.json' )
+        end
+
     end
 
   end

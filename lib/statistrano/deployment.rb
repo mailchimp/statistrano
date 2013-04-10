@@ -21,6 +21,7 @@ module Statistrano
         attr_accessor :build_task
         attr_accessor :check_git
         attr_accessor :git_branch
+        attr_accessor :repo_url
         attr_accessor :post_deploy_task
 
         def tasks
