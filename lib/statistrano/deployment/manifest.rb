@@ -12,6 +12,14 @@ module Statistrano
         @releases = get
       end
 
+      # array of release names
+      # @return [Array]
+      def list
+        get.map do |r|
+          r.name
+        end
+      end
+
       # add a release to the manifest
       # @param release [Release]
       # @return [Void]

@@ -62,11 +62,24 @@ module Statistrano
       # @return [Void]
       def prune_releases
         releases = get_releases.reverse
+        pruned = false
+
         if releases && releases.length > @config.release_count
           releases[@config.release_count..-1].each do |release|
             remove_release(release)
+            pruned = true
           end
-        else
+        end
+
+        get_actual_releases.each do |r|
+
+          unless releases.include? r
+            remove_release(r)
+          end
+
+        end
+
+        unless pruned
           LOG.msg "No releases to prune", nil
         end
       end
@@ -83,9 +96,15 @@ module Statistrano
 
       private
 
-        # Return array of releases on the remote
+        # Return array of releases from manifest
         # @return [Array]
         def get_releases
+          @manifest.list
+        end
+
+        # Return array of releases on the remote
+        # @return [Array]
+        def get_actual_releases
           releases = []
           @ssh.run_command("ls -m #{release_dir_path}") do |ch, stream, data|
             releases = data.strip.split(',').map { |r| r.strip }.reverse
@@ -113,6 +132,8 @@ module Statistrano
         def remove_release name
           LOG.msg "Removing release '#{name}'"
           @ssh.run_command "rm -rf #{release_dir_path}/#{name}"
+
+          @manifest.remove_release(name)
         end
 
         # Symlink a release to the public path
