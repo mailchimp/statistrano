@@ -53,10 +53,10 @@ module Statistrano
           end
 
           print "select a release to remove: "
-          input = get_input.gsub(/([^0-9])/, '')
-          release_to_remove = ( input != "" ) ? input : nil
+          input = get_input.gsub(/[^0-9]/, '')
+          release_to_remove = ( input != "" ) ? input.to_i : nil
 
-          if release_to_remove && (0..(releases.length-1)).to_a.include?(release_to_remove)
+          if (0..(releases.length-1)).to_a.include?(release_to_remove)
             remove_release( get_releases[release_to_remove] )
           else
             LOG.warn "sorry that isn't one of the releases"
