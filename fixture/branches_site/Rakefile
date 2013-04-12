@@ -4,7 +4,7 @@ $LOAD_PATH << File.expand_path( '../../lib' )
 # require_relative '../../lib/statistrano'
 require 'statistrano'
 
-dep = define_deployment "branches", :branches do |c|
+define_deployment "remote", :branches do |c|
   c.build_task = 'remote:copy'
   c.remote = 'digitalocean'
   c.local_dir = "build"
