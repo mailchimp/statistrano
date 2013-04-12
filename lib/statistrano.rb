@@ -58,7 +58,7 @@ module Statistrano
     end
 
     yield(@deployment.config) if block_given?
-    @deployment.add_manifest
+    @deployment.after_configuration
     return @deployment
 
   end

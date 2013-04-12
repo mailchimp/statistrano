@@ -28,11 +28,11 @@ module Statistrano
           c.release_dir = "releases"
           c.public_dir = "current"
         end
-        @ssh = SSH.new( @config )
         RakeTasks.register(self)
       end
 
-      def add_manifest
+      def after_configuration
+        super
         @manifest = Manifest.new( @config )
       end
 

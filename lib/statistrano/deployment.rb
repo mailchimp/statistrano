@@ -37,8 +37,14 @@ module Statistrano
       def initialize name
         @name = name
         @config = Config.new
-        @ssh = SSH.new( @config )
         RakeTasks.register(self)
+      end
+
+      # run after configuration to init
+      # things that depend on the config
+      # @return [Void]
+      def after_configuration
+        @ssh = SSH.new( @config )
       end
 
       # Standard deployment flow
