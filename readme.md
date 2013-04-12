@@ -39,7 +39,8 @@ end
 
 **Tasks**
 
-`rake basic:deploy` : deploys the local_dir to the remote_dir
+`rake basic:deploy`  
+deploys the local_dir to the remote_dir
 
 
 ### Releases deployment
@@ -61,10 +62,17 @@ end
 
 **Tasks**
 
-`rake production:deploy` : deploys local_dir to the remote, and symlinks remote_dir/current to the release
-`rake production:rollback` : rolls back to the previous release
-`rake production:prune` : manually removes old releases beyond the release count
-`rake production:list` : lists all the currently deployed releases
+`rake production:deploy`  
+deploys local_dir to the remote, and symlinks remote_dir/current to the release
+
+`rake production:rollback`  
+rolls back to the previous release
+
+`rake production:prune`  
+manually removes old releases beyond the release count
+
+`rake production:list`  
+lists all the currently deployed releases
 
 
 ### Branch deployment
@@ -85,10 +93,17 @@ end
 
 **Tasks**
 
-`rake branches:deploy` : deploys local_dir to the remote named for the current git branch, and generates an index page
-`rake branches:list` : lists all the currently deployed branches
-`rake branches:prune` : shows list of currently deployed branches to pick from and remove
-`rake branches:generate_index` : manually kicks of index generation, good to run after pruning
+`rake branches:deploy`  
+deploys local_dir to the remote named for the current git branch, and generates an index page
+
+`rake branches:list`  
+lists all the currently deployed branches
+
+`rake branches:prune`  
+shows list of currently deployed branches to pick from and remove
+
+`rake branches:generate_index`  
+manually kicks of index generation, good to run after pruning
 
 Testing
 =======
