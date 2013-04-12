@@ -32,6 +32,10 @@ module Statistrano
         RakeTasks.register(self)
       end
 
+      def add_manifest
+        @manifest = Manifest.new( @config )
+      end
+
       def deploy
         super
         prune_releases
@@ -98,7 +102,7 @@ module Statistrano
           rsync_to_remote( release_path(current_release) )
           symlink_release( current_release )
 
-          # TODO: add_manifest
+          @manifest.add_release( Manifest::Release.new( current_release ))
 
           LOG.msg "Created release at #{public_path}"
         end

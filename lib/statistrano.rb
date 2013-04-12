@@ -13,6 +13,7 @@ require 'statistrano/log'
 # deployment modules
 require 'statistrano/deployment/ssh'
 require 'statistrano/deployment'
+require 'statistrano/deployment/manifest'
 require 'statistrano/deployment/releases'
 require 'statistrano/deployment/branches'
 require 'statistrano/deployment/rake_tasks'
@@ -57,6 +58,7 @@ module Statistrano
     end
 
     yield(@deployment.config) if block_given?
+    @deployment.add_manifest
     return @deployment
 
   end
