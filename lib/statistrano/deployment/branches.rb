@@ -43,7 +43,27 @@ module Statistrano
         releases = get_releases
 
         get_actual_releases.each do |r|
-          remove_release(r) unless get_releases.include? r
+          remove_release(r) unless releases.include? r
+        end
+
+        if releases && releases.length > 0
+
+          releases.each_with_index do |r,idx|
+            LOG.msg "#{r}", "[#{idx}]", :blue
+          end
+
+          print "select a release to remove: "
+          input = get_input.gsub(/([^0-9])/, '')
+          release_to_remove = ( input != "" ) ? input : nil
+
+          if release_to_remove && (0..(releases.length-1)).to_a.include?(release_to_remove)
+            remove_release( get_releases[release_to_remove] )
+          else
+            LOG.warn "sorry that isn't one of the releases"
+          end
+
+        else
+          LOG.warn "no releases to prune"
         end
       end
 
@@ -97,6 +117,10 @@ module Statistrano
         # @return [String]
         def release_path name
           File.join( @config.remote_dir, name )
+        end
+
+        def get_input
+          STDIN.gets.chomp
         end
 
     end
