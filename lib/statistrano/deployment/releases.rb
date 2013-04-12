@@ -61,7 +61,7 @@ module Statistrano
       # Remove old releases
       # @return [Void]
       def prune_releases
-        releases = get_releases.reverse
+        releases = get_releases
         pruned = false
 
         if releases && releases.length > @config.release_count
@@ -140,7 +140,7 @@ module Statistrano
         # @param name [String]
         # @return [Void]
         def symlink_release name
-          "ln -nfs #{release_path(name)} #{public_path}"
+          @ssh.run_command "ln -nfs #{release_path(name)} #{public_path}"
         end
 
         # Return a release name based on current time
