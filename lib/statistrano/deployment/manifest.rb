@@ -68,6 +68,8 @@ module Statistrano
           @link = (hash[:link]) ? hash[:link] : (hash[:repo_url]) ? hash[:repo_url] + '/tree/' + @commit : nil
         end
 
+        # convert the release to a json object
+        # @return [String]
         def to_json
           hash = {
             name: @name,
@@ -116,10 +118,14 @@ module Statistrano
           return releases
         end
 
+        # path to the manifest
+        # @return [String]
         def manifest_path
           File.join( @path, 'manifest.json' )
         end
 
+        # json array of the releases
+        # @return [String]
         def releases_as_json
           output = "["
           @releases.each_with_index do |r,idx|

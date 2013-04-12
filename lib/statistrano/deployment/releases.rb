@@ -31,11 +31,15 @@ module Statistrano
         RakeTasks.register(self)
       end
 
+      # create a manifest after configuration is set
+      # @return [Void]
       def after_configuration
         super
         @manifest = Manifest.new( @config )
       end
 
+      # prune releases after the deploy has run
+      # @return [Void]
       def deploy
         super
         prune_releases

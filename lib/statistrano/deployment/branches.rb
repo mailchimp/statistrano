@@ -1,4 +1,3 @@
-require 'pry'
 module Statistrano
   module Deployment
 
@@ -22,10 +21,6 @@ module Statistrano
         end
       end
 
-      def deploy
-        super
-      end
-
       def initialize name
         @name = name
         @config = Config.new do |c|
@@ -35,17 +30,24 @@ module Statistrano
         RakeTasks.register(self)
       end
 
+      # create a manifest after configuration is set
+      # @return [Void]
       def after_configuration
         super
         @manifest = Manifest.new( @config )
       end
 
+      # output a list of the releases in manifest
+      # @return [Void]
       def list_releases
         @manifest.releases.each do |r|
           LOG.msg "#{r.name} created at #{Time.at(r.time).strftime('%a %b %d, %Y at %l:%M %P')}"
         end
       end
 
+      # trim releases not in the manifest,
+      # get user input for removal of other releases
+      # @return [Void]
       def prune_releases
         releases = get_releases
 
@@ -74,6 +76,8 @@ module Statistrano
         end
       end
 
+      # generate an index file for releases in the manifest
+      # @return [Void]
       def generate_index
         index_dir = File.join( @config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
@@ -145,6 +149,8 @@ module Statistrano
           File.join( @config.remote_dir, name )
         end
 
+        # get input from the command line
+        # @return [String]
         def get_input
           STDIN.gets.chomp
         end
