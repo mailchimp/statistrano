@@ -8,7 +8,7 @@ define_deployment "remote", :releases do |c|
   c.build_task = 'remote:copy'
   c.remote = 'digitalocean'
   c.local_dir = "build"
-  c.remote_dir = '/var/www/testing.statistrano/remote_site'
+  c.remote_dir = '/var/www/testing.statistrano/releases_site'
 end
 
 namespace :remote do

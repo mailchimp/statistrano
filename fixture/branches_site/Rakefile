@@ -8,15 +8,11 @@ dep = define_deployment "branches", :branches do |c|
   c.build_task = 'remote:copy'
   c.remote = 'digitalocean'
   c.local_dir = "build"
-  c.remote_dir = '/var/www/testing.statistrano/remote_branches_site'
+  c.remote_dir = '/var/www/testing.statistrano/branches_site'
 end
 
 namespace :remote do
   task :copy do
     `cp -r source/ build/`
   end
-end
-
-task :test do
-  p dep.config.tasks
 end
