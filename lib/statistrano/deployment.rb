@@ -45,6 +45,7 @@ module Statistrano
       # @return [Void]
       def after_configuration
         @ssh = SSH.new( @config )
+        setup
       end
 
       # Standard deployment flow
@@ -68,13 +69,16 @@ module Statistrano
 
       private
 
+        # get paths, etc setup on remote
+        def setup
+          @ssh.run_command "mkdir -p #{@config.remote_dir}"
+        end
+
         # send code to remote server
         # @return [Void]
         def create_release
           setup_release_path @config.remote_dir
           rsync_to_remote @config.remote_dir
-
-          # TODO: add_manifest
 
           LOG.msg "Created release at #{@config.remote_dir}"
         end
