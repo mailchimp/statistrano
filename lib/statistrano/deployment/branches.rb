@@ -7,6 +7,7 @@ module Statistrano
       class Config < Base::Config
         attr_accessor :public_dir
         attr_accessor :manifest
+        attr_accessor :base_domain
 
         def initialize
           yield(self) if block_given?
@@ -15,15 +16,21 @@ module Statistrano
         def tasks
           super.merge({
             :list => :list_releases,
-            :prune => :prune_releases
+            :prune => :prune_releases,
+            :generate_index => :generate_index
           })
         end
+      end
+
+      def deploy
+        super
       end
 
       def initialize name
         @name = name
         @config = Config.new do |c|
           c.public_dir = Git.current_branch.to_slug
+          c.post_deploy_task = "#{@name}:generate_index"
         end
         RakeTasks.register(self)
       end
@@ -65,6 +72,25 @@ module Statistrano
         else
           LOG.warn "no releases to prune"
         end
+      end
+
+      def generate_index
+        index_dir = File.join( @config.remote_dir, "index" )
+        index_path = File.join( index_dir, "index.html" )
+
+        rs = ""
+        @manifest.releases.each do |r|
+          rs << "<li>"
+          rs << "<a href=\"http://#{r.name}.#{@config.base_domain}\">#{r.name}</a>"
+          rs << "<small>updated: #{Time.at(r.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"
+          rs << "</li>"
+        end
+        template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
+        template.gsub!( '{{release_list}}', rs )
+
+        cmd = "touch #{index_path} && echo '#{template}' > #{index_path}"
+        setup_release_path( index_dir )
+        @ssh.run_command cmd
       end
 
       private
