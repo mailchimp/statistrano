@@ -11,6 +11,12 @@ module Statistrano
         def initialize
           yield(self) if block_given?
         end
+
+        def tasks
+          super.merge({
+            :list => :list_releases
+          })
+        end
       end
 
       def initialize name
@@ -26,6 +32,11 @@ module Statistrano
         @manifest = Manifest.new( @config )
       end
 
+      def list_releases
+        @manifest.releases.each do |r|
+          LOG.msg "#{r.name} created at #{Time.at(r.time).strftime('%a %b %d, %Y at %l:%M %P')}"
+        end
+      end
       private
 
         # send code to remote server

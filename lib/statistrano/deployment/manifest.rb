@@ -24,6 +24,12 @@ module Statistrano
       # @param release [Release]
       # @return [Void]
       def add_release release
+
+        # remove releases with the same name
+        @releases.keep_if do |r|
+          r.name != release.name
+        end
+
         @releases << release
         update
       end
