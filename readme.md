@@ -17,51 +17,78 @@ gem 'statistrano', :git => 'git@github.com:mailchimp/statistrano.git'
 Examples
 ========
 
-### Basic production deployment
-This setup creates tasks under the namespace `production`. If you have your pub keys setup for ssh, you can (and probably should) leave off :user and :password.
-
-Seting :git_check_branch to "master" ensures that your working tree is clean, you're in sync with the remote, and that you're working off the master branch.
+### Basic deployment
+The base setup simply copies a local directory to a remote directory
 
 ```ruby
 # deploy.rake
 require 'statistrano'
 
-define_server "production" do
-  set :remote, 'servername'
-  set :user, 'freddie' # optional
-  set :password, "something long and safe and stuff" # optional
-  set :project_root, "/var/www/mailchimp.com"
-  set :git_check_branch, "master"
+define_deployment "basic" do |config|
+
+  config.remote = 'remote_name'
+  config.user = 'freddie' # optional
+  config.password = 'something long and stuff' # optional
+
+  config.remote_dir = '/var/www/mailchimp.com'
+  config.local_dir = 'build'
+  config.build_task = 'middleman:build' # optional if nothing needs to be built
+
 end
 ```
-To create a new release/deploy run:
-```bash
-$ rake production:deploy
-```
 
-### Feature branch deployment
-This setup doesn't create releases, but instead deploys to a directory with a slugged version of the branch name. As long as your nginx/apache configs are setup you can visit `your-branch-name.yourdomain.com` to view your feature branch.
+**Tasks**
+
+`rake basic:deploy` : deploys the local_dir to the remote_dir
+
+
+### Releases deployment
+Out of the box Statistrano allows you to pick from a release based deployment, or branch based. Releases act as a series of snapshots of your project with the most recent linked to the `public_dir`. You can quickly rollback in case of errors.
 
 ```ruby
 # deploy.rake
 require 'statistrano'
 
-define_server "feature_branch" do
-  set :remote, 'servername'
-  set :user, 'freddie' # optional
-  set :password, "something long and safe and stuff" # optional
-  set :releases, false
-  set :base_domain, "yourdomain.com"
-  set :project_root, "/var/www/branches.mailchimp.com"
-  set :public_dir, Statistrano::Util.current_git_branch.to_slug
-  set :git_check_branch, Statistrano::Util.current_git_branch
+define_deployment "production", :releases do |config|
+
+  config.remote = 'remote_name'
+  config.build_task = 'middleman:build'
+  config.local_dir = 'build'
+  config.remote_dir = '/var/www/mailchimp.com'
+
 end
 ```
 
-You can then browse your feature releases using:
-```bash
-$ rake feature_branch:releases:browse
+**Tasks**
+
+`rake production:deploy` : deploys local_dir to the remote, and symlinks remote_dir/current to the release
+`rake production:rollback` : rolls back to the previous release
+`rake production:prune` : manually removes old releases beyond the release count
+`rake production:list` : lists all the currently deployed releases
+
+
+### Branch deployment
+The branch deployment type adds some nice defaults to use the current branch as your release name. So with the correct nginx/apache config you can have your branches mounted as subdomains (eg: `http://my_awesome_branch.example.com`). Aditionally it is set up to create an `index` release that shows a list of your currently deployed branches.
+
+
+```ruby
+define_deployment "branches", :branches do |config|
+
+  config.remote = 'remote_name'
+  config.build_task = 'middleman:build'
+  config.local_dir = 'build'
+  config.remote_dir = '/var/www/mailchimp.com'
+  config.base_domain = "mailchimp.com"
+
+end
 ```
+
+**Tasks**
+
+`rake branches:deploy` : deploys local_dir to the remote named for the current git branch, and generates an index page
+`rake branches:list` : lists all the currently deployed branches
+`rake branches:prune` : shows list of currently deployed branches to pick from and remove
+`rake branches:generate_index` : manually kicks of index generation, good to run after pruning
 
 Testing
 =======
