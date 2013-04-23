@@ -1,3 +1,9 @@
+# 0.2.0
+- code overhaul
+- new way to define deployments
+- classes for different deployment types
+- add pruning to branches deployments
+
 # 0.1.3
 - fix error with newlines in the current_git_commit
 
