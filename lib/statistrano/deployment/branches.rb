@@ -67,6 +67,7 @@ module Statistrano
 
           if (0..(releases.length-1)).to_a.include?(release_to_remove)
             remove_release( get_releases[release_to_remove] )
+            generate_index
           else
             LOG.warn "sorry that isn't one of the releases"
           end

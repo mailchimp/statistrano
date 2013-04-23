@@ -1,3 +1,6 @@
+# 0.2.1
+- regenerate index after pruning releases
+
 # 0.2.0
 - code overhaul
 - new way to define deployments
