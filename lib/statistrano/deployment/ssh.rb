@@ -37,8 +37,9 @@ module Statistrano
           end
         rescue Net::SSH::AuthenticationFailed
           LOG.error "Authentication failed when connecting to '#{@config.remote}'"
-        rescue Exception
-          LOG.error "Error when attempting to connect to '#{@config.remote}'"
+        rescue Exception => e
+          LOG.error "Error when attempting to connect to '#{@config.remote}'" +
+                    "\n\t  msg  #{e.class}: #{e}"
         end
       end
 
