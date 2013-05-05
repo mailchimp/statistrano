@@ -40,10 +40,7 @@ module Statistrano
         RakeTasks.register(self)
       end
 
-      # run after configuration to init
-      # things that depend on the config
-      # @return [Void]
-      def after_configuration
+      def prepare_for_action
         @ssh = ::Statistrano::SSH.new( @config )
         setup
       end

@@ -15,6 +15,7 @@ module Statistrano
 
               deployment.config.tasks.each do |task_name,method_name|
                 task task_name do
+                  deployment.prepare_for_action
                   deployment.send(method_name)
                 end
               end
