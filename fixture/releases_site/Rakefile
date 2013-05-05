@@ -16,3 +16,7 @@ namespace :remote do
     `cp -r source/ build/`
   end
 end
+
+task :default do
+  p "hello default"
+end
