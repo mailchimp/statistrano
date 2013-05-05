@@ -5,18 +5,15 @@ require 'json'
 require 'fileutils'
 require 'rake'
 require 'slugity/extend_string'
+require 'rush'
 
 # utility modules
 require 'statistrano/git'
 require 'statistrano/log'
+require 'statistrano/ssh'
 
 # deployment modules
-require 'statistrano/deployment/ssh'
 require 'statistrano/deployment'
-require 'statistrano/deployment/manifest'
-require 'statistrano/deployment/releases'
-require 'statistrano/deployment/branches'
-require 'statistrano/deployment/rake_tasks'
 
 
 # DSL for defining deployments of static files

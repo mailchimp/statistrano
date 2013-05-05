@@ -1,6 +1,4 @@
 module Statistrano
-
-  # Utility methods
   class Util
     # Check if working tree is clean
     # @return [Boolean] true if branch is clean
@@ -37,6 +35,6 @@ module Statistrano
       adjectives = ["brown", "blue", "red", "yellow", "orange", "green", "silver", "black", "teal", "cyan", "purple", "magenta", "sandy", "tan"]
       "#{adjectives.sample}-#{nouns.sample}-#{rand(1..100)}"
     end
-  end
 
+  end
 end
