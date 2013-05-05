@@ -30,9 +30,10 @@ module Statistrano
         RakeTasks.register(self)
       end
 
-      # create a manifest after configuration is set
+      # define certain things that an action
+      # depends on
       # @return [Void]
-      def after_configuration
+      def prepare_for_action
         super
         @manifest = Manifest.new( @config )
       end

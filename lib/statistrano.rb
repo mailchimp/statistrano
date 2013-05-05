@@ -9,14 +9,10 @@ require 'slugity/extend_string'
 # utility modules
 require 'statistrano/git'
 require 'statistrano/log'
+require 'statistrano/ssh'
 
 # deployment modules
-require 'statistrano/deployment/ssh'
 require 'statistrano/deployment'
-require 'statistrano/deployment/manifest'
-require 'statistrano/deployment/releases'
-require 'statistrano/deployment/branches'
-require 'statistrano/deployment/rake_tasks'
 
 
 # DSL for defining deployments of static files
@@ -42,7 +38,6 @@ module Statistrano
     end
 
     yield(@deployment.config) if block_given?
-    @deployment.after_configuration
     return @deployment
 
   end
