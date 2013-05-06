@@ -93,12 +93,16 @@ module Statistrano
         # @return [Void]
         def rsync_to_remote remote_path
           LOG.msg "Syncing files to remote"
-          if system "rsync -aqz --delete-after -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
+          if system "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
             LOG.success "Files synced to remote"
           else
             LOG.error "Error syncing files to remote"
             abort
           end
+        end
+
+        def rsync_options
+          "-aqz --delete-after"
         end
 
         # gives the host connection for ssh based on config settings
