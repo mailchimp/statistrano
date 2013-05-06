@@ -1,3 +1,6 @@
+# 0.2.2
+- move setup to a `prepare_for_action` method, defer connection until needed
+
 # 0.2.1
 - regenerate index after pruning releases
 
