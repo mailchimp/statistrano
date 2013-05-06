@@ -132,6 +132,14 @@ module Statistrano
           LOG.msg "Created release at #{public_path}"
         end
 
+        # create the release dir on the remote by copying the current release
+        # @param release_path [String] path of release on remote
+        # @return [Void]
+        def setup_release_path release_path
+          LOG.msg "Setting up the remote"
+          @ssh.run_command "cp -a #{release_path(get_releases[0])} #{release_path}"
+        end
+
         # remove a release
         # @param name [String]
         # @return [Void]
