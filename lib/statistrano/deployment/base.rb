@@ -92,7 +92,6 @@ module Statistrano
         # @param remote_path [String] path to sync to on remote
         # @return [Void]
         def rsync_to_remote remote_path
-          host_connection = @config.user ? "#{@config.user}@#{@config.remote}" : @config.remote
           LOG.msg "Syncing files to remote"
           if system "rsync -avqz -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
             LOG.success "Files synced to remote"
@@ -100,6 +99,12 @@ module Statistrano
             LOG.error "Error syncing files to remote"
             abort
           end
+        end
+
+        # gives the host connection for ssh based on config settings
+        # @return [String]
+        def host_connection
+          @config.user ? "#{@config.user}@#{@config.remote}" : @config.remote
         end
 
         # Check if things are safe to deploy
