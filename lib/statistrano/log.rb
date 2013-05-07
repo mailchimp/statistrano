@@ -28,6 +28,7 @@ module Statistrano
     # @param [String] text
     def error text, status="error", color=:red
       shell_say text, status, color
+      abort()
     end
 
     private
