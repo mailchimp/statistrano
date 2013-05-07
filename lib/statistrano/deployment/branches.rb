@@ -85,7 +85,7 @@ module Statistrano
         index_path = File.join( index_dir, "index.html" )
 
         rs = ""
-        @manifest.releases.each do |r|
+        @manifest.releases.sort_by { |r| r.time }.reverse.each do |r|
           rs << "<li>"
           rs << "<a href=\"http://#{r.name}.#{@config.base_domain}\">#{r.name}</a>"
           rs << "<small>updated: #{Time.at(r.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"
