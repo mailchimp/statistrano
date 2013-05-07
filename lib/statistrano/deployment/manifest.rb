@@ -9,7 +9,7 @@ module Statistrano
         @config = config
         @ssh = SSH.new( @config )
         @path = @config.remote_dir
-        @releases = get
+        @releases = get.sort_by { |r| r.time }.reverse
       end
 
       # array of release names
