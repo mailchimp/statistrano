@@ -26,7 +26,7 @@ module Statistrano
 
         def tasks
           {
-            :deploy => :deploy
+            :deploy => { method: :deploy, desc: "Deploy to remote" }
           }
         end
       end

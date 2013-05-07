@@ -14,9 +14,9 @@ module Statistrano
 
         def tasks
           super.merge({
-            :list => :list_releases,
-            :prune => :prune_releases,
-            :generate_index => :generate_index
+            :list => { method: :list_releases, desc: "List branches" },
+            :prune => { method: :prune_releases, desc: "Prune an branch" },
+            :generate_index => { method: :generate_index, desc: "Generate branches index" }
           })
         end
       end
@@ -85,7 +85,7 @@ module Statistrano
         index_path = File.join( index_dir, "index.html" )
 
         rs = ""
-        @manifest.releases.each do |r|
+        @manifest.releases.sort_by { |r| r.time }.reverse.each do |r|
           rs << "<li>"
           rs << "<a href=\"http://#{r.name}.#{@config.base_domain}\">#{r.name}</a>"
           rs << "<small>updated: #{Time.at(r.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"

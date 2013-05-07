@@ -14,9 +14,9 @@ module Statistrano
 
         def tasks
           super.merge({
-            :rollback => :rollback_release,
-            :prune => :prune_releases,
-            :list => :list_releases
+            :rollback => { method: :rollback_release, desc: "Rollback to last release" },
+            :prune => { method: :prune_releases, desc: "Prune releases to release count" },
+            :list => { method: :list_releases, desc: "List releases" }
           })
         end
       end
