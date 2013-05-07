@@ -13,10 +13,11 @@ module Statistrano
 
             namespace deployment.name.to_sym do
 
-              deployment.config.tasks.each do |task_name,method_name|
+              deployment.config.tasks.each do |task_name,task_attrs|
+                desc task_attrs[:desc]
                 task task_name do
                   deployment.prepare_for_action
-                  deployment.send(method_name)
+                  deployment.send(task_attrs[:method])
                 end
               end
 

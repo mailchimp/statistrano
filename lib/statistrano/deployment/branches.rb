@@ -14,9 +14,9 @@ module Statistrano
 
         def tasks
           super.merge({
-            :list => :list_releases,
-            :prune => :prune_releases,
-            :generate_index => :generate_index
+            :list => { method: :list_releases, desc: "List branches" },
+            :prune => { method: :prune_releases, desc: "Prune an branch" },
+            :generate_index => { method: :generate_index, desc: "Generate branches index" }
           })
         end
       end
