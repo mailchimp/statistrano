@@ -18,6 +18,7 @@ module Statistrano
                 task task_name do
                   deployment.prepare_for_action
                   deployment.send(task_attrs[:method])
+                  deployment.done_with_action
                 end
               end
 
