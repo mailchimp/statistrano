@@ -1,3 +1,6 @@
+# 0.4.0
+- now abort on errors
+
 # 0.3.1
 - add rake task descriptions
 - add times for rsync task
