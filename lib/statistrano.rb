@@ -5,6 +5,7 @@ require 'json'
 require 'fileutils'
 require 'rake'
 require 'slugity/extend_string'
+require 'benchmark'
 
 # utility modules
 require 'statistrano/git'
