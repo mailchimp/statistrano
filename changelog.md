@@ -1,3 +1,7 @@
+# 0.3.1
+- add rake task descriptions
+- add times for rsync task
+
 # 0.3.0
 - change rsync behavior, adds delete-after
 - clone previous release first if it exits for release type deployments
