@@ -50,8 +50,7 @@ module Statistrano
       def deploy
 
         unless safe_to_deploy?
-          LOG.warn "exiting due to git check failing"
-          abort
+          LOG.error "exiting due to git check failing"
         end
 
         LOG.msg "starting deployment to #{name}", "deploying"
@@ -101,7 +100,6 @@ module Statistrano
               success = true
             else
               LOG.error "Error syncing files to remote"
-              abort
             end
           end
 
@@ -132,19 +130,19 @@ module Statistrano
 
           # are there any uncommited changes?
           if !Git.working_tree_clean?
-            LOG.error "You need to commit or stash your changes before deploying"
+            LOG.warn "You need to commit or stash your changes before deploying"
             return false
           end
 
           # make sure you're on the branch selected to check against
           if Git.current_branch != @config.git_branch
-            LOG.error "You shouldn't deploy from any branch but #{@config.git_branch}"
+            LOG.warn "You shouldn't deploy from any branch but #{@config.git_branch}"
             return false
           end
 
           # make sure you're up to date
           if !Git.remote_up_to_date?
-            LOG.error "You need to update or push your changes before deploying"
+            LOG.warn "You need to update or push your changes before deploying"
             return false
           end
 
