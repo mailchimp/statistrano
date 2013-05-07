@@ -1,3 +1,7 @@
+# 0.3.0
+- change rsync behavior, adds delete-after
+- clone previous release first if it exits for release type deployments
+
 # 0.2.2
 - move setup to a `prepare_for_action` method, defer connection until needed
 
