@@ -35,7 +35,7 @@ module Statistrano
       # @return [Void]
       def prepare_for_action
         super
-        @manifest = Manifest.new( @config )
+        @manifest = Manifest.new( @config, @ssh )
       end
 
       # output a list of the releases in manifest
