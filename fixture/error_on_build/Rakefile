@@ -13,11 +13,7 @@ end
 
 namespace :remote do
   task :copy do
-    begin
-      raise BuildError
-    rescue
-      puts "error during the build"
-    end
+    raise "error during the build"
   end
 end
 
