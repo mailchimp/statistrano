@@ -176,6 +176,9 @@ module Statistrano
         # return [Void]
         def invoke_build_task
           Rake::Task[@config.build_task].invoke
+        rescue Exception => e
+          LOG.error "exiting due to error in build task" +
+            "\n\t  msg  #{e.class}: #{e}"
         end
 
     end

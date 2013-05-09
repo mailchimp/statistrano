@@ -1,3 +1,5 @@
+- add exception handling to `invoke_build_task`, exit and log on an exception
+
 # 0.4.1
 - expose less of the statistrano namespace to help with conflicts of common names (like Log)
 
