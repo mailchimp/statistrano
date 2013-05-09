@@ -1,0 +1,26 @@
+# Add ./lib to the load path
+$LOAD_PATH << File.expand_path( '../../lib' )
+
+# require_relative '../../lib/statistrano'
+require 'statistrano'
+
+define_deployment "remote" do |c|
+  c.build_task = 'remote:copy'
+  c.remote = 'digitalocean'
+  c.local_dir = "build"
+  c.remote_dir = '/var/www/testing.statistrano/errors_on_build'
+end
+
+namespace :remote do
+  task :copy do
+    begin
+      raise BuildError
+    rescue
+      puts "error during the build"
+    end
+  end
+end
+
+task :default do
+  p "hello default"
+end
