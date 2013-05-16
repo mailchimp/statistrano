@@ -1,3 +1,5 @@
+# 0.5.0
+- only create a single ssh connection for the deploy task (after_deploy creates a second)
 - add exception handling to `invoke_build_task`, exit and log on an exception
 
 # 0.4.1
