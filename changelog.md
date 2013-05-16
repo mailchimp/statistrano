@@ -1,3 +1,4 @@
+# 0.5.1
 - add environment variable DEPLOYMENT_ENVIRONMENT set to the name of the deployment
 
 # 0.5.0
