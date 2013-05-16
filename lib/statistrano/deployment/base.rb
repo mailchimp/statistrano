@@ -45,6 +45,10 @@ module Statistrano
         setup
       end
 
+      def done_with_action
+        @ssh.close_session
+      end
+
       # Standard deployment flow
       # @return [Void]
       def deploy
