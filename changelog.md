@@ -1,3 +1,6 @@
+# 0.4.1
+- expose less of the statistrano namespace to help with conflicts of common names (like Log)
+
 # 0.4.0
 - now abort on errors
 
