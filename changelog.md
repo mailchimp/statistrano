@@ -1,3 +1,6 @@
+# 0.5.2
+- loosen dependency on slugity
+
 # 0.5.1
 - add environment variable DEPLOYMENT_ENVIRONMENT set to the name of the deployment
 
