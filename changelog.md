@@ -1,3 +1,6 @@
+# 0.5.3
+- loosen all the dependencies
+
 # 0.5.2
 - loosen dependency on slugity
 
