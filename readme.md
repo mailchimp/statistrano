@@ -42,6 +42,22 @@ end
 `rake basic:deploy`  
 deploys the local_dir to the remote_dir
 
+**Environment**
+
+The deployment environment is available to tasks called by Statistrano under the env variable `DEPLOYMENT_ENVIRONMENT`.
+
+```ruby
+# ruby
+ENV["DEPLOYMENT_ENVIRONMENT"]
+# => "basic"
+```
+
+```bash
+# bash
+echo $DEPLOYMENT_ENVIRONMENT
+# => basic
+```
+
 
 ### Releases deployment
 Out of the box Statistrano allows you to pick from a release based deployment, or branch based. Releases act as a series of snapshots of your project with the most recent linked to the `public_dir`. You can quickly rollback in case of errors.

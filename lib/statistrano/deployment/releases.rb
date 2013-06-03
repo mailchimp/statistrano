@@ -37,7 +37,7 @@ module Statistrano
       # @return [Void]
       def prepare_for_action
         super
-        @manifest = Manifest.new( @config )
+        @manifest = Manifest.new( @config, @ssh )
       end
 
       # prune releases after the deploy has run

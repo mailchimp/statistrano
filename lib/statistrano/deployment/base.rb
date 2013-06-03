@@ -41,8 +41,13 @@ module Statistrano
       end
 
       def prepare_for_action
+        ENV["DEPLOYMENT_ENVIRONMENT"] = @name
         @ssh = ::Statistrano::SSH.new( @config )
         setup
+      end
+
+      def done_with_action
+        @ssh.close_session
       end
 
       # Standard deployment flow

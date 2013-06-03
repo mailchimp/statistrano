@@ -5,9 +5,9 @@ module Statistrano
 
       attr_reader :releases
 
-      def initialize config
+      def initialize config, ssh_session
         @config = config
-        @ssh = SSH.new( @config )
+        @ssh = ssh_session
         @path = @config.remote_dir
         @releases = get.sort_by { |r| r.time }.reverse
       end

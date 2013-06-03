@@ -40,8 +40,8 @@ module Statistrano::DSL
     end
 
     yield(@deployment.config) if block_given?
-    return @deployment
 
+    return @deployment
   end
 
 end

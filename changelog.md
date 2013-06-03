@@ -1,5 +1,17 @@
 - add a spec for the git module
 - use a more solid method to call system methods
+
+# 0.5.3
+- loosen all the dependencies
+
+# 0.5.2
+- loosen dependency on slugity
+
+# 0.5.1
+- add environment variable DEPLOYMENT_ENVIRONMENT set to the name of the deployment
+
+# 0.5.0
+- only create a single ssh connection for the deploy task (after_deploy creates a second)
 - add exception handling to `invoke_build_task`, exit and log on an exception
 
 # 0.4.1

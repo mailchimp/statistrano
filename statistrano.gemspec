@@ -17,11 +17,11 @@ Gem::Specification.new do |s|
   s.require_path  = "lib"
 
   # Utility
-  s.add_dependency("rake", ["~> 10.0.3"])
-  s.add_dependency("colorize", ["~> 0.5.8"])
-  s.add_dependency("slugity", ["~> 0.2.1"])
+  s.add_dependency("rake", ["~> 10.0"])
+  s.add_dependency("colorize", ["~> 0.5"])
+  s.add_dependency("slugity")
 
   # Networking
-  s.add_dependency("net-ssh", ["~> 2.6.5"])
+  s.add_dependency("net-ssh", ["~> 2.6"])
 
 end
