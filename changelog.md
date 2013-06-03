@@ -1,3 +1,5 @@
+- add a spec for the git module
+- use a more solid method to call system methods
 - add exception handling to `invoke_build_task`, exit and log on an exception
 
 # 0.4.1
