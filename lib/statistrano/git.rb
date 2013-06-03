@@ -15,7 +15,7 @@ module Statistrano
       # @return [String] the current checked out branch
       def current_branch
         Shell.run "git symbolic-ref HEAD" do |output|
-          return output.strip.gsub(/^refs\/head\//, '')
+          return output.strip.gsub(/^refs\/heads\//, '')
         end
       end
 
