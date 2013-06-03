@@ -95,7 +95,7 @@ module Statistrano
 
           LOG.msg "Syncing files to remote"
           time = Benchmark.realtime do
-            if system "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
+            if Shell.run "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
               LOG.success "Files synced to remote"
               success = true
             else
@@ -103,9 +103,7 @@ module Statistrano
             end
           end
 
-          if success
-            LOG.msg "Synced in #{time} seconds"
-          end
+          LOG.msg "Synced in #{time} seconds"
         end
 
         def rsync_options
