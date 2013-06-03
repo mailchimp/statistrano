@@ -6,29 +6,33 @@ module Statistrano
       # Check if working tree is clean
       # @return [Boolean] true if branch is clean
       def working_tree_clean?
-        if /nothing to commit/.match(`git status 2> /dev/null`)
-          return true
-        else
-          return false
+        Shell.run "git status" do |output|
+          return output.include? "nothing to commit"
         end
       end
 
       # Get current git branch based on exec directory
       # @return [String] the current checked out branch
       def current_branch
-        `git symbolic-ref HEAD 2> /dev/null`.strip.gsub(/^refs\/heads\//, '')
+        Shell.run "git symbolic-ref HEAD" do |output|
+          return output.strip.gsub(/^refs\/head\//, '')
+        end
       end
 
       # Get current git commit based on exec directory
       # @return [String] the current commit level
       def current_commit
-        `git rev-parse HEAD 2> /dev/null`.strip
+        Shell.run "git rev-parse HEAD" do |output|
+          return output.strip
+        end
       end
 
       # Check if branch is in sync with remote
       # @return [Boolean]
       def remote_up_to_date?
-        `git push -n 2>&1` == "Everything up-to-date\n"
+        Shell.run "git push --dry-run" do |output|
+          return output.include? "Everything up-to-date"
+        end
       end
 
     end
