@@ -2,4 +2,6 @@
 Gemfile.lock
 .yardoc
 .rvmrc
+.ruby-version
+.ruby-gemset
 *.gem
