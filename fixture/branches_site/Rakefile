@@ -1,7 +1,6 @@
 # Add ./lib to the load path
 $LOAD_PATH << File.expand_path( '../../lib' )
 
-# require_relative '../../lib/statistrano'
 require 'statistrano'
 
 define_deployment "remote", :branches do |c|
@@ -9,6 +8,13 @@ define_deployment "remote", :branches do |c|
   c.remote = 'digitalocean'
   c.local_dir = "build"
   c.remote_dir = '/var/www/testing.statistrano/branches_site'
+end
+
+define_deployment "local", :branches do |c|
+	c.build_task = 'remote:copy'
+	c.remote = 'localhost'
+	c.local_dir = 'build'
+	c.remote_dir = File.join( Dir.pwd, 'deployment' )
 end
 
 namespace :remote do

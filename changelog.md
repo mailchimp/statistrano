@@ -1,3 +1,6 @@
+- add a spec for the git module
+- use a more solid method to call system methods
+
 # 0.5.3
 - loosen all the dependencies
 

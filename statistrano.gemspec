@@ -24,7 +24,4 @@ Gem::Specification.new do |s|
   # Networking
   s.add_dependency("net-ssh", ["~> 2.6"])
 
-  # CLI
-  s.add_dependency("thor", ["~> 0.15"])
-
 end

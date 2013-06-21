@@ -8,6 +8,7 @@ require 'slugity/extend_string'
 require 'benchmark'
 
 # utility modules
+require 'statistrano/shell'
 require 'statistrano/git'
 require 'statistrano/log'
 require 'statistrano/ssh'

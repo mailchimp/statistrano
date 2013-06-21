@@ -124,6 +124,30 @@ manually kicks of index generation, good to run after pruning
 Testing
 =======
 
+The fixtures run tests through `localhost`, this requires that you are setup for ssh through localhost. 
+
+
+### Setup
+
+On Mac OS X 10.8, you should enable remote login.
+
+```
+System Preferences -> Sharing -> Turn on Remote Login
+```
+
+And setup your `.ssh/config`
+
+```
+Host localhost
+  HostName localhost
+  User {{your_username}}
+```
+
+Depending on how you've setup your `.bashrc` is setup, you may need to move any PATH manipulation to the front of the file to prevent commands from failing.
+
+
+
+
 Contributing
 ============
 
