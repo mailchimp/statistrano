@@ -1,11 +1,13 @@
 require 'spec_helper'
-require 'fileutils'
 
 describe "deployment with Base" do
 
+  before(:each) do
+    pick_fixture "base_site"
+  end
+
   after(:each) do
-    # cleanup the deployment
-    FileUtils.rm_rf File.join( Dir.getwd, "deployment" )
+    cleanup_fixture
   end
 
   it "deploys the contents of source to the 'deploy' folder" do

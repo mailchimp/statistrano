@@ -1,9 +1,16 @@
 require 'rspec'
 require 'pry-debugger'
 require 'statistrano'
+require 'fileutils'
 
+
+ROOT = Dir.pwd
 
 def pick_fixture name
-  root = Dir.pwd
-  Dir.chdir( File.join( root, "fixture", name ) )
+  Dir.chdir( File.join( ROOT, "fixture", name ) )
+end
+
+def cleanup_fixture
+  FileUtils.rm_rf File.join( Dir.getwd, "deployment" )
+  Dir.chdir( ROOT )
 end
