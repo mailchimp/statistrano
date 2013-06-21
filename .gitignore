@@ -4,3 +4,6 @@ Gemfile.lock
 .rvmrc
 *.gem
 fixture/**/deployment
+.ruby-version
+.ruby-gemset
+*.gem
