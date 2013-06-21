@@ -3,11 +3,6 @@ require 'fileutils'
 
 describe "deployment with Base" do
 
-  def pick_fixture name
-    root = Dir.pwd
-    Dir.chdir( File.join( root, "fixture", name ) )
-  end
-
   after(:each) do
     # cleanup the deployment
     FileUtils.rm_rf File.join( Dir.getwd, "deployment" )
