@@ -43,7 +43,6 @@ module Statistrano
       def prepare_for_action
         ENV["DEPLOYMENT_ENVIRONMENT"] = @name
         @ssh = ::Statistrano::SSH.new( @config )
-        setup
       end
 
       def done_with_action
@@ -61,6 +60,7 @@ module Statistrano
         LOG.msg "starting deployment to #{name}", "deploying"
 
         invoke_build_task
+        setup
         create_release
         clean_up
         invoke_post_deploy_task
