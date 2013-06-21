@@ -11,7 +11,7 @@ module Statistrano
 
         if status.success?
           yield stdout if block_given?
-          true
+          [ true, stdout ]
         else
           STDERR.puts "Problem running #{command}"
           false
