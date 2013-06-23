@@ -23,13 +23,32 @@ describe "Releases deployment integration test" do
     end
   end
 
+  let :deployment do
+    define_deployment "local", :releases do |c|
+      c.build_task = 'remote:copy'
+      c.remote = 'localhost'
+      c.local_dir = 'build'
+      c.remote_dir = File.join( Dir.pwd, 'deployment' )
+    end
+  end
+
   after(:each) do
-    # cleanup_fixture
+    cleanup_fixture
   end
 
   describe ":deploy" do
-    it "does stuff" do
+    it "generates releases with the correct timestamp" do
+      time = Time.at(1372020000)
+      Timecop.freeze(time)
       Rake::Task["local:deploy"].invoke
+
+      time = Time.at(1372030000)
+      Timecop.travel(time)
+      Rake::Task["local:deploy"].reenable
+      Rake::Task["remote:copy"].reenable
+      Rake::Task["local:deploy"].invoke
+
+      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
     end
   end
 

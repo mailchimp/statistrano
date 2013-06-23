@@ -2,6 +2,7 @@ require 'rspec'
 require 'pry-debugger'
 require 'statistrano'
 require 'fileutils'
+require 'timecop'
 
 
 ROOT = Dir.pwd
