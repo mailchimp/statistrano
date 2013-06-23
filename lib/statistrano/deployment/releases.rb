@@ -31,15 +31,6 @@ module Statistrano
         RakeTasks.register(self)
       end
 
-
-      # define certain things that an action
-      # depends on
-      # @return [Void]
-      def prepare_for_action
-        super
-        @manifest = Manifest.new( @config, @ssh )
-      end
-
       # prune releases after the deploy has run
       # @return [Void]
       def deploy
@@ -101,6 +92,11 @@ module Statistrano
       end
 
       private
+
+        def setup
+          super
+          @manifest = Manifest.new( @config, @ssh )
+        end
 
         # Return array of releases from manifest
         # @return [Array]
