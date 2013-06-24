@@ -124,7 +124,7 @@ manually kicks of index generation, good to run after pruning
 Testing
 =======
 
-The fixtures run tests through `localhost`, this requires that you are setup for ssh through localhost. 
+The fixtures run tests through `localhost`, this requires that you are setup for ssh through localhost.
 
 
 ### Setup
@@ -142,6 +142,8 @@ Host localhost
   HostName localhost
   User {{your_username}}
 ```
+
+Then add your pub key to `.ssh/authorized_keys`.
 
 Depending on how you've setup your `.bashrc` is setup, you may need to move any PATH manipulation to the front of the file to prevent commands from failing.
 
