@@ -7,7 +7,6 @@ module Statistrano
 
       def run command, &block
         stdout, stderr, status = Open3.capture3(command)
-        $stderr.puts(stderr)
 
         if status.success?
           yield stdout if block_given?
