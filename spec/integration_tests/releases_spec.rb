@@ -51,23 +51,23 @@ describe "Releases deployment integration test" do
   end
 
   describe ":deploy" do
-    # it "generates releases with the correct timestamp" do
-    #   Rake::Task["local:deploy"].invoke
+    it "generates releases with the correct timestamp" do
+      Rake::Task["local:deploy"].invoke
 
-    #   Rake::Task["local:deploy"].reenable
-    #   Rake::Task["remote:copy"].reenable
-    #   Timecop.travel(10000)
-    #   Rake::Task["local:deploy"].invoke
+      Rake::Task["local:deploy"].reenable
+      Rake::Task["remote:copy"].reenable
+      Timecop.travel(10000)
+      Rake::Task["local:deploy"].invoke
 
-    #   Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
-    # end
+      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
+    end
 
-    # it "symlinks the pub_dir to the most recent release" do
-    #   Rake::Task["local:deploy"].invoke
+    it "symlinks the pub_dir to the most recent release" do
+      Rake::Task["local:deploy"].invoke
 
-    #   status, stdout = Statistrano::Shell.run("ls -l deployment")
-    #   stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372020000/
-    # end
+      status, stdout = Statistrano::Shell.run("ls -l deployment")
+      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372020000/
+    end
   end
 
   describe ":list" do
