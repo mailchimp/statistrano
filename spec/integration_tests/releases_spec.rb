@@ -10,6 +10,7 @@ end
 # for eating up stdout
 output = StringIO.open('','w')
 $stdout = output
+$stderr = output
 
 describe "Releases deployment integration test" do
 
