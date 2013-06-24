@@ -84,6 +84,7 @@ module Statistrano
       # Output a list of releases & their date
       # @return [Void]
       def list_releases
+        setup
         releases = get_releases
         releases.each_with_index do |release, idx|
           current = ( idx == 0 ) ? "current" : nil

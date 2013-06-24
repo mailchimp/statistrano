@@ -9,7 +9,7 @@ namespace :remote do
 end
 
 # for eating up stdout
-output = StringIO.open('','w')
+output = StringIO.open('','w+')
 $stdout = output
 
 describe "Releases deployment integration test" do
@@ -51,7 +51,27 @@ describe "Releases deployment integration test" do
   end
 
   describe ":deploy" do
-    it "generates releases with the correct timestamp" do
+    # it "generates releases with the correct timestamp" do
+    #   Rake::Task["local:deploy"].invoke
+
+    #   Rake::Task["local:deploy"].reenable
+    #   Rake::Task["remote:copy"].reenable
+    #   Timecop.travel(10000)
+    #   Rake::Task["local:deploy"].invoke
+
+    #   Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
+    # end
+
+    # it "symlinks the pub_dir to the most recent release" do
+    #   Rake::Task["local:deploy"].invoke
+
+    #   status, stdout = Statistrano::Shell.run("ls -l deployment")
+    #   stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372020000/
+    # end
+  end
+
+  describe ":list" do
+    it "lists the previous releases" do
       Rake::Task["local:deploy"].invoke
 
       Rake::Task["local:deploy"].reenable
@@ -59,19 +79,10 @@ describe "Releases deployment integration test" do
       Timecop.travel(10000)
       Rake::Task["local:deploy"].invoke
 
-      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
-    end
-
-    it "symlinks the pub_dir to the most recent release" do
-      Rake::Task["local:deploy"].invoke
-
-      status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372020000/
-    end
-  end
-
-  describe ":list" do
-    it "lists the previous releases" do
+      $stdout.rewind
+      Rake::Task["local:list"].invoke
+      $stdout.rewind
+      $stdout.readlines[1..2].should == ["\e[0;30;49m-> \e[0m   \e[0;34;49mcurrent\e[0m  Sun Jun 23, 2013 at  7:26 pm\n", "\e[0;30;49m-> \e[0m          \e[0;34;49m\e[0m  Sun Jun 23, 2013 at  4:40 pm\n"]
     end
   end
 
