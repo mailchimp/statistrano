@@ -13,6 +13,7 @@ module Statistrano
           [ true, stdout ]
         else
           $stderr.puts "Problem running #{command}"
+          $stderr.puts stderr
           false
         end
       rescue StandardError => e

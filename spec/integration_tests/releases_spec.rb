@@ -3,7 +3,6 @@ require 'spec_helper'
 include ::Rake::DSL
 namespace :remote do
   task :copy do
-    puts "build task running"
     `cp -r source/ build/ 2> /dev/null`
   end
 end
@@ -14,71 +13,40 @@ $stdout = output
 
 describe "Releases deployment integration test" do
 
-  def tracer
-    puts "============================"
-  end
+  describe "makes release deployments" do
 
-  before(:all) do
-    pick_fixture "releases_site"
-    define_deployment "local", :releases do |c|
-      c.build_task = 'remote:copy'
-      c.remote = 'localhost'
-      c.local_dir = 'build'
-      c.remote_dir = File.join( Dir.pwd, 'deployment' )
-    end
-  end
-
-  before(:each) do
-    pick_fixture "releases_site"
-    time = Time.at(1372020000)
-    Timecop.freeze(time)
-    Rake::Task["local:deploy"].reenable
-    Rake::Task["remote:copy"].reenable
-  end
-
-  let :deployment do
-    define_deployment "local", :releases do |c|
-      c.build_task = 'remote:copy'
-      c.remote = 'localhost'
-      c.local_dir = 'build'
-      c.remote_dir = File.join( Dir.pwd, 'deployment' )
-    end
-  end
-
-  after(:each) do
-    Timecop.return
-    cleanup_fixture
-  end
-
-  describe ":deploy" do
-    it "generates releases with the correct timestamp" do
+    before :all do
+      pick_fixture "releases_site"
+      define_deployment "local", :releases do |c|
+        c.build_task = 'remote:copy'
+        c.remote = 'localhost'
+        c.local_dir = 'build'
+        c.remote_dir = File.join( Dir.pwd, 'deployment' )
+      end
+      set_time(1372020000)
       Rake::Task["local:deploy"].invoke
 
       Rake::Task["local:deploy"].reenable
       Rake::Task["remote:copy"].reenable
-      Timecop.travel(10000)
+      set_time(1372030000)
       Rake::Task["local:deploy"].invoke
+    end
 
+    after :all do
+      cleanup_fixture
+    end
+
+
+    it "generates releases with the correct timestamp" do
       Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
     end
 
     it "symlinks the pub_dir to the most recent release" do
-      Rake::Task["local:deploy"].invoke
-
       status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372020000/
+      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
     end
-  end
 
-  describe ":list" do
-    it "lists the previous releases" do
-      Rake::Task["local:deploy"].invoke
-
-      Rake::Task["local:deploy"].reenable
-      Rake::Task["remote:copy"].reenable
-      Timecop.travel(10000)
-      Rake::Task["local:deploy"].invoke
-
+    it "returns a list of the currently deployed deployments" do
       $stdout.rewind
       Rake::Task["local:list"].invoke
       $stdout.rewind
@@ -86,16 +54,47 @@ describe "Releases deployment integration test" do
     end
   end
 
-  describe ":prune" do
-    it "doesn't remove releases under the max count" do
-    end
-    it "removes old releases outside the max count" do
-    end
-  end
+  describe "restricts to the release count and rolls back" do
 
-  describe ":rollback" do
-    it "symlinks the previous release and removes the most current" do
+    before :all do
+      pick_fixture "releases_site"
+      define_deployment "local2", :releases do |c|
+        c.build_task = 'remote:copy'
+        c.remote = 'localhost'
+        c.local_dir = 'build'
+        c.remote_dir = File.join( Dir.pwd, 'deployment' )
+        c.release_count = 2
+      end
+      set_time(1372020000)
+      Rake::Task["remote:copy"].reenable
+      Rake::Task["local2:deploy"].invoke
+
+      Rake::Task["local2:deploy"].reenable
+      Rake::Task["remote:copy"].reenable
+      set_time(1372030000)
+      Rake::Task["local2:deploy"].invoke
+
+      Rake::Task["local2:deploy"].reenable
+      Rake::Task["remote:copy"].reenable
+      set_time(1372040000)
+      Rake::Task["local2:deploy"].invoke
     end
+
+    after :all do
+      cleanup_fixture
+    end
+
+    it "removes the oldest deployment" do
+      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372030000","1372040000"]
+    end
+
+    it "rolls back to the previous release" do
+      Rake::Task["local2:rollback"].invoke
+      status, stdout = Statistrano::Shell.run("ls -l deployment")
+      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
+      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372030000"]
+    end
+
   end
 
 end
