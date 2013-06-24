@@ -7,18 +7,18 @@ module Statistrano
 
       def run command, &block
         stdout, stderr, status = Open3.capture3(command)
-        STDERR.puts(stderr)
+        $stderr.puts(stderr)
 
         if status.success?
           yield stdout if block_given?
           [ true, stdout ]
         else
-          STDERR.puts "Problem running #{command}"
+          $stderr.puts "Problem running #{command}"
           false
         end
       rescue StandardError => e
-        STDERR.puts "Problem running '#{command}'"
-        STDERR.puts "Error: #{e}"
+        $stderr.puts "Problem running '#{command}'"
+        $stderr.puts "Error: #{e}"
       end
 
     end
