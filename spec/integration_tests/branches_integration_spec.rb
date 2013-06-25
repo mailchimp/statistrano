@@ -39,4 +39,11 @@ describe "creates and manages deployments" do
     end
   end
 
+  it "removes the selected branch to prune" do
+    fake_stdin(1) do
+      Rake::Task["branches1:prune"].invoke
+      Dir[ "deployment/**" ].map { |d| d.gsub( "deployment/", "" ) }.include?("first_branch").should be_false
+    end
+  end
+
 end

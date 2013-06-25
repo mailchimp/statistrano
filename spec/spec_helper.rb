@@ -85,3 +85,24 @@ module Statistrano
     end
   end
 end
+
+
+#     Patches STDIN for a block
+# ----------------------------------------------------
+
+module Helpers
+  def fake_stdin(*args)
+    begin
+      $stdin = StringIO.new
+      $stdin.puts(args.shift) until args.empty?
+      $stdin.rewind
+      yield
+    ensure
+      $stdin = STDIN
+    end
+  end
+end
+
+RSpec.configure do |conf|
+  conf.include(Helpers)
+end

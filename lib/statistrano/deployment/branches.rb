@@ -158,7 +158,7 @@ module Statistrano
         # get input from the command line
         # @return [String]
         def get_input
-          STDIN.gets.chomp
+          $stdin.gets.chomp
         end
 
     end
