@@ -6,7 +6,7 @@ describe "creates and manages deployments" do
     pick_fixture "branches_site"
 
     Statistrano::Git.set_branch "first_branch"
-    define_deployment "branches1", :branches do |c|
+    deployment = define_deployment "branches1", :branches do |c|
       c.build_task = 'remote:copy'
       c.remote = 'localhost'
       c.local_dir = 'build'
@@ -17,15 +17,10 @@ describe "creates and manages deployments" do
     Rake::Task["branches1:deploy"].invoke
 
     Statistrano::Git.set_branch "second_branch"
-    define_deployment "branches2", :branches do |c|
-      c.build_task = 'remote:copy'
-      c.remote = 'localhost'
-      c.local_dir = 'build'
-      c.remote_dir = File.join( Dir.pwd, 'deployment' )
-    end
+    deployment.config.public_dir = Statistrano::Git.current_branch
 
     reenable_rake_tasks
-    Rake::Task["branches2:deploy"].invoke
+    Rake::Task["branches1:deploy"].invoke
   end
 
   after :all do
@@ -37,6 +32,15 @@ describe "creates and manages deployments" do
     ["first_branch", "index", "second_branch"].each do |dir|
       Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }.include?(dir).should be_true
     end
+  end
+
+  it "lists the deployed branches" do
+    $stdout.rewind
+    Rake::Task["branches1:list"].invoke
+    $stdout.rewind
+    lines = Array($stdout.readlines[1..2])
+    lines[0].include?("first_branch").should be_true
+    lines[1].include?("second_branch").should be_true
   end
 
   it "removes the selected branch to prune" do
