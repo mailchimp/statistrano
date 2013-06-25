@@ -30,7 +30,7 @@ describe "creates and manages deployments" do
 
   it "generates a release at the specified branches" do
     ["first_branch", "index", "second_branch"].each do |dir|
-      Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }.include?(dir).should be_true
+      deployment_folder_contents.include?(dir).should be_true
     end
   end
 

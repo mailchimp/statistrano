@@ -39,6 +39,14 @@ def reenable_rake_tasks
   Rake::Task.tasks.each { |t| t.reenable }
 end
 
+def release_folder_contents
+  Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }
+end
+
+def deployment_folder_contents
+  Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
+end
+
 #     Monkey Patch Time
 # ----------------------------------------------------
 
@@ -92,19 +100,13 @@ end
 #     Patches STDIN for a block
 # ----------------------------------------------------
 
-module Helpers
-  def fake_stdin(*args)
-    begin
-      $stdin = StringIO.new
-      $stdin.puts(args.shift) until args.empty?
-      $stdin.rewind
-      yield
-    ensure
-      $stdin = STDIN
-    end
+def fake_stdin(*args)
+  begin
+    $stdin = StringIO.new
+    $stdin.puts(args.shift) until args.empty?
+    $stdin.rewind
+    yield
+  ensure
+    $stdin = STDIN
   end
-end
-
-RSpec.configure do |conf|
-  conf.include(Helpers)
 end

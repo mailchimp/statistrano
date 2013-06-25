@@ -28,7 +28,7 @@ describe "Releases deployment integration test" do
 
 
     it "generates releases with the correct timestamp" do
-      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372020000","1372030000"]
+      release_folder_contents.should == ["1372020000","1372030000"]
     end
 
     it "symlinks the pub_dir to the most recent release" do
@@ -75,14 +75,14 @@ describe "Releases deployment integration test" do
     end
 
     it "removes the oldest deployment" do
-      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372030000","1372040000"]
+      release_folder_contents.should == ["1372030000","1372040000"]
     end
 
     it "rolls back to the previous release" do
       Rake::Task["releases2:rollback"].invoke
       status, stdout = Statistrano::Shell.run("ls -l deployment")
       stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
-      Dir[ "deployment/releases/**" ].map { |d| d.gsub("deployment/releases/", '' ) }.should == ["1372030000"]
+      release_folder_contents.should == ["1372030000"]
     end
 
   end
