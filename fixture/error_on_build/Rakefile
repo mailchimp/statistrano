@@ -1,16 +1,8 @@
 # Add ./lib to the load path
 $LOAD_PATH << File.expand_path( '../../lib' )
-
 require 'statistrano'
 
-define_deployment "remote" do |c|
-  c.build_task = 'remote:copy'
-  c.remote = 'digitalocean'
-  c.local_dir = "build"
-  c.remote_dir = '/var/www/testing.statistrano/errors_on_build'
-end
-
-define_deployment "local" do |c|
+define_deployment "error" do |c|
 	c.build_task = 'remote:copy'
 	c.remote = 'localhost'
 	c.local_dir = 'build'
@@ -21,8 +13,4 @@ namespace :remote do
   task :copy do
     raise "error during the build"
   end
-end
-
-task :default do
-  p "hello default"
 end
