@@ -1,8 +1,10 @@
+require 'simplecov'
+SimpleCov.start
+
 require 'rspec'
 require 'pry-debugger'
 require 'statistrano'
 require 'fileutils'
-require 'timecop'
 
 # for eating up stdout
 output = StringIO.open('','w+')

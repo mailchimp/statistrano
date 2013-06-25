@@ -7,3 +7,4 @@ fixture/**/deployment
 .ruby-version
 .ruby-gemset
 *.gem
+coverage
