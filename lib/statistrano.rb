@@ -35,7 +35,7 @@ module Statistrano::DSL
 
     begin
       @deployment = ::Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
-    rescue NameError
+    rescue NameError => e
       ::Statistrano::LOG.error "The deployment type '#{type}' is not defined"
     end
 

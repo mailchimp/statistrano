@@ -17,19 +17,21 @@ def cleanup_fixture
 end
 
 def tracer msg
-  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==============================\n"
+  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
 end
 
-class Time
-  def self.now
-    @now
+module PatchTime
+  class Time
+    def self.now
+      @now || TIME
+    end
+
+    def self.now= time
+      @now = time
+    end
   end
 
-  def self.now= time
-    @now = time
+  def set_time out
+    Time.now = Time.at(out)
   end
-end
-
-def set_time out
-  Time.now = Time.at(out)
 end

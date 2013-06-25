@@ -1,5 +1,6 @@
 require 'spec_helper'
 
+extend PatchTime
 include ::Rake::DSL
 namespace :remote do
   task :copy do
