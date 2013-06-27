@@ -1,8 +1,15 @@
 module Statistrano
   module Deployment
 
+    #
+    # Releases handles deployments where you want the option
+    # to rollback to previous deploys.
+    #
     class Releases < Base
 
+      #
+      # Config holds all deployment configuration details
+      #
       class Config < Base::Config
         attr_accessor :release_count
         attr_accessor :release_dir
@@ -23,10 +30,10 @@ module Statistrano
 
       def initialize name
         @name = name
-        @config = Config.new do |c|
-          c.release_count = 5
-          c.release_dir = "releases"
-          c.public_dir = "current"
+        @config = Config.new do |config|
+          config.release_count = 5
+          config.release_dir = "releases"
+          config.public_dir = "current"
         end
         RakeTasks.register(self)
       end
@@ -68,10 +75,10 @@ module Statistrano
           end
         end
 
-        get_actual_releases.each do |r|
+        get_actual_releases.each do |release|
 
-          unless releases.include? r
-            remove_release(r)
+          unless releases.include? release
+            remove_release(release)
           end
 
         end
@@ -110,7 +117,7 @@ module Statistrano
         def get_actual_releases
           releases = []
           @ssh.run_command("ls -m #{release_dir_path}") do |ch, stream, data|
-            releases = data.strip.split(',').map { |r| r.strip }.reverse
+            releases = data.strip.split(',').map { |release| release.strip }.reverse
           end
           return releases
         end

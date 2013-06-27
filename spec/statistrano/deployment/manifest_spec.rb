@@ -6,5 +6,4 @@ describe Statistrano::Deployment::Manifest do
     Dir["lib/statistrano/deployment/manifest.rb"].should_not reek
   end
 
-
 end

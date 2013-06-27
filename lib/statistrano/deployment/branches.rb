@@ -1,8 +1,15 @@
 module Statistrano
   module Deployment
 
+    #
+    # Branches is for deployments that depend upon the
+    # current git branch, eg. doing feature branch deployments
+    #
     class Branches < Base
 
+      #
+      # Config holds all deployment configuration details
+      #
       class Config < Base::Config
         attr_accessor :public_dir
         attr_accessor :manifest
@@ -23,9 +30,9 @@ module Statistrano
 
       def initialize name
         @name = name
-        @config = Config.new do |c|
-          c.public_dir = Git.current_branch.to_slug
-          c.post_deploy_task = "#{@name}:generate_index"
+        @config = Config.new do |config|
+          config.public_dir = Git.current_branch.to_slug
+          config.post_deploy_task = "#{@name}:generate_index"
         end
         RakeTasks.register(self)
       end
@@ -40,8 +47,8 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        @manifest.releases.each do |r|
-          LOG.msg "#{r.name} created at #{Time.at(r.time).strftime('%a %b %d, %Y at %l:%M %P')}"
+        @manifest.releases.each do |release|
+          LOG.msg "#{release.name} created at #{Time.at(release.time).strftime('%a %b %d, %Y at %l:%M %P')}"
         end
       end
 
@@ -51,18 +58,18 @@ module Statistrano
       def prune_releases
         releases = get_releases
 
-        get_actual_releases.each do |r|
-          remove_release(r) unless releases.include? r
+        get_actual_releases.each do |release|
+          remove_release(release) unless releases.include? release
         end
 
         if releases && releases.length > 0
 
-          releases.each_with_index do |r,idx|
-            LOG.msg "#{r}", "[#{idx}]", :blue
+          releases.each_with_index do |release,idx|
+            LOG.msg "#{release}", "[#{idx}]", :blue
           end
 
           print "select a release to remove: "
-          input = get_input.gsub(/[^0-9]/, '')
+          input = Shell.get_input.gsub(/[^0-9]/, '')
           release_to_remove = ( input != "" ) ? input.to_i : nil
 
           if (0..(releases.length-1)).to_a.include?(release_to_remove)
@@ -84,10 +91,10 @@ module Statistrano
         index_path = File.join( index_dir, "index.html" )
 
         rs = ""
-        @manifest.releases.each do |r|
+        @manifest.releases.each do |release|
           rs << "<li>"
-          rs << "<a href=\"http://#{r.name}.#{@config.base_domain}\">#{r.name}</a>"
-          rs << "<small>updated: #{Time.at(r.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"
+          rs << "<a href=\"http://#{release.name}.#{@config.base_domain}\">#{release.name}</a>"
+          rs << "<small>updated: #{Time.at(release.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"
           rs << "</li>"
         end
         template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
@@ -138,8 +145,8 @@ module Statistrano
           @ssh.run_command("ls -mp #{@config.remote_dir}") do |ch, stream, data|
             releases = data.strip.split(',')
           end
-          releases.keep_if { |r| /\/$/.match(r) }
-          releases.map { |r| r.strip.gsub(/(\/$)/, '') }.keep_if { |r| r != "index" }
+          releases.keep_if { |release| /\/$/.match(release) }
+          releases.map { |release| release.strip.gsub(/(\/$)/, '') }.keep_if { |release| release != "index" }
         end
 
         # path to the current release
@@ -153,12 +160,6 @@ module Statistrano
         # @return [String]
         def release_path name
           File.join( @config.remote_dir, name )
-        end
-
-        # get input from the command line
-        # @return [String]
-        def get_input
-          $stdin.gets.chomp
         end
 
     end
