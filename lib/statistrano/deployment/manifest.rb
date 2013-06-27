@@ -61,34 +61,36 @@ module Statistrano
       class Release
 
         attr_reader :name
-        attr_reader :time
-        attr_reader :commit
-        attr_reader :link
 
         # init a release
         # @param name [String] name of the release
         # @param hash [Hash] :time, :commit, & :link || :repo_url
         def initialize name, hash={}
           @name = name
-          @time = (hash[:time]) ? hash[:time] : Time.now.to_i
-          @commit = (hash[:commit]) ? hash[:commit] : Git.current_commit
-          @link = (hash[:link]) ? hash[:link] : (hash[:repo_url]) ? hash[:repo_url] + '/tree/' + @commit : nil
+          @options = hash
+        end
+
+        def time
+          @time ||= @options.fetch(:time) { Time.now.to_i }
+        end
+
+        def commit
+          @commit ||= @options.fetch(:commit) { Git.current_commit }
+        end
+
+        def link
+          @link ||= @options.fetch(:link) { (@options[:repo_url]) ? "#{@options[:repo_url]}/tree/#{commit}" : nil }
         end
 
         # convert the release to a json object
         # @return [String]
         def to_json
           hash = {
-            name: @name,
-            time: @time,
-            commit: @commit
+            name: name,
+            time: time,
+            commit: commit
           }
-
-          if @link
-            hash.merge({
-              link: @link
-            })
-          end
+          hash.merge({ link: link }) if link
 
           return hash.to_json
         end
@@ -106,9 +108,9 @@ module Statistrano
           cmd = "touch #{manifest_path} && tail -n 1000 #{manifest_path}"
           manifest = []
           @ssh.run_command(cmd) do |ch, stream, data|
-            manifest = JSON.parse(data).sort_by { |release| release["time"] }.reverse
+            manifest = JSON.parse(data)
           end
-          return manifest
+          return manifest.sort_by { |release| release["time"] }.reverse
         end
 
         def new_release_instance release
@@ -126,14 +128,7 @@ module Statistrano
         # json array of the releases
         # @return [String]
         def releases_as_json
-          output = "["
-          @releases.each_with_index do |release,idx|
-            output << release.to_json
-            unless idx == (@releases.length-1)
-              output << ','
-            end
-          end
-          output << "]"
+          "[" << @releases.map { |release| release.to_json }.join(",") << "]"
         end
     end
 
