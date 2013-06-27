@@ -1,6 +1,10 @@
 module Statistrano
   module Deployment
 
+    #
+    # Manifest keeps track of the state of releases for a deployment
+    # and handles updating the manifest file on the remote
+    #
     class Manifest
 
       attr_reader :releases
