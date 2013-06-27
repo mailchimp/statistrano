@@ -110,3 +110,43 @@ def fake_stdin(*args)
     $stdin = STDIN
   end
 end
+
+
+#     Patches STDOUT for Shell.run
+# ----------------------------------------------------
+
+def fake_stdout out
+  begin
+    Statistrano::Shell.set_stdout out
+    yield
+  ensure
+    Statistrano::Shell.unset_stdout
+  end
+end
+
+
+module Statistrano
+  module Shell
+    class << self
+      def patched_run command, &block
+        if @shell_out
+          yield @shell_out if block_given?
+          [ true, @shell_out ]
+        else
+          system_run command, &block
+        end
+      end
+
+      def set_stdout out
+        @shell_out = out
+      end
+
+      def unset_stdout
+        @shell_out = nil
+      end
+
+      alias_method :system_run, :run
+      alias_method :run, :patched_run
+    end
+  end
+end
