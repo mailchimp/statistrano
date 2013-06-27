@@ -13,28 +13,28 @@ module Statistrano
         @config = config
         @ssh = ssh_session
         @path = @config.remote_dir
-        @releases = get.sort_by { |r| r.time }.reverse
+        @releases = get.sort_by { |release| release.time }.reverse
       end
 
       # array of release names
       # @return [Array]
       def list
-        get.map do |r|
-          r.name
+        get.map do |release|
+          release.name
         end
       end
 
       # add a release to the manifest
       # @param release [Release]
       # @return [Void]
-      def add_release release
+      def add_release new_release
 
         # remove releases with the same name
-        @releases.keep_if do |r|
-          r.name != release.name
+        @releases.keep_if do |existing_release|
+          existing_release.name != new_release.name
         end
 
-        @releases << release
+        @releases << new_release
         update
       end
 
@@ -42,8 +42,8 @@ module Statistrano
       # @param name [String]
       # @return [Void]
       def remove_release name
-        @releases.keep_if do |r|
-          r.name != name
+        @releases.keep_if do |existing_release|
+          existing_release.name != name
         end
         update
       end
@@ -99,24 +99,24 @@ module Statistrano
           cmd = "touch #{manifest_path} && tail -n 1000 #{manifest_path}"
           manifest = []
           @ssh.run_command(cmd) do |ch, stream, data|
-            manifest = JSON.parse(data).sort_by { |r| r["time"] }.reverse
+            manifest = JSON.parse(data).sort_by { |release| release["time"] }.reverse
           end
           releases = []
           if manifest.length > 0
-            manifest.each do |r|
+            manifest.each do |release|
 
               options = {
-                time: r["time"],
-                commit: r["commit"]
+                time: release["time"],
+                commit: release["commit"]
               }
 
-              if r["link"]
-                options.merge({ link: r["link"] })
+              if release["link"]
+                options.merge({ link: release["link"] })
               elsif @config.repo_url
                 options.merge({ repo_url: @config.repo_url })
               end
 
-              releases << Release.new( r["name"], options )
+              releases << Release.new( release["name"], options )
             end
           end
           return releases
@@ -132,8 +132,8 @@ module Statistrano
         # @return [String]
         def releases_as_json
           output = "["
-          @releases.each_with_index do |r,idx|
-            output << r.to_json
+          @releases.each_with_index do |release,idx|
+            output << release.to_json
             unless idx == (@releases.length-1)
               output << ','
             end
