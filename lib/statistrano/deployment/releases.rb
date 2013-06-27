@@ -31,15 +31,6 @@ module Statistrano
         RakeTasks.register(self)
       end
 
-
-      # define certain things that an action
-      # depends on
-      # @return [Void]
-      def prepare_for_action
-        super
-        @manifest = Manifest.new( @config, @ssh )
-      end
-
       # prune releases after the deploy has run
       # @return [Void]
       def deploy
@@ -102,9 +93,15 @@ module Statistrano
 
       private
 
+        def setup
+          super
+          @manifest = Manifest.new( @config, @ssh )
+        end
+
         # Return array of releases from manifest
         # @return [Array]
         def get_releases
+          setup
           @manifest.list
         end
 
@@ -138,8 +135,8 @@ module Statistrano
         def setup_release_path release_path
           previous_release = get_releases[0] # the current release is the previous in this case
 
-          if previous_release
-            LOG.msg "Setting up the remote"
+          if previous_release && previous_release != release_name
+            LOG.msg "Setting up the remote by copying previous release"
             @ssh.run_command "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super

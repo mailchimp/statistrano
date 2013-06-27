@@ -43,7 +43,6 @@ module Statistrano
       def prepare_for_action
         ENV["DEPLOYMENT_ENVIRONMENT"] = @name
         @ssh = ::Statistrano::SSH.new( @config )
-        setup
       end
 
       def done_with_action
@@ -61,6 +60,7 @@ module Statistrano
         LOG.msg "starting deployment to #{name}", "deploying"
 
         invoke_build_task
+        setup
         create_release
         clean_up
         invoke_post_deploy_task
@@ -100,7 +100,7 @@ module Statistrano
 
           LOG.msg "Syncing files to remote"
           time = Benchmark.realtime do
-            if system "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
+            if Shell.run "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
               LOG.success "Files synced to remote"
               success = true
             else
@@ -108,9 +108,7 @@ module Statistrano
             end
           end
 
-          if success
-            LOG.msg "Synced in #{time} seconds"
-          end
+          LOG.msg "Synced in #{time} seconds"
         end
 
         def rsync_options

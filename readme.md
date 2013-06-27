@@ -121,8 +121,36 @@ shows list of currently deployed branches to pick from and remove
 `rake branches:generate_index`  
 manually kicks of index generation, good to run after pruning
 
+
 Testing
 =======
+
+Integraton tests run through `localhost`, this requires that you setup ssh through localhost to run the tests. Look at [setup](#setup) for help with that.
+
+Tests are written in rspec, and can be run with `rspec`. To run an individual test, run `rspec path/to/spec.rb`.
+
+
+### Setup
+
+On Mac OS X 10.8, you should enable remote login.
+
+```
+System Preferences -> Sharing -> Turn on Remote Login
+```
+
+And setup your `.ssh/config`
+
+```
+Host localhost
+  HostName localhost
+  User {{your_username}}
+```
+
+Then add your pub key to `.ssh/authorized_keys`.
+
+Depending on how you've setup your `.bashrc` is setup, you may need to move any PATH manipulation to the front of the file to prevent commands from failing.
+
+
 
 Contributing
 ============
@@ -134,6 +162,7 @@ If there is any thing you'd like to contribute or fix, please:
 - Make your changes
 - Verify all existing tests work properly
 - Make a pull request
+
 
 License
 =======

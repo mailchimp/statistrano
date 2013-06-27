@@ -35,7 +35,6 @@ module Statistrano
       # @return [Void]
       def prepare_for_action
         super
-        @manifest = Manifest.new( @config, @ssh )
       end
 
       # output a list of the releases in manifest
@@ -101,6 +100,11 @@ module Statistrano
 
       private
 
+        def setup
+          super
+          @manifest = Manifest.new( @config, @ssh )
+        end
+
         # send code to remote server
         # @return [Void]
         def create_release
@@ -154,7 +158,7 @@ module Statistrano
         # get input from the command line
         # @return [String]
         def get_input
-          STDIN.gets.chomp
+          $stdin.gets.chomp
         end
 
     end

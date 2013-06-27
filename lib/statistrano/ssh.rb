@@ -38,7 +38,8 @@ module Statistrano
       rescue Exception => e
         close_session
         LOG.error "Error when attempting to connect to '#{@config.remote}'" +
-                  "\n\t  msg  #{e.class}: #{e}"
+                  "\n\t  msg  #{e.class}: #{e}" +
+                  "\n    backtrace\n#{e.backtrace.join("\n")}"
       end
     end
 
