@@ -6,6 +6,12 @@ require 'pry-debugger'
 require 'statistrano'
 require 'fileutils'
 
+require 'reek'
+require 'reek/spec'
+RSpec.configure do |c|
+  c.include(Reek::Spec)
+end
+
 # for eating up stdout
 output = StringIO.open('','w+')
 $stdout = output
