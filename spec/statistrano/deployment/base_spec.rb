@@ -22,4 +22,8 @@ describe Statistrano::Deployment::Base do
 
   end
 
+  it "should not reek" do
+    Dir["lib/statistrano/deployment/base.rb"].should_not reek
+  end
+
 end

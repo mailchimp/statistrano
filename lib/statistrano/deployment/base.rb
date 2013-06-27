@@ -96,13 +96,11 @@ module Statistrano
         # @param remote_path [String] path to sync to on remote
         # @return [Void]
         def rsync_to_remote remote_path
-          success = false
-
           LOG.msg "Syncing files to remote"
+
           time = Benchmark.realtime do
             if Shell.run "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
               LOG.success "Files synced to remote"
-              success = true
             else
               LOG.error "Error syncing files to remote"
             end
