@@ -1,5 +1,8 @@
+# 0.6.0
+- move a few setup methods
+- add integration specs for the deployment modules
 - add a spec for the git module
-- use a more solid method to call system methods
+- rewrite Shell.run to use Open3 and improve output
 
 # 0.5.3
 - loosen all the dependencies
