@@ -11,6 +11,7 @@ describe "creates and manages deployments" do
       c.remote = 'localhost'
       c.local_dir = 'build'
       c.remote_dir = File.join( Dir.pwd, 'deployment' )
+      c.base_domain = "example.com"
     end
 
     reenable_rake_tasks
@@ -20,7 +21,9 @@ describe "creates and manages deployments" do
     deployment.config.public_dir = Statistrano::Git.current_branch
 
     reenable_rake_tasks
+    set_time(1372020000)
     Rake::Task["branches1:deploy"].invoke
+    Time.thaw
   end
 
   after :all do
@@ -48,6 +51,10 @@ describe "creates and manages deployments" do
       Rake::Task["branches1:prune"].invoke
       Dir[ "deployment/**" ].map { |d| d.gsub( "deployment/", "" ) }.include?("first_branch").should be_false
     end
+  end
+
+  it "generates an index page" do
+    IO.read("deployment/index/index.html").should =~ /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
   end
 
 end
