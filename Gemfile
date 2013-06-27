@@ -14,4 +14,5 @@ group :test do
   gem 'rspec'
   gem 'autotest'
   gem 'simplecov', :require => false
+  gem 'reek'
 end
