@@ -55,6 +55,9 @@ module Statistrano
         @ssh.run_command(cmd)
       end
 
+      #
+      # Manages the state of a single release for the manifest
+      #
       class Release
 
         attr_reader :name
@@ -96,30 +99,22 @@ module Statistrano
         # get the manifest for this deployment
         # @return [Array]
         def get
+          fetch_remote_manifest.map { |release| new_release_instance( release ) }
+        end
+
+        def fetch_remote_manifest
           cmd = "touch #{manifest_path} && tail -n 1000 #{manifest_path}"
           manifest = []
           @ssh.run_command(cmd) do |ch, stream, data|
             manifest = JSON.parse(data).sort_by { |release| release["time"] }.reverse
           end
-          releases = []
-          if manifest.length > 0
-            manifest.each do |release|
+          return manifest
+        end
 
-              options = {
-                time: release["time"],
-                commit: release["commit"]
-              }
-
-              if release["link"]
-                options.merge({ link: release["link"] })
-              elsif @config.repo_url
-                options.merge({ repo_url: @config.repo_url })
-              end
-
-              releases << Release.new( release["name"], options )
-            end
-          end
-          return releases
+        def new_release_instance release
+          name = release.delete("name")
+          release.merge({ repo_url: @config.repo_url }) if @config.repo_url
+          return Release.new( name, release )
         end
 
         # path to the manifest
