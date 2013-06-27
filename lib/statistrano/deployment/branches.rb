@@ -56,27 +56,16 @@ module Statistrano
       # get user input for removal of other releases
       # @return [Void]
       def prune_releases
-        releases = get_releases
+        prune_untracked_releases
 
-        get_actual_releases.each do |release|
-          remove_release(release) unless releases.include? release
-        end
+        if get_releases && get_releases.length > 0
 
-        if releases && releases.length > 0
-
-          releases.each_with_index do |release,idx|
-            LOG.msg "#{release}", "[#{idx}]", :blue
-          end
-
-          print "select a release to remove: "
-          input = Shell.get_input.gsub(/[^0-9]/, '')
-          release_to_remove = ( input != "" ) ? input.to_i : nil
-
-          if (0..(releases.length-1)).to_a.include?(release_to_remove)
-            remove_release( get_releases[release_to_remove] )
+          picked_release = pick_release_to_remove
+          if picked_release
+            remove_release(picked_release)
             generate_index
           else
-            LOG.warn "sorry that isn't one of the releases"
+            LOG.warn "sorry, that isn't one of the releases"
           end
 
         else
@@ -95,8 +84,34 @@ module Statistrano
 
       private
 
+        def pick_release_to_remove
+          list_releases_with_index
+
+          picked_release = Shell.get_input("select a release to remove: ").gsub(/[^0-9]/, '')
+
+          if !picked_release.empty? && picked_release.to_i < get_releases.length
+            return get_releases[picked_release.to_i]
+          else
+            return false
+          end
+        end
+
+        def list_releases_with_index
+          get_releases.each_with_index do |release,idx|
+            LOG.msg "#{release}", "[#{idx}]", :blue
+          end
+        end
+
+        # removes releases that are on the remote but not in the manifest
+        # @return [Void]
+        def prune_untracked_releases
+          get_actual_releases.each do |release|
+            remove_release(release) unless get_releases.include? release
+          end
+        end
+
         def release_list_html
-          release_list = @manifest.releases.map { |release| release_as_li(release) }
+          release_list = @manifest.releases.map { |release| release_as_li(release) }.join('')
           template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
           template.gsub( '{{release_list}}', release_list )
         end

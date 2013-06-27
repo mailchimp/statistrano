@@ -23,7 +23,8 @@ module Statistrano
 
       # get input from the command line
       # @return [String]
-      def get_input
+      def get_input message
+        print message
         $stdin.gets.chomp
       end
 
