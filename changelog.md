@@ -1,3 +1,6 @@
+# 0.6.1
+- fix a regression that caused Git.remote_up_to_date? to fail
+
 # 0.6.0
 - move a few setup methods
 - add integration specs for the deployment modules
