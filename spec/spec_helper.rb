@@ -130,14 +130,23 @@ def fake_stdout out
   end
 end
 
+def fake_stderr err
+  begin
+    Statistrano::Shell.set_stderr err
+    yield
+  ensure
+    Statistrano::Shell.unset_stderr
+  end
+end
+
 
 module Statistrano
   module Shell
     class << self
       def patched_run command, &block
-        if @shell_out
+        if @shell_out || @shell_err
           yield @shell_out if block_given?
-          [ true, @shell_out ]
+          [ true, @shell_out, @shell_err ]
         else
           system_run command, &block
         end
@@ -149,6 +158,14 @@ module Statistrano
 
       def unset_stdout
         @shell_out = nil
+      end
+
+      def set_stderr err
+        @shell_err = err
+      end
+
+      def unset_stderr
+        @shell_err = nil
       end
 
       alias_method :system_run, :run

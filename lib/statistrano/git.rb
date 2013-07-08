@@ -30,9 +30,8 @@ module Statistrano
       # Check if branch is in sync with remote
       # @return [Boolean]
       def remote_up_to_date?
-        Shell.run "git push --dry-run" do |output|
-          return output.include? "Everything up-to-date"
-        end
+        status, stdout, stderr = Shell.run "git push --dry-run"
+        return status && stderr.include?( "Everything up-to-date" )
       end
 
     end

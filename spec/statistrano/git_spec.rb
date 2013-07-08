@@ -39,12 +39,12 @@ describe Statistrano::Git do
 
   describe "#remote_up_to_date?" do
     it "returns true if remote is current" do
-      fake_stdout "Everything up-to-date" do
+      fake_stderr "Everything up-to-date" do
         Statistrano::Git.remote_up_to_date?.should be_true
       end
     end
     it "returns false if remote is out of sync" do
-      fake_stdout "To git@github.com:mailchimp/statistrano.git\n" +
+      fake_stderr "To git@github.com:mailchimp/statistrano.git\n" +
                   "fbe7c67..3cf2934  HEAD -> master" do
         Statistrano::Git.remote_up_to_date?.should be_false
       end
