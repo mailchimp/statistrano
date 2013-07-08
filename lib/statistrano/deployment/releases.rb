@@ -116,11 +116,28 @@ module Statistrano
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          releases = []
-          @ssh.run_command("ls -m #{release_dir_path}") do |ch, stream, data|
-            releases = data.strip.split(',').map { |release| release.strip }.reverse
+          ActualReleases.new( @ssh, release_dir_path ).as_array
+        end
+
+        # service class to get actual releases
+        class ActualReleases
+
+          def initialize ssh, dir_path
+            @ssh = ssh
+            @dir_path = dir_path
           end
-          return releases
+
+          def as_array
+            ls_release_dir.strip.split(',').map { |release| release.strip }.reverse
+          end
+
+          private
+
+            def ls_release_dir
+              @ssh.run_command("ls -m #{@dir_path}") do |ch, stream, data|
+                return data
+              end
+            end
         end
 
         # send code to remote server
