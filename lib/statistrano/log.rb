@@ -39,24 +39,32 @@ module Statistrano
       # @param status [String]
       # @param color [Symbol]
       def shell_say message, status, color
-        $stdout.puts "#{standardize(status, color)}  #{message}"
+        $stdout.puts "#{StandardizeInput.new(status, color).output}  #{message}"
         $stdout.flush
       end
 
       # Standardize a width of output
-      #
-      # @param input [String]
-      # @param color [Symbol]
-      # @param width [Integer]
-      # @return [String]
-      def standardize input, color=:black, width=10
-        output = "-> ".colorize(:black)
-        len = input.length
-        add = width - len
-        add.times do
-          output << " "
+      class StandardizeInput
+
+        def initialize input, color=:black
+          @input = input
+          @color = color
+          @width = 11
         end
-        output << input.colorize(color)
+
+        def output
+          anchor + padding + @input.colorize(@color)
+        end
+
+        private
+
+          def anchor
+            "-> ".colorize(:black)
+          end
+
+          def padding
+            Array.new( @width - @input.length ).join(" ")
+          end
       end
 
   end

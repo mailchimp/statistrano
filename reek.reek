@@ -16,6 +16,11 @@ UtilityFunction:
     - Git
     - Time
     - release_name
+    - shell_say
+
+DataClump:
+  exclude:
+    - Log
 
 FeatureEnvy:
   exclude:
