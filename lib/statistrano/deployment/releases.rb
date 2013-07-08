@@ -131,7 +131,7 @@ module Statistrano
           rsync_to_remote( release_path(current_release) )
           symlink_release( current_release )
 
-          @manifest.add_release( Manifest::Release.new( current_release ))
+          @manifest.add_release( Manifest::Release.new( current_release, @config ))
 
           LOG.msg "Created release at #{public_path}"
         end

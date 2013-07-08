@@ -109,16 +109,9 @@ module Statistrano
         end
 
         def release_list_html
-          release_list = @manifest.releases.map { |release| release_as_li(release) }.join('')
+          release_list = @manifest.releases.map { |release| release.as_li }.join('')
           template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
           template.gsub( '{{release_list}}', release_list )
-        end
-
-        def release_as_li release
-          "<li>" +
-          "<a href=\"http://#{release.name}.#{@config.base_domain}\">#{release.name}</a>" +
-          "<small>updated: #{Time.at(release.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>" +
-          "</li>"
         end
 
         def setup
@@ -132,7 +125,7 @@ module Statistrano
           setup_release_path(current_release_path)
           rsync_to_remote(current_release_path)
 
-          @manifest.add_release( Manifest::Release.new( @config.public_dir ) )
+          @manifest.add_release( Manifest::Release.new( @config.public_dir, @config ) )
 
           LOG.msg "Created release at #{@config.public_dir}"
         end

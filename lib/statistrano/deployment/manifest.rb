@@ -64,10 +64,12 @@ module Statistrano
 
         # init a release
         # @param name [String] name of the release
-        # @param hash [Hash] :time, :commit, & :link || :repo_url
-        def initialize name, hash={}
+        # @param config [Obj] the config object
+        # @param options [Hash] :time, :commit, & :link || :repo_url
+        def initialize name, config, options={}
           @name = name
-          @options = hash
+          @config = config
+          @options = options
         end
 
         def time
@@ -84,6 +86,15 @@ module Statistrano
 
         def log_info
           LOG.msg "#{name} created at #{Time.at(time).strftime('%a %b %d, %Y at %l:%M %P')}"
+        end
+
+        # convert the release to an li element
+        # @return [String]
+        def as_li
+          "<li>" +
+          "<a href=\"http://#{name}.#{@config.base_domain}\">#{name}</a>" +
+          "<small>updated: #{Time.at(time).strftime('%A %b %d, %Y at %l:%M %P')}</small>" +
+          "</li>"
         end
 
         # convert the release to a json object
@@ -120,7 +131,7 @@ module Statistrano
         def new_release_instance release
           name = release.delete("name")
           release.merge({ repo_url: @config.repo_url }) if @config.repo_url
-          return Release.new( name, release )
+          return Release.new( name, @config, release )
         end
 
         # path to the manifest
