@@ -20,4 +20,8 @@ describe Statistrano::Deployment::Branches do
     end
   end
 
+  it "should not reek" do
+    Dir["lib/statistrano/deployment/branches.rb"].should_not reek
+  end
+
 end

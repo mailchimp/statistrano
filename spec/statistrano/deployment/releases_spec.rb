@@ -20,4 +20,8 @@ describe Statistrano::Deployment::Releases do
     end
   end
 
+  it "should not reek" do
+    Dir["lib/statistrano/deployment/releases.rb"].should_not reek
+  end
+
 end

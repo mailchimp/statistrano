@@ -49,17 +49,10 @@ module Statistrano
       # @return [Void]
       def rollback_release
         releases = get_releases
+        return LOG.error "Whoa there, there's only one release -- you definetly shouldn't remove it" unless releases.length > 1
 
-        if releases.length > 1
-          current_release = releases[0]
-          past_release = releases[1]
-
-          symlink_release( past_release )
-          remove_release( current_release )
-
-        else
-          LOG.error "Whoa there, there's only one release -- you definetly shouldn't remove it"
-        end
+        symlink_release( releases[1] ) # previous release
+        remove_release( releases[0] ) # current release
       end
 
       # Remove old releases
