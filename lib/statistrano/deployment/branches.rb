@@ -47,9 +47,7 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        @manifest.releases.each do |release|
-          LOG.msg "#{release.name} created at #{Time.at(release.time).strftime('%a %b %d, %Y at %l:%M %P')}"
-        end
+        @manifest.releases.each { |release| release.log_info }
       end
 
       # trim releases not in the manifest,

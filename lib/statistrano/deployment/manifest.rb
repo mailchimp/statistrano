@@ -82,6 +82,10 @@ module Statistrano
           @link ||= @options.fetch(:link) { (@options[:repo_url]) ? "#{@options[:repo_url]}/tree/#{commit}" : nil }
         end
 
+        def log_info
+          LOG.msg "#{name} created at #{Time.at(time).strftime('%a %b %d, %Y at %l:%M %P')}"
+        end
+
         # convert the release to a json object
         # @return [String]
         def to_json
