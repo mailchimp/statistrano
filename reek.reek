@@ -1,0 +1,29 @@
+Duplication:
+  max_calls: 3
+
+UncommunicativeVariableName:
+  accept:
+    - "_"
+    - "e"
+
+LongMethod:
+  max_statements: 5
+  exclude:
+    - deploy
+    - run$
+    - run_command$
+
+UtilityFunction:
+  exclude:
+    - Git
+    - Time
+    - release_name
+    - shell_say
+
+DataClump:
+  exclude:
+    - Log
+
+FeatureEnvy:
+  exclude:
+    - Git

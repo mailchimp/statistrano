@@ -40,13 +40,10 @@ module Statistrano
         RakeTasks.register(self)
       end
 
-      def prepare_for_action
-        ENV["DEPLOYMENT_ENVIRONMENT"] = @name
-        @ssh = ::Statistrano::SSH.new( @config )
-      end
-
-      def done_with_action
-        @ssh.close_session
+      def run_action method_name
+        prepare_for_action
+        self.send(method_name)
+        done_with_action
       end
 
       # Standard deployment flow
@@ -69,6 +66,15 @@ module Statistrano
       end
 
       private
+
+        def prepare_for_action
+          ENV["DEPLOYMENT_ENVIRONMENT"] = @name
+          @ssh = ::Statistrano::SSH.new( @config )
+        end
+
+        def done_with_action
+          @ssh.close_session
+        end
 
         # get paths, etc setup on remote
         def setup
@@ -96,13 +102,11 @@ module Statistrano
         # @param remote_path [String] path to sync to on remote
         # @return [Void]
         def rsync_to_remote remote_path
-          success = false
-
           LOG.msg "Syncing files to remote"
+
           time = Benchmark.realtime do
             if Shell.run "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
               LOG.success "Files synced to remote"
-              success = true
             else
               LOG.error "Error syncing files to remote"
             end

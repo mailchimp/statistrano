@@ -1,8 +1,15 @@
 module Statistrano
   module Deployment
 
+    #
+    # Branches is for deployments that depend upon the
+    # current git branch, eg. doing feature branch deployments
+    #
     class Branches < Base
 
+      #
+      # Config holds all deployment configuration details
+      #
       class Config < Base::Config
         attr_accessor :public_dir
         attr_accessor :manifest
@@ -23,9 +30,9 @@ module Statistrano
 
       def initialize name
         @name = name
-        @config = Config.new do |c|
-          c.public_dir = Git.current_branch.to_slug
-          c.post_deploy_task = "#{@name}:generate_index"
+        @config = Config.new do |config|
+          config.public_dir = Git.current_branch.to_slug
+          config.post_deploy_task = "#{@name}:generate_index"
         end
         RakeTasks.register(self)
       end
@@ -40,38 +47,17 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        @manifest.releases.each do |r|
-          LOG.msg "#{r.name} created at #{Time.at(r.time).strftime('%a %b %d, %Y at %l:%M %P')}"
-        end
+        @manifest.releases.each { |release| release.log_info }
       end
 
       # trim releases not in the manifest,
       # get user input for removal of other releases
       # @return [Void]
       def prune_releases
-        releases = get_releases
+        prune_untracked_releases
 
-        get_actual_releases.each do |r|
-          remove_release(r) unless releases.include? r
-        end
-
-        if releases && releases.length > 0
-
-          releases.each_with_index do |r,idx|
-            LOG.msg "#{r}", "[#{idx}]", :blue
-          end
-
-          print "select a release to remove: "
-          input = get_input.gsub(/[^0-9]/, '')
-          release_to_remove = ( input != "" ) ? input.to_i : nil
-
-          if (0..(releases.length-1)).to_a.include?(release_to_remove)
-            remove_release( get_releases[release_to_remove] )
-            generate_index
-          else
-            LOG.warn "sorry that isn't one of the releases"
-          end
-
+        if get_releases && get_releases.length > 0
+          pick_and_remove_release
         else
           LOG.warn "no releases to prune"
         end
@@ -82,23 +68,53 @@ module Statistrano
       def generate_index
         index_dir = File.join( @config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
-
-        rs = ""
-        @manifest.releases.each do |r|
-          rs << "<li>"
-          rs << "<a href=\"http://#{r.name}.#{@config.base_domain}\">#{r.name}</a>"
-          rs << "<small>updated: #{Time.at(r.time).strftime('%A %b %d, %Y at %l:%M %P')}</small>"
-          rs << "</li>"
-        end
-        template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
-        template.gsub!( '{{release_list}}', rs )
-
-        cmd = "touch #{index_path} && echo '#{template}' > #{index_path}"
         setup_release_path( index_dir )
-        @ssh.run_command cmd
+        @ssh.run_command "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
       end
 
       private
+
+        def pick_and_remove_release
+          picked_release = pick_release_to_remove
+          if picked_release
+            remove_release(picked_release)
+            generate_index
+          else
+            LOG.warn "sorry, that isn't one of the releases"
+          end
+        end
+
+        def pick_release_to_remove
+          list_releases_with_index
+
+          picked_release = Shell.get_input("select a release to remove: ").gsub(/[^0-9]/, '')
+
+          if !picked_release.empty? && picked_release.to_i < get_releases.length
+            return get_releases[picked_release.to_i]
+          else
+            return false
+          end
+        end
+
+        def list_releases_with_index
+          get_releases.each_with_index do |release,idx|
+            LOG.msg "#{release}", "[#{idx}]", :blue
+          end
+        end
+
+        # removes releases that are on the remote but not in the manifest
+        # @return [Void]
+        def prune_untracked_releases
+          get_actual_releases.each do |release|
+            remove_release(release) unless get_releases.include? release
+          end
+        end
+
+        def release_list_html
+          release_list = @manifest.releases.map { |release| release.as_li }.join('')
+          template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
+          template.gsub( '{{release_list}}', release_list )
+        end
 
         def setup
           super
@@ -111,7 +127,7 @@ module Statistrano
           setup_release_path(current_release_path)
           rsync_to_remote(current_release_path)
 
-          @manifest.add_release( Manifest::Release.new( @config.public_dir ) )
+          @manifest.add_release( Manifest::Release.new( @config.public_dir, @config ) )
 
           LOG.msg "Created release at #{@config.public_dir}"
         end
@@ -138,8 +154,8 @@ module Statistrano
           @ssh.run_command("ls -mp #{@config.remote_dir}") do |ch, stream, data|
             releases = data.strip.split(',')
           end
-          releases.keep_if { |r| /\/$/.match(r) }
-          releases.map { |r| r.strip.gsub(/(\/$)/, '') }.keep_if { |r| r != "index" }
+          releases.keep_if { |release| /\/$/.match(release) }
+          releases.map { |release| release.strip.gsub(/(\/$)/, '') }.keep_if { |release| release != "index" }
         end
 
         # path to the current release
@@ -153,12 +169,6 @@ module Statistrano
         # @return [String]
         def release_path name
           File.join( @config.remote_dir, name )
-        end
-
-        # get input from the command line
-        # @return [String]
-        def get_input
-          $stdin.gets.chomp
         end
 
     end

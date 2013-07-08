@@ -21,6 +21,13 @@ module Statistrano
         $stderr.puts "Error: #{e}"
       end
 
+      # get input from the command line
+      # @return [String]
+      def get_input message
+        print message
+        $stdin.gets.chomp
+      end
+
     end
 
   end

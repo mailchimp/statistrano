@@ -1,8 +1,15 @@
 module Statistrano
   module Deployment
 
+    #
+    # Releases handles deployments where you want the option
+    # to rollback to previous deploys.
+    #
     class Releases < Base
 
+      #
+      # Config holds all deployment configuration details
+      #
       class Config < Base::Config
         attr_accessor :release_count
         attr_accessor :release_dir
@@ -23,10 +30,10 @@ module Statistrano
 
       def initialize name
         @name = name
-        @config = Config.new do |c|
-          c.release_count = 5
-          c.release_dir = "releases"
-          c.public_dir = "current"
+        @config = Config.new do |config|
+          config.release_count = 5
+          config.release_dir = "releases"
+          config.public_dir = "current"
         end
         RakeTasks.register(self)
       end
@@ -42,56 +49,50 @@ module Statistrano
       # @return [Void]
       def rollback_release
         releases = get_releases
+        return LOG.error "Whoa there, there's only one release -- you definetly shouldn't remove it" unless releases.length > 1
 
-        if releases.length > 1
-          current_release = releases[0]
-          past_release = releases[1]
-
-          symlink_release( past_release )
-          remove_release( current_release )
-
-        else
-          LOG.error "Whoa there, there's only one release -- you definetly shouldn't remove it"
-        end
+        symlink_release( releases[1] ) # previous release
+        remove_release( releases[0] ) # current release
       end
 
       # Remove old releases
       # @return [Void]
       def prune_releases
-        releases = get_releases
-        pruned = false
-
-        if releases && releases.length > @config.release_count
-          releases[@config.release_count..-1].each do |release|
-            remove_release(release)
-            pruned = true
-          end
-        end
-
-        get_actual_releases.each do |r|
-
-          unless releases.include? r
-            remove_release(r)
-          end
-
-        end
-
-        unless pruned
-          LOG.msg "No releases to prune", nil
-        end
+        remove_untracked_releases
+        remove_releases_beyond_release_count
       end
 
       # Output a list of releases & their date
       # @return [Void]
       def list_releases
-        releases = get_releases
-        releases.each_with_index do |release, idx|
+        get_releases.each_with_index do |release, idx|
           current = ( idx == 0 ) ? "current" : nil
           LOG.msg Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P'), current, :blue
         end
       end
 
       private
+
+        def remove_releases_beyond_release_count
+          if releases_beyond_release_count
+            releases_beyond_release_count.each do |release|
+              remove_release(release)
+            end
+          else
+            LOG.msg( "No releases to prune", nil )
+          end
+        end
+
+        def releases_beyond_release_count
+          get_releases[@config.release_count..-1]
+        end
+
+        def remove_untracked_releases
+          tracked_releases = get_releases
+          get_actual_releases.each do |release|
+            remove_release(release) unless tracked_releases.include? release
+          end
+        end
 
         def setup
           super
@@ -108,11 +109,28 @@ module Statistrano
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          releases = []
-          @ssh.run_command("ls -m #{release_dir_path}") do |ch, stream, data|
-            releases = data.strip.split(',').map { |r| r.strip }.reverse
+          ActualReleases.new( @ssh, release_dir_path ).as_array
+        end
+
+        # service class to get actual releases
+        class ActualReleases
+
+          def initialize ssh, dir_path
+            @ssh = ssh
+            @dir_path = dir_path
           end
-          return releases
+
+          def as_array
+            ls_release_dir.strip.split(',').map { |release| release.strip }.reverse
+          end
+
+          private
+
+            def ls_release_dir
+              @ssh.run_command("ls -m #{@dir_path}") do |ch, stream, data|
+                return data
+              end
+            end
         end
 
         # send code to remote server
@@ -120,13 +138,20 @@ module Statistrano
         def create_release
           current_release = release_name
 
-          setup_release_path( release_path(current_release) )
-          rsync_to_remote( release_path(current_release) )
-          symlink_release( current_release )
-
-          @manifest.add_release( Manifest::Release.new( current_release ))
+          create_release_on_remote(current_release)
+          add_release_to_manifest(current_release)
 
           LOG.msg "Created release at #{public_path}"
+        end
+
+        def add_release_to_manifest name
+          @manifest.add_release( Manifest::Release.new( name, @config ))
+        end
+
+        def create_release_on_remote name
+          setup_release_path release_path(name)
+          rsync_to_remote release_path(name)
+          symlink_release name
         end
 
         # create the release dir on the remote by copying the current release

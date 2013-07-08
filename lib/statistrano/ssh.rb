@@ -1,4 +1,7 @@
 module Statistrano
+
+  # opens and runs commands through ssh sessions
+  # optionaly closes them as well
   class SSH
 
     def initialize config
