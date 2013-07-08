@@ -15,6 +15,7 @@ UtilityFunction:
   exclude:
     - Git
     - Time
+    - release_name
 
 FeatureEnvy:
   exclude:
