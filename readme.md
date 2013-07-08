@@ -129,6 +129,8 @@ Integraton tests run through `localhost`, this requires that you setup ssh throu
 
 Tests are written in rspec, and can be run with `rspec`. To run an individual test, run `rspec path/to/spec.rb`.
 
+[Reek](https://github.com/troessner/reek) is also included in the bundle to check for some code smells. Run `reek lib/*` to check the whole lib directory.
+
 
 ### Setup
 
