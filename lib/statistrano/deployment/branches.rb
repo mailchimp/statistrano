@@ -57,15 +57,7 @@ module Statistrano
         prune_untracked_releases
 
         if get_releases && get_releases.length > 0
-
-          picked_release = pick_release_to_remove
-          if picked_release
-            remove_release(picked_release)
-            generate_index
-          else
-            LOG.warn "sorry, that isn't one of the releases"
-          end
-
+          pick_and_remove_release
         else
           LOG.warn "no releases to prune"
         end
@@ -81,6 +73,16 @@ module Statistrano
       end
 
       private
+
+        def pick_and_remove_release
+          picked_release = pick_release_to_remove
+          if picked_release
+            remove_release(picked_release)
+            generate_index
+          else
+            LOG.warn "sorry, that isn't one of the releases"
+          end
+        end
 
         def pick_release_to_remove
           list_releases_with_index
