@@ -85,6 +85,14 @@ describe "Releases deployment integration test" do
       release_folder_contents.should == ["1372030000"]
     end
 
+    it "won't rollback if there is only one release" do
+      expect {
+        reenable_rake_tasks
+        Rake::Task["releases2:rollback"].invoke
+      }.to raise_error(SystemExit)
+      release_folder_contents.should == ["1372030000"]
+    end
+
   end
 
 end
