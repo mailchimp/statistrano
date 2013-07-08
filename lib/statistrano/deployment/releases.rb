@@ -65,27 +65,8 @@ module Statistrano
       # Remove old releases
       # @return [Void]
       def prune_releases
-        releases = get_releases
-        pruned = false
-
-        if releases && releases.length > @config.release_count
-          releases[@config.release_count..-1].each do |release|
-            remove_release(release)
-            pruned = true
-          end
-        end
-
-        get_actual_releases.each do |release|
-
-          unless releases.include? release
-            remove_release(release)
-          end
-
-        end
-
-        unless pruned
-          LOG.msg "No releases to prune", nil
-        end
+        remove_untracked_releases
+        remove_releases_beyond_release_count
       end
 
       # Output a list of releases & their date
@@ -99,6 +80,27 @@ module Statistrano
       end
 
       private
+
+        def remove_releases_beyond_release_count
+          if releases_beyond_release_count
+            releases_beyond_release_count.each do |release|
+              remove_release(release)
+            end
+          else
+            LOG.msg( "No releases to prune", nil )
+          end
+        end
+
+        def releases_beyond_release_count
+          get_releases[@config.release_count..-1]
+        end
+
+        def remove_untracked_releases
+          tracked_releases = get_releases
+          get_actual_releases.each do |release|
+            remove_release(release) unless tracked_releases.include? release
+          end
+        end
 
         def setup
           super
