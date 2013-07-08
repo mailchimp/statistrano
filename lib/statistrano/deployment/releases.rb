@@ -72,8 +72,7 @@ module Statistrano
       # Output a list of releases & their date
       # @return [Void]
       def list_releases
-        releases = get_releases
-        releases.each_with_index do |release, idx|
+        get_releases.each_with_index do |release, idx|
           current = ( idx == 0 ) ? "current" : nil
           LOG.msg Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P'), current, :blue
         end
@@ -129,13 +128,20 @@ module Statistrano
         def create_release
           current_release = release_name
 
-          setup_release_path( release_path(current_release) )
-          rsync_to_remote( release_path(current_release) )
-          symlink_release( current_release )
-
-          @manifest.add_release( Manifest::Release.new( current_release, @config ))
+          create_release_on_remote(current_release)
+          add_release_to_manifest(current_release)
 
           LOG.msg "Created release at #{public_path}"
+        end
+
+        def add_release_to_manifest name
+          @manifest.add_release( Manifest::Release.new( name, @config ))
+        end
+
+        def create_release_on_remote name
+          setup_release_path release_path(name)
+          rsync_to_remote release_path(name)
+          symlink_release name
         end
 
         # create the release dir on the remote by copying the current release
