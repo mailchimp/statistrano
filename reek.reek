@@ -10,6 +10,8 @@ LongMethod:
   max_statements: 5
   exclude:
     - deploy
+    - run$
+    - run_command$
 
 UtilityFunction:
   exclude:
