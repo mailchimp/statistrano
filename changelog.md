@@ -1,3 +1,6 @@
+# 0.7.0
+- big refactoring to reduce complexity of the public methods
+
 # 0.6.1
 - fix a regression that caused Git.remote_up_to_date? to fail
 

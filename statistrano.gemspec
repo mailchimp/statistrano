@@ -6,10 +6,10 @@ Gem::Specification.new do |s|
   s.version       = Statistrano::VERSION
   s.platform      = Gem::Platform::RUBY
 
-  s.summary       = 'A release based deployment gem for static sites'
-  s.description   = %q{ A gem to simplify the deployment of static sites, and staging of feature branches }
+  s.summary       = 'A simplified deployments for static sites'
+  s.description   = %q{ Simplified the deployment of static sites, releases if you'd like, and features for staging feature branches }
   s.authors       = ["Jordan Andree", "Steven Sloan"]
-  s.email         = ["xx@xx.com", "stevenosloan@gmail.com"]
+  s.email         = "marketing-dev@mailchimp.com"
   s.homepage      = "http://github.com/stevenosloan/statistrano"
 
   s.files         = Dir["{lib}/**/*.rb"]
