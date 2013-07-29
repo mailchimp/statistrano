@@ -23,7 +23,8 @@ module Statistrano
           super.merge({
             :list => { method: :list_releases, desc: "List branches" },
             :prune => { method: :prune_releases, desc: "Prune an branch" },
-            :generate_index => { method: :generate_index, desc: "Generate branches index" }
+            :generate_index => { method: :generate_index, desc: "Generate branches index" },
+            :open => { method: :open_url, desc: "Open the current branch URL" }
           })
         end
       end
@@ -169,6 +170,15 @@ module Statistrano
         # @return [String]
         def release_path name
           File.join( @config.remote_dir, name )
+        end
+
+        # open the current checked out branch
+        # @return [Void]
+        def open_url
+          if @config.base_domain
+            url = "http://#{@config.public_dir}.#{@config.base_domain}"
+            system "open #{url}"
+          end
         end
 
     end
