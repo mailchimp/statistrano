@@ -115,6 +115,9 @@ deploys local_dir to the remote named for the current git branch, and generates 
 `rake branches:list`  
 lists all the currently deployed branches
 
+`rake branches:open`  
+If you have set a base_domain, opens the branch in your default browser
+
 `rake branches:prune`  
 shows list of currently deployed branches to pick from and remove
 

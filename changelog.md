@@ -1,3 +1,6 @@
+# 0.7.1
+- add an `open` rake task for Branches deployments to navigate to the url
+
 # 0.7.0
 - big refactoring to reduce complexity of the public methods
 
