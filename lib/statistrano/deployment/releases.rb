@@ -30,12 +30,16 @@ module Statistrano
 
       def initialize name
         @name = name
-        @config = Config.new do |config|
+        configure do |config|
           config.release_count = 5
           config.release_dir = "releases"
           config.public_dir = "current"
         end
         RakeTasks.register(self)
+      end
+
+      def config
+        @_config ||= Config.new
       end
 
       # prune releases after the deploy has run
@@ -84,7 +88,7 @@ module Statistrano
         end
 
         def releases_beyond_release_count
-          get_releases[@config.release_count..-1]
+          get_releases[config.release_count..-1]
         end
 
         def remove_untracked_releases
@@ -96,7 +100,7 @@ module Statistrano
 
         def setup
           super
-          @manifest = Manifest.new( @config, @ssh )
+          @manifest = Manifest.new( config, @ssh )
         end
 
         # Return array of releases from manifest
@@ -145,7 +149,7 @@ module Statistrano
         end
 
         def add_release_to_manifest name
-          @manifest.add_release( Manifest::Release.new( name, @config ))
+          @manifest.add_release( Manifest::Release.new( name, config ))
         end
 
         def create_release_on_remote name
@@ -194,7 +198,7 @@ module Statistrano
         # Full public_path
         # @return [String]
         def public_path
-          File.join( @config.remote_dir, @config.public_dir )
+          File.join( config.remote_dir, config.public_dir )
         end
 
         # Full path to a release
@@ -207,7 +211,7 @@ module Statistrano
         # Full path to release directory
         # @return [String]
         def release_dir_path
-          File.join( @config.remote_dir, @config.release_dir )
+          File.join( config.remote_dir, config.release_dir )
         end
 
     end
