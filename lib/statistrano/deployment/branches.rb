@@ -48,6 +48,7 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
+        setup unless @manifest
         @manifest.releases.each { |release| release.log_info }
       end
 
