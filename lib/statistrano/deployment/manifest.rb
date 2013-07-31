@@ -35,6 +35,8 @@ module Statistrano
         end
 
         @releases << new_release
+        @releases.sort_by! { |release| release.time }.reverse!
+
         update
       end
 
@@ -69,7 +71,7 @@ module Statistrano
         def initialize name, config, options={}
           @name = name
           @config = config
-          @options = options
+          @options = options.inject({}){|opts,(k,v)| opts[k.to_sym] = v; opts}
         end
 
         def time
@@ -125,7 +127,7 @@ module Statistrano
           @ssh.run_command(cmd) do |ch, stream, data|
             manifest = JSON.parse(data)
           end
-          return manifest.sort_by { |release| release["time"] }.reverse
+          return manifest.sort_by { |release| release[:time] }.reverse
         end
 
         def new_release_instance release
