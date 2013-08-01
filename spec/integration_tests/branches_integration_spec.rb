@@ -48,10 +48,9 @@ describe "creates and manages deployments" do
     lines[1].include?("second_branch").should be_true
   end
 
-  it "generates an index page" do
+  it "generates an index page with the correct order of branches" do
     index_html = IO.read("deployment/index/index.html")
-    index_html.should =~ /<li><a href="http:\/\/first_branch\.example\.com">first_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
-    index_html.should =~ /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  7:26 pm<\/small><\/li>/
+    index_html.should =~ /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  7:26 pm<\/small><\/li><li><a href="http:\/\/first_branch\.example\.com">first_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
   end
 
   it "removes the selected branch to prune" do
