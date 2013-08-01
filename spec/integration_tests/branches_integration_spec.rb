@@ -15,13 +15,15 @@ describe "creates and manages deployments" do
     end
 
     reenable_rake_tasks
+    set_time(1372020000)
     Rake::Task["branches1:deploy"].invoke
+    Time.thaw
 
     Statistrano::Git.set_branch "second_branch"
     deployment.config.public_dir = Statistrano::Git.current_branch
 
     reenable_rake_tasks
-    set_time(1372020000)
+    set_time(1372030000)
     Rake::Task["branches1:deploy"].invoke
     Time.thaw
   end
@@ -46,15 +48,17 @@ describe "creates and manages deployments" do
     lines[1].include?("second_branch").should be_true
   end
 
+  it "generates an index page" do
+    index_html = IO.read("deployment/index/index.html")
+    index_html.should =~ /<li><a href="http:\/\/first_branch\.example\.com">first_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
+    index_html.should =~ /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  7:26 pm<\/small><\/li>/
+  end
+
   it "removes the selected branch to prune" do
     fake_stdin(1) do
       Rake::Task["branches1:prune"].invoke
       Dir[ "deployment/**" ].map { |d| d.gsub( "deployment/", "" ) }.include?("first_branch").should be_false
     end
-  end
-
-  it "generates an index page" do
-    IO.read("deployment/index/index.html").should =~ /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
   end
 
 end
