@@ -7,19 +7,21 @@ module Statistrano
     #
     class Manifest
 
-      attr_reader :releases
-
       def initialize config, ssh_session
         @config = config
         @ssh = ssh_session
-        @path = @config.remote_dir
-        @releases = get.sort_by { |release| release.time }.reverse
+        @remote_store = RemoteStore.new(@config, @ssh)
+        @releases = @remote_store.fetch
+      end
+
+      def releases
+        @releases.sort_by { |release| release.time }.reverse
       end
 
       # array of release names
       # @return [Array]
       def list
-        get.map do |release|
+        releases.map do |release|
           release.name
         end
       end
@@ -35,7 +37,7 @@ module Statistrano
         end
 
         @releases << new_release
-        update
+        update!
       end
 
       # remove a release to the manifest
@@ -45,14 +47,13 @@ module Statistrano
         @releases.keep_if do |existing_release|
           existing_release.name != name
         end
-        update
+        update!
       end
 
       # update the manifest on the server
       # @return [Void]
-      def update
-        cmd = "touch #{manifest_path} && echo '#{releases_as_json}' > #{manifest_path}"
-        @ssh.run_command(cmd)
+      def update!
+        @remote_store.update_content releases_as_json
       end
 
       #
@@ -69,7 +70,7 @@ module Statistrano
         def initialize name, config, options={}
           @name = name
           @config = config
-          @options = options
+          @options = convert_string_keys_to_symbols(options)
         end
 
         def time
@@ -109,41 +110,62 @@ module Statistrano
 
           return hash.to_json
         end
+
+        private
+
+          def convert_string_keys_to_symbols hash
+            hash.inject({}) do |opts,(k,v)|
+              opts[k.to_sym] = v
+              opts
+            end
+          end
       end
 
       private
-
-        # get the manifest for this deployment
-        # @return [Array]
-        def get
-          fetch_remote_manifest.map { |release| new_release_instance( release ) }
-        end
-
-        def fetch_remote_manifest
-          cmd = "touch #{manifest_path} && tail -n 1000 #{manifest_path}"
-          manifest = []
-          @ssh.run_command(cmd) do |ch, stream, data|
-            manifest = JSON.parse(data)
-          end
-          return manifest.sort_by { |release| release["time"] }.reverse
-        end
-
-        def new_release_instance release
-          name = release.delete("name")
-          release.merge({ repo_url: @config.repo_url }) if @config.repo_url
-          return Release.new( name, @config, release )
-        end
-
-        # path to the manifest
-        # @return [String]
-        def manifest_path
-          File.join( @path, 'manifest.json' )
-        end
 
         # json array of the releases
         # @return [String]
         def releases_as_json
           "[" << @releases.map { |release| release.to_json }.join(",") << "]"
+        end
+
+        # manages the manifest file on the remote
+        #
+        class RemoteStore
+
+          def initialize config, ssh
+            @config = config
+            @ssh = ssh
+            @path = @config.remote_dir
+          end
+
+          def fetch
+            fetch_remote_manifest.map { |release| new_release_instance( release ) }
+          end
+
+          def update_content string
+            cmd = "touch #{manifest_path} && echo '#{string}' > #{manifest_path}"
+            @ssh.run_command(cmd)
+          end
+
+          private
+
+            # path to the manifest
+            # @return [String]
+            def manifest_path
+              File.join( @path, 'manifest.json' )
+            end
+
+            def fetch_remote_manifest
+              raw_manifest = @ssh.run_command("touch #{manifest_path} && cat #{manifest_path}")
+              return (raw_manifest) ? JSON.parse( raw_manifest ) : []
+            end
+
+            def new_release_instance release
+              name = release.delete("name")
+              release.merge({ repo_url: @config.repo_url }) if @config.repo_url
+              return Release.new( name, @config, release )
+            end
         end
     end
 

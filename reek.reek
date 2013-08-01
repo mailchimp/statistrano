@@ -5,6 +5,9 @@ UncommunicativeVariableName:
   accept:
     - "_"
     - "e"
+    - "k"
+    - "v"
+    - "r"
 
 LongMethod:
   max_statements: 5
@@ -19,6 +22,7 @@ UtilityFunction:
     - Time
     - release_name
     - shell_say
+    - convert_string_keys_to_symbols
 
 DataClump:
   exclude:
@@ -27,3 +31,4 @@ DataClump:
 FeatureEnvy:
   exclude:
     - Git
+    - convert_string_keys_to_symbols
