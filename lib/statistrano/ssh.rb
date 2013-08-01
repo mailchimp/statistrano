@@ -22,7 +22,7 @@ module Statistrano
 
     # Run ssh sync command and handle exceptions
     # @param [String] command the shell command to run
-    # @return [Void]
+    # @return [String] stdout from remote command
     def run_command command # :yields: :channel, :stream, :data
       begin
         @session.exec! command do |channel, stream, data|
@@ -33,6 +33,7 @@ module Statistrano
             exit
           else
             yield(channel, stream, data) if block_given?
+            return data
           end
         end
       rescue Net::SSH::AuthenticationFailed
