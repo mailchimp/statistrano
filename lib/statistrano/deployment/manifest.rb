@@ -1,3 +1,4 @@
+require 'pry'
 module Statistrano
   module Deployment
 
@@ -69,7 +70,7 @@ module Statistrano
         def initialize name, config, options={}
           @name = name
           @config = config
-          @options = options
+          @options = convert_string_keys_to_symbols(options)
         end
 
         def time
@@ -109,6 +110,15 @@ module Statistrano
 
           return hash.to_json
         end
+
+        private
+
+          def convert_string_keys_to_symbols hash
+            hash.inject({}) do |opts,(k,v)|
+              opts[k.to_sym] = v
+              opts
+            end
+          end
       end
 
       private
@@ -120,7 +130,7 @@ module Statistrano
         end
 
         def fetch_remote_manifest
-          cmd = "touch #{manifest_path} && tail -n 1000 #{manifest_path}"
+          cmd = "touch #{manifest_path} && cat #{manifest_path}"
           manifest = []
           @ssh.run_command(cmd) do |ch, stream, data|
             manifest = JSON.parse(data)
