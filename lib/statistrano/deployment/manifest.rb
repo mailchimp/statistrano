@@ -8,19 +8,21 @@ module Statistrano
     #
     class Manifest
 
-      attr_reader :releases
-
       def initialize config, ssh_session
         @config = config
         @ssh = ssh_session
         @path = @config.remote_dir
-        @releases = get.sort_by { |release| release.time }.reverse
+        @releases = get
+      end
+
+      def releases
+        @releases.sort_by { |release| release.time }.reverse
       end
 
       # array of release names
       # @return [Array]
       def list
-        get.map do |release|
+        releases.map do |release|
           release.name
         end
       end
@@ -135,7 +137,7 @@ module Statistrano
           @ssh.run_command(cmd) do |ch, stream, data|
             manifest = JSON.parse(data)
           end
-          return manifest.sort_by { |release| release["time"] }.reverse
+          return manifest#.sort_by { |release| release["time"] }.reverse
         end
 
         def new_release_instance release
