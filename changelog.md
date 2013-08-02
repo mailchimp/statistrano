@@ -1,3 +1,6 @@
+# 0.7.2
+- fix bug where branch deployments would update timestamp on all branches in the manifest
+
 # 0.7.1
 - add an `open` rake task for Branches deployments to navigate to the url
 
