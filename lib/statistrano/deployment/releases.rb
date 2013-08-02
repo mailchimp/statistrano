@@ -11,9 +11,9 @@ module Statistrano
       # Config holds all deployment configuration details
       #
       class Config < Base::Config
-        attr_accessor :release_count
-        attr_accessor :release_dir
-        attr_accessor :public_dir
+        config_attribute :release_count
+        config_attribute :release_dir
+        config_attribute :public_dir
 
         def initialize
           yield(self) if block_given?
@@ -30,10 +30,10 @@ module Statistrano
 
       def initialize name
         @name = name
-        configure do |config|
-          config.release_count = 5
-          config.release_dir = "releases"
-          config.public_dir = "current"
+        configure do
+          release_count 5
+          release_dir   "releases"
+          public_dir    "current"
         end
         RakeTasks.register(self)
       end

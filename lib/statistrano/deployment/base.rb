@@ -12,22 +12,27 @@ module Statistrano
       # Config holds configuration for this
       # particular deployment
       class Config
-        attr_accessor :remote_dir
-        attr_accessor :local_dir
+        extend ConfigAttribute
+        config_attribute :remote_dir
+        config_attribute :local_dir
 
-        attr_accessor :remote
-        attr_accessor :user, :password, :keys, :forward_agent
+        config_attribute :remote
+        config_attribute :user, :password, :keys, :forward_agent
 
-        attr_accessor :build_task
-        attr_accessor :check_git
-        attr_accessor :git_branch
-        attr_accessor :repo_url
-        attr_accessor :post_deploy_task
+        config_attribute :build_task
+        config_attribute :check_git
+        config_attribute :git_branch
+        config_attribute :repo_url
+        config_attribute :post_deploy_task
 
         def tasks
           {
             :deploy => { method: :deploy, desc: "Deploy to remote" }
           }
+        end
+
+        def configure &block
+          instance_eval &block
         end
       end
 
@@ -51,7 +56,7 @@ module Statistrano
       # @yield [config] yields the configuration
       # @return [Void]
       def configure &block
-        yield config
+        config.configure &block
       end
 
       def run_action method_name

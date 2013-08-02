@@ -11,9 +11,9 @@ module Statistrano
       # Config holds all deployment configuration details
       #
       class Config < Base::Config
-        attr_accessor :public_dir
-        attr_accessor :manifest
-        attr_accessor :base_domain
+        config_attribute :public_dir
+        config_attribute :manifest
+        config_attribute :base_domain
 
         def initialize
           yield(self) if block_given?
@@ -31,9 +31,9 @@ module Statistrano
 
       def initialize name
         @name = name
-        configure do |config|
-          config.public_dir = Git.current_branch.to_slug
-          config.post_deploy_task = "#{@name}:generate_index"
+        configure do
+          public_dir  Git.current_branch.to_slug
+          post_deploy_task "#{@name}:generate_index"
         end
         RakeTasks.register(self)
       end

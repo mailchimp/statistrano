@@ -9,11 +9,11 @@ describe Statistrano do
     end
 
     it "creates a new deployment with the specified type" do
-      default = define_deployment("base")
+      default  = define_deployment("base")
       releases = define_deployment("releases", :releases)
       branches = define_deployment("branches", :branches)
 
-      default.class.should == Statistrano::Deployment::Base
+      default.class.should  == Statistrano::Deployment::Base
       releases.class.should == Statistrano::Deployment::Releases
       branches.class.should == Statistrano::Deployment::Branches
     end
@@ -24,6 +24,14 @@ describe Statistrano do
       end
 
       deployment.config.remote_dir.should == "/var/www/example.com"
+    end
+
+    it "has a 'sugar' syntax for configuration" do
+      deployment = define_deployment "hello" do
+        remote_dir "/var/www/sugarandspice.com"
+      end
+
+      deployment.config.remote_dir.should == "/var/www/sugarandspice.com"
     end
   end
 

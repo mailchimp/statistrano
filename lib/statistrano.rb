@@ -31,7 +31,7 @@ module Statistrano::DSL
   # @param [String] name of the deployment
   # @param [Symbol] type of deployment
   # @return [Statistrano::Deployment::Base]
-  def define_deployment name, type=:base
+  def define_deployment name, type=:base, &block
 
     begin
       @deployment = ::Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
@@ -39,7 +39,13 @@ module Statistrano::DSL
       ::Statistrano::LOG.error "The deployment type '#{type}' is not defined"
     end
 
-    yield(@deployment.config) if block_given?
+    if block_given?
+      if block.arity == 1
+        yield @deployment.config
+      else
+        @deployment.configure &block
+      end
+    end
 
     return @deployment
   end
