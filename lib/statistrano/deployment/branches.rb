@@ -31,9 +31,9 @@ module Statistrano
 
       def initialize name
         @name = name
-        configure do
-          public_dir  Git.current_branch.to_slug
-          post_deploy_task "#{@name}:generate_index"
+        configure do |config|
+          config.public_dir Git.current_branch.to_slug
+          config.post_deploy_task "#{@name}:generate_index"
         end
         RakeTasks.register(self)
       end
