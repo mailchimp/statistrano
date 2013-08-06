@@ -21,6 +21,10 @@ module Statistrano
 
       def initialize name
         super name
+
+        # these are set on initialization due to
+        # requiring access to instance information
+        #
         config.public_dir = Git.current_branch.to_slug
         config.post_deploy_task = "#{@name}:generate_index"
       end
