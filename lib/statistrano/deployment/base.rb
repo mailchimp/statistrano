@@ -10,20 +10,17 @@ module Statistrano
       attr_reader :name
 
       configure do
-        remote_dir       nil
-        local_dir        nil
+        remote_dir
+        local_dir
 
-        remote           nil
-        user             nil
-        password         nil
-        keys             nil
-        forward_agent    nil
+        remote
+        user; password; keys; forward_agent
 
-        build_task       nil
-        check_git        nil
-        git_branch       nil
-        repo_url         nil
-        post_deploy_task nil
+        build_task
+        check_git
+        git_branch
+        repo_url
+        post_deploy_task
 
         task :deploy, :deploy, "Deploy to remote"
       end

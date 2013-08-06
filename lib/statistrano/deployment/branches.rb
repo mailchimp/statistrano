@@ -8,10 +8,10 @@ module Statistrano
     class Branches < Base
 
       configure do
-        public_dir        nil
-        post_deploy_task  nil
-        manifest          nil
-        base_domain       nil
+        public_dir
+        post_deploy_task
+        manifest
+        base_domain
 
         task :list, :list_releases, "List branches"
         task :prune, :prune_releases, "Prune a branch"

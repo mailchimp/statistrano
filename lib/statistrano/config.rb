@@ -65,11 +65,7 @@ module Statistrano
       # arguments as the value
       #
       def method_missing method, *args, &block
-        if !args.empty?
-          config[method] = args[0]
-        else
-          super
-        end
+        config[method] = (args.empty?) ? nil : args[0]
       end
 
     end
