@@ -1,6 +1,5 @@
 # deployment utils
 require 'statistrano/deployment/manifest'
-require 'statistrano/deployment/config/attributes'
 require 'statistrano/deployment/rake_tasks'
 
 # deployment types

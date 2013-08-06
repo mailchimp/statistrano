@@ -23,7 +23,17 @@ describe Statistrano do
         config.remote_dir = "/var/www/example.com"
       end
 
+      releases = define_deployment "releases", :releases do |config|
+        config.build_task = "build:something"
+      end
+
+      branch = define_deployment "branch", :branches do |config|
+        config.base_domain = "foo.com"
+      end
+
       deployment.config.remote_dir.should == "/var/www/example.com"
+      branch.config.base_domain.should == "foo.com"
+      releases.config.build_task.should == "build:something"
     end
 
     it "has a 'sugar' syntax for configuration" do

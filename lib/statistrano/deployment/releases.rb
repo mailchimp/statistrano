@@ -7,39 +7,14 @@ module Statistrano
     #
     class Releases < Base
 
-      #
-      # Config holds all deployment configuration details
-      #
-      class Config < Base::Config
-        config_attribute :release_count
-        config_attribute :release_dir
-        config_attribute :public_dir
+      configure do
+        release_count 5
+        release_dir   "releases"
+        public_dir    "current"
 
-        def initialize
-          yield(self) if block_given?
-        end
-
-        def tasks
-          super.merge({
-            :rollback => { method: :rollback_release, desc: "Rollback to last release" },
-            :prune => { method: :prune_releases, desc: "Prune releases to release count" },
-            :list => { method: :list_releases, desc: "List releases" }
-          })
-        end
-      end
-
-      def initialize name
-        @name = name
-        configure do
-          release_count 5
-          release_dir   "releases"
-          public_dir    "current"
-        end
-        RakeTasks.register(self)
-      end
-
-      def config
-        @_config ||= Config.new
+        task :rollback, :rollback_release, "Rollback to the previous release"
+        task :prune, :prune_releases, "Prune releases to release count"
+        task :list, :list_releases, "List releases"
       end
 
       # prune releases after the deploy has run

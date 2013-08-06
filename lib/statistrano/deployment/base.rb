@@ -5,39 +5,27 @@ module Statistrano
     # it holds the common methods needed
     # to create a deployment
     class Base
+      extend ::Statistrano::Config::Configurable
 
       attr_reader :name
-      attr_reader :config
 
-      # Config holds configuration for this
-      # particular deployment
-      class Config
-        extend ConfigAttribute
-        config_attribute :remote_dir
-        config_attribute :local_dir
+      configure do
+        remote_dir       nil
+        local_dir        nil
 
-        config_attribute :remote
-        config_attribute :user, :password, :keys, :forward_agent
+        remote           nil
+        user             nil
+        password         nil
+        keys             nil
+        forward_agent    nil
 
-        config_attribute :build_task
-        config_attribute :check_git
-        config_attribute :git_branch
-        config_attribute :repo_url
-        config_attribute :post_deploy_task
+        build_task       nil
+        check_git        nil
+        git_branch       nil
+        repo_url         nil
+        post_deploy_task nil
 
-        def tasks
-          {
-            :deploy => { method: :deploy, desc: "Deploy to remote" }
-          }
-        end
-
-        def configure &block
-          if block.arity == 1
-            yield self
-          else
-            instance_eval &block
-          end
-        end
+        task :deploy, :deploy, "Deploy to remote"
       end
 
       # create a new deployment instance
@@ -45,22 +33,7 @@ module Statistrano
       # @return [Void]
       def initialize name
         @name = name
-        config
         RakeTasks.register(self)
-      end
-
-      # initializes a config or returns
-      # the existing one
-      # @return [Config]
-      def config
-        @_config ||= Config.new
-      end
-
-      # hook to manipulate the configuration
-      # @yield [config] yields the configuration
-      # @return [Void]
-      def configure &block
-        config.configure &block
       end
 
       def run_action method_name

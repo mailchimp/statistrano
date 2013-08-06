@@ -14,6 +14,7 @@ require 'statistrano/log'
 require 'statistrano/ssh'
 
 # deployment modules
+require 'statistrano/config'
 require 'statistrano/deployment'
 
 
@@ -36,14 +37,14 @@ module Statistrano::DSL
     begin
       @deployment = ::Statistrano::Deployment.const_get(type.to_s.capitalize).new( name )
     rescue NameError => e
-      ::Statistrano::LOG.error "The deployment type '#{type}' is not defined"
+      ::Statistrano::LOG.error "The deployment type '#{type}' is not defined\n#{e.backtrace}"
     end
 
     if block_given?
       if block.arity == 1
         yield @deployment.config
       else
-        @deployment.configure &block
+        @deployment.config.instance_eval &block
       end
     end
 

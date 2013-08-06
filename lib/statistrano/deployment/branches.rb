@@ -7,39 +7,22 @@ module Statistrano
     #
     class Branches < Base
 
-      #
-      # Config holds all deployment configuration details
-      #
-      class Config < Base::Config
-        config_attribute :public_dir
-        config_attribute :manifest
-        config_attribute :base_domain
+      configure do
+        public_dir        nil
+        post_deploy_task  nil
+        manifest          nil
+        base_domain       nil
 
-        def initialize
-          yield(self) if block_given?
-        end
-
-        def tasks
-          super.merge({
-            :list => { method: :list_releases, desc: "List branches" },
-            :prune => { method: :prune_releases, desc: "Prune an branch" },
-            :generate_index => { method: :generate_index, desc: "Generate branches index" },
-            :open => { method: :open_url, desc: "Open the current branch URL" }
-          })
-        end
+        task :list, :list_releases, "List branches"
+        task :prune, :prune_releases, "Prune a branch"
+        task :generate_index, :generate_index, "Generate a branch index"
+        task :open, :open_url, "Open the current branch URL"
       end
 
       def initialize name
-        @name = name
-        configure do |config|
-          config.public_dir Git.current_branch.to_slug
-          config.post_deploy_task "#{@name}:generate_index"
-        end
-        RakeTasks.register(self)
-      end
-
-      def config
-        @_config ||= Config.new
+        super name
+        config.public_dir = Git.current_branch.to_slug
+        config.post_deploy_task = "#{@name}:generate_index"
       end
 
       # define certain things that an action
