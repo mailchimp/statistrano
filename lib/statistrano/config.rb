@@ -3,33 +3,34 @@ require 'statistrano/config/configurable'
 module Statistrano
   class Config
 
-    attr_reader :data
+    attr_reader :options
     attr_reader :tasks
 
-    # initalize with the potential for seed data
+    # initalize with the potential for seed options
     # this is required so that when config'd classes
     # are extended we can pass that configuration along
-    def initialize data=nil, tasks=nil
-      @data =  data.nil?  ? {} : data.clone
+    def initialize options=nil, tasks=nil
+      @options =  options.nil?  ? {} : options.clone
       @tasks = tasks.nil? ? {} : tasks.clone
-    end
 
-    # attempt to pull an undefined method out
-    # of the data pile, or alternatively set
-    # the value if the key has been defined
-    #
-    def method_missing method, *args, &block
-      if !args.empty?
-        key = method.to_s.gsub( /=$/, '' ).to_sym
-        if data.has_key? key
-          data[key] = args[0]
-        else
-          super
-        end
-      else
-        data.fetch(method) { super }
+      @options.each do |key,val|
+        name = key.to_sym
+        define_option_accessor name
       end
     end
+
+    private
+
+      def define_option_accessor name
+        define_singleton_method(name) do |*args|
+          if args.length == 1
+            @options[name] = args[0]
+          else
+            @options[name]
+          end
+        end
+        define_singleton_method("#{name}=") { |arg| @options[name] = arg }
+      end
 
   end
 end
