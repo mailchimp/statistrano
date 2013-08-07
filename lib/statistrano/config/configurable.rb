@@ -6,12 +6,19 @@ module Statistrano
         @_configuration ||= Config.new()
       end
 
-      def configure &block
-        if block.arity == 1
-          yield configuration
-        else
-          configuration.set_with_block &block
-        end
+      def option key, value=nil
+        configuration.data[key] = value
+      end
+
+      def options *args
+        args.each { |a| option(a) }
+      end
+
+      def task name, method, description
+        configuration.tasks[name] = {
+          method: method,
+          desc: description
+        }
       end
 
       # add a config method to objects that

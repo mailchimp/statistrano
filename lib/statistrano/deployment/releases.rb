@@ -7,15 +7,14 @@ module Statistrano
     #
     class Releases < Base
 
-      configure do
-        release_count 5
-        release_dir   "releases"
-        public_dir    "current"
 
-        task :rollback, :rollback_release, "Rollback to the previous release"
-        task :prune, :prune_releases, "Prune releases to release count"
-        task :list, :list_releases, "List releases"
-      end
+      option :release_count, 5
+      option :release_dir, "releases"
+      option :public_dir , "current"
+
+      task :rollback, :rollback_release, "Rollback to the previous release"
+      task :prune, :prune_releases, "Prune releases to release count"
+      task :list, :list_releases, "List releases"
 
       # prune releases after the deploy has run
       # @return [Void]

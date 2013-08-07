@@ -7,17 +7,12 @@ module Statistrano
     #
     class Branches < Base
 
-      configure do
-        public_dir
-        post_deploy_task
-        manifest
-        base_domain
+      options :public_dir, :post_deploy_task, :manifest, :base_domain
 
-        task :list, :list_releases, "List branches"
-        task :prune, :prune_releases, "Prune a branch"
-        task :generate_index, :generate_index, "Generate a branch index"
-        task :open, :open_url, "Open the current branch URL"
-      end
+      task :list, :list_releases, "List branches"
+      task :prune, :prune_releases, "Prune a branch"
+      task :generate_index, :generate_index, "Generate a branch index"
+      task :open, :open_url, "Open the current branch URL"
 
       def initialize name
         super name

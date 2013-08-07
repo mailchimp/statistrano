@@ -9,21 +9,9 @@ module Statistrano
 
       attr_reader :name
 
-      configure do
-        remote_dir
-        local_dir
+      options :remote_dir, :local_dir, :remote, :user, :password, :keys, :forward_agent, :build_task, :check_git, :git_branch, :repo_url, :post_deploy_task
 
-        remote
-        user; password; keys; forward_agent
-
-        build_task
-        check_git
-        git_branch
-        repo_url
-        post_deploy_task
-
-        task :deploy, :deploy, "Deploy to remote"
-      end
+      task :deploy, :deploy, "Deploy to remote"
 
       # create a new deployment instance
       # @param name [String]
