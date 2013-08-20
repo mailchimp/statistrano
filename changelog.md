@@ -1,3 +1,4 @@
+# 0.8.0
 - re-architect configuration for deployment classes
 - now suport a "sugar" dsl syntax for setting config while defining deployments
 
