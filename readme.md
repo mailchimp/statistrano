@@ -125,6 +125,21 @@ shows list of currently deployed branches to pick from and remove
 manually kicks of index generation, good to run after pruning
 
 
+### Config Syntax
+
+In addition to yielding config to a block, you may pass no argument and run bare methods to configure deployments.
+
+```ruby
+define_deployment "basic" do
+
+  remote 'remote_name'
+  remote_dir '/var/www/mailchimp.com'
+  local_dir 'build'
+
+end
+```
+
+
 Testing
 =======
 

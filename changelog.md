@@ -1,3 +1,6 @@
+- re-architect configuration for deployment classes
+- now suport a "sugar" dsl syntax for setting config while defining deployments
+
 # 0.7.2
 - fix bug where branch deployments would update timestamp on all branches in the manifest
 
