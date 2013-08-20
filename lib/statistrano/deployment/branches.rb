@@ -7,35 +7,21 @@ module Statistrano
     #
     class Branches < Base
 
-      #
-      # Config holds all deployment configuration details
-      #
-      class Config < Base::Config
-        attr_accessor :public_dir
-        attr_accessor :manifest
-        attr_accessor :base_domain
+      options :public_dir, :post_deploy_task, :manifest, :base_domain
 
-        def initialize
-          yield(self) if block_given?
-        end
-
-        def tasks
-          super.merge({
-            :list => { method: :list_releases, desc: "List branches" },
-            :prune => { method: :prune_releases, desc: "Prune an branch" },
-            :generate_index => { method: :generate_index, desc: "Generate branches index" },
-            :open => { method: :open_url, desc: "Open the current branch URL" }
-          })
-        end
-      end
+      task :list, :list_releases, "List branches"
+      task :prune, :prune_releases, "Prune a branch"
+      task :generate_index, :generate_index, "Generate a branch index"
+      task :open, :open_url, "Open the current branch URL"
 
       def initialize name
-        @name = name
-        @config = Config.new do |config|
-          config.public_dir = Git.current_branch.to_slug
-          config.post_deploy_task = "#{@name}:generate_index"
-        end
-        RakeTasks.register(self)
+        super name
+
+        # these are set on initialization due to
+        # requiring access to instance information
+        #
+        config.public_dir = Git.current_branch.to_slug
+        config.post_deploy_task = "#{@name}:generate_index"
       end
 
       # define certain things that an action
@@ -67,7 +53,7 @@ module Statistrano
       # generate an index file for releases in the manifest
       # @return [Void]
       def generate_index
-        index_dir = File.join( @config.remote_dir, "index" )
+        index_dir = File.join( config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
         setup_release_path( index_dir )
         @ssh.run_command "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
@@ -119,7 +105,7 @@ module Statistrano
 
         def setup
           super
-          @manifest = Manifest.new( @config, @ssh )
+          @manifest = Manifest.new( config, @ssh )
         end
 
         # send code to remote server
@@ -128,9 +114,9 @@ module Statistrano
           setup_release_path(current_release_path)
           rsync_to_remote(current_release_path)
 
-          @manifest.add_release( Manifest::Release.new( @config.public_dir, @config ) )
+          @manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
 
-          LOG.msg "Created release at #{@config.public_dir}"
+          LOG.msg "Created release at #{config.public_dir}"
         end
 
         # remove a release
@@ -152,7 +138,7 @@ module Statistrano
         # @return [Array]
         def get_actual_releases
           releases = []
-          @ssh.run_command("ls -mp #{@config.remote_dir}") do |ch, stream, data|
+          @ssh.run_command("ls -mp #{config.remote_dir}") do |ch, stream, data|
             releases = data.strip.split(',')
           end
           releases.keep_if { |release| /\/$/.match(release) }
@@ -163,20 +149,20 @@ module Statistrano
         # this is based on the git branch
         # @return [String]
         def current_release_path
-          File.join( @config.remote_dir, @config.public_dir )
+          File.join( config.remote_dir, config.public_dir )
         end
 
         # path to a specific release
         # @return [String]
         def release_path name
-          File.join( @config.remote_dir, name )
+          File.join( config.remote_dir, name )
         end
 
         # open the current checked out branch
         # @return [Void]
         def open_url
-          if @config.base_domain
-            url = "http://#{@config.public_dir}.#{@config.base_domain}"
+          if config.base_domain
+            url = "http://#{config.public_dir}.#{config.base_domain}"
             system "open #{url}"
           end
         end

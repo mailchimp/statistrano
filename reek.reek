@@ -1,5 +1,7 @@
 Duplication:
   max_calls: 3
+  exclude:
+    - host_connection
 
 UncommunicativeVariableName:
   accept:

@@ -7,36 +7,14 @@ module Statistrano
     #
     class Releases < Base
 
-      #
-      # Config holds all deployment configuration details
-      #
-      class Config < Base::Config
-        attr_accessor :release_count
-        attr_accessor :release_dir
-        attr_accessor :public_dir
 
-        def initialize
-          yield(self) if block_given?
-        end
+      option :release_count, 5
+      option :release_dir, "releases"
+      option :public_dir , "current"
 
-        def tasks
-          super.merge({
-            :rollback => { method: :rollback_release, desc: "Rollback to last release" },
-            :prune => { method: :prune_releases, desc: "Prune releases to release count" },
-            :list => { method: :list_releases, desc: "List releases" }
-          })
-        end
-      end
-
-      def initialize name
-        @name = name
-        @config = Config.new do |config|
-          config.release_count = 5
-          config.release_dir = "releases"
-          config.public_dir = "current"
-        end
-        RakeTasks.register(self)
-      end
+      task :rollback, :rollback_release, "Rollback to the previous release"
+      task :prune, :prune_releases, "Prune releases to release count"
+      task :list, :list_releases, "List releases"
 
       # prune releases after the deploy has run
       # @return [Void]
@@ -84,7 +62,7 @@ module Statistrano
         end
 
         def releases_beyond_release_count
-          get_releases[@config.release_count..-1]
+          get_releases[config.release_count..-1]
         end
 
         def remove_untracked_releases
@@ -96,7 +74,7 @@ module Statistrano
 
         def setup
           super
-          @manifest = Manifest.new( @config, @ssh )
+          @manifest = Manifest.new( config, @ssh )
         end
 
         # Return array of releases from manifest
@@ -145,7 +123,7 @@ module Statistrano
         end
 
         def add_release_to_manifest name
-          @manifest.add_release( Manifest::Release.new( name, @config ))
+          @manifest.add_release( Manifest::Release.new( name, config ))
         end
 
         def create_release_on_remote name
@@ -194,7 +172,7 @@ module Statistrano
         # Full public_path
         # @return [String]
         def public_path
-          File.join( @config.remote_dir, @config.public_dir )
+          File.join( config.remote_dir, config.public_dir )
         end
 
         # Full path to a release
@@ -207,7 +185,7 @@ module Statistrano
         # Full path to release directory
         # @return [String]
         def release_dir_path
-          File.join( @config.remote_dir, @config.release_dir )
+          File.join( config.remote_dir, config.release_dir )
         end
 
     end
