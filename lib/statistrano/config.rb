@@ -25,8 +25,10 @@ module Statistrano
         define_singleton_method(name) do |*args|
           if args.length == 1
             @options[name] = args[0]
-          else
+          elsif args.empty?
             @options[name]
+          else
+            raise ArgumentError, "wrong number of arguments (#{args.length} for 0..1)"
           end
         end
         define_singleton_method("#{name}=") { |arg| @options[name] = arg }
