@@ -105,9 +105,7 @@ module Statistrano
           private
 
             def ls_release_dir
-              @ssh.run_command("ls -m #{@dir_path}") do |ch, stream, data|
-                return data
-              end
+              @ssh.run("ls -m #{@dir_path}").stdout
             end
         end
 
@@ -140,7 +138,7 @@ module Statistrano
 
           if previous_release && previous_release != release_name
             LOG.msg "Setting up the remote by copying previous release"
-            @ssh.run_command "cp -a #{release_path(previous_release)} #{release_path}"
+            @ssh.run "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super
           end
@@ -151,7 +149,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           LOG.msg "Removing release '#{name}'"
-          @ssh.run_command "rm -rf #{release_dir_path}/#{name}"
+          @ssh.run "rm -rf #{release_dir_path}/#{name}"
 
           @manifest.remove_release(name)
         end
@@ -160,7 +158,7 @@ module Statistrano
         # @param name [String]
         # @return [Void]
         def symlink_release name
-          @ssh.run_command "ln -nfs #{release_path(name)} #{public_path}"
+          @ssh.run "ln -nfs #{release_path(name)} #{public_path}"
         end
 
         # Return a release name based on current time

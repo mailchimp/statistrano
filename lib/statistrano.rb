@@ -1,5 +1,4 @@
 # required libraries
-require 'net/ssh'
 require 'colorize'
 require 'json'
 require 'fileutils'
@@ -12,7 +11,6 @@ require 'here_or_there'
 require 'statistrano/shell'
 require 'statistrano/git'
 require 'statistrano/log'
-require 'statistrano/ssh'
 
 # deployment modules
 require 'statistrano/config'

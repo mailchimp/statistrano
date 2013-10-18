@@ -145,7 +145,7 @@ module Statistrano
 
           def update_content string
             cmd = "touch #{manifest_path} && echo '#{string}' > #{manifest_path}"
-            @ssh.run_command(cmd)
+            @ssh.run(cmd)
           end
 
           private
@@ -157,8 +157,12 @@ module Statistrano
             end
 
             def fetch_remote_manifest
-              raw_manifest = @ssh.run_command("touch #{manifest_path} && cat #{manifest_path}")
-              return (raw_manifest) ? JSON.parse( raw_manifest ) : []
+              raw_manifest = @ssh.run("touch #{manifest_path} && cat #{manifest_path}")
+              if raw_manifest.success? && !raw_manifest.stdout.empty?
+                return JSON.parse( raw_manifest.stdout )
+              else
+                return []
+              end
             end
 
             def new_release_instance release
