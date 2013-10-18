@@ -32,8 +32,8 @@ describe "Releases deployment integration test" do
     end
 
     it "symlinks the pub_dir to the most recent release" do
-      status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
+      Statistrano::Shell.run_local("ls -l deployment")
+        .stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
     end
 
     it "returns a list of the currently deployed deployments" do
