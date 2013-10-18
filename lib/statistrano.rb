@@ -6,6 +6,7 @@ require 'fileutils'
 require 'rake'
 require 'slugity/extend_string'
 require 'benchmark'
+require 'here_or_there'
 
 # utility modules
 require 'statistrano/shell'

@@ -1,9 +1,8 @@
-require 'open3'
-
 module Statistrano
   module Shell
 
     class << self
+      include HereOrThere
 
       def run command, &block
         stdout, stderr, status = Open3.capture3(command)
