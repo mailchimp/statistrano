@@ -1,3 +1,6 @@
+# 0.8.1
+- fix nil error for manifest in branches
+
 # 0.8.0
 - re-architect configuration for deployment classes
 - now suport a "sugar" dsl syntax for setting config while defining deployments
