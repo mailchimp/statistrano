@@ -19,6 +19,15 @@ module Statistrano
       end
     end
 
+    def ssh_options
+      ssh_options = { hostname: remote }
+      [ :user, :password, :keys, :forward_agent ].each do |key|
+        ssh_options[key] = public_send(key) if public_send(key)
+      end
+
+      return ssh_options
+    end
+
     private
 
       def define_option_accessor name

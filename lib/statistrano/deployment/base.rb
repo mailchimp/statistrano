@@ -53,20 +53,11 @@ module Statistrano
         end
 
         def ssh_session
-          @_ssh_session ||= HereOrThere::Remote.session( ssh_options )
+          @_ssh_session ||= HereOrThere::Remote.session( config.ssh_options )
         end
 
         def run_remote command
           ssh_session.run( command )
-        end
-
-        def ssh_options
-          ssh_options = { hostname: config.remote }
-          [ :user, :password, :keys, :forward_agent ].each do |key|
-            ssh_options[key] = config.public_send(key) if config.public_send(key)
-          end
-
-          return ssh_options
         end
 
         def done_with_action
