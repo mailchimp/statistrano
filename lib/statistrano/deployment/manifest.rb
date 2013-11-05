@@ -10,21 +10,27 @@ module Statistrano
     #
     class Manifest
 
+      attr_reader :config, :releases, :remote_store
+
       def initialize config
         @config = config
         @ssh    = config.ssh_session
         @remote_store = RemoteStore.new( @config )
-        @releases     = @remote_store.fetch
+        @releases     = @remote_store.fetch.sort_by { |release| release.time }
       end
 
-      def releases
-        @releases.sort_by { |release| release.time }.reverse
+      def releases_asc
+        releases
+      end
+
+      def releases_desc
+        releases.reverse
       end
 
       # array of release names
       # @return [Array]
       def list
-        releases.map do |release|
+        releases_desc.map do |release|
           release.name
         end
       end
@@ -35,11 +41,11 @@ module Statistrano
       def add_release new_release
 
         # remove releases with the same name
-        @releases.keep_if do |existing_release|
+        releases.keep_if do |existing_release|
           existing_release.name != new_release.name
         end
 
-        @releases << new_release
+        releases << new_release
         update!
       end
 
@@ -47,7 +53,7 @@ module Statistrano
       # @param name [String]
       # @return [Void]
       def remove_release name
-        @releases.keep_if do |existing_release|
+        releases.keep_if do |existing_release|
           existing_release.name != name
         end
         update!
@@ -56,7 +62,7 @@ module Statistrano
       # update the manifest on the server
       # @return [Void]
       def update!
-        @remote_store.update_content releases_as_json
+        remote_store.update_content releases_as_json
       end
 
       private
@@ -64,7 +70,7 @@ module Statistrano
         # json array of the releases
         # @return [String]
         def releases_as_json
-          "[" << @releases.map { |release| release.to_json }.join(",") << "]"
+          "[" << releases_desc.map { |release| release.to_json }.join(",") << "]"
         end
     end
 

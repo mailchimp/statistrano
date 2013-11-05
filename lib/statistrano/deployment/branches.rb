@@ -34,7 +34,7 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        manifest.releases.reverse.each { |release| release.log_info }
+        manifest.releases_desc.each { |release| release.log_info }
       end
 
       # trim releases not in the manifest,
@@ -53,7 +53,7 @@ module Statistrano
       # generate an index file for releases in the manifest
       # @return [Void]
       def generate_index
-        index_dir = File.join( config.remote_dir, "index" )
+        index_dir  = File.join( config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
         setup_release_path( index_dir )
         run_remote "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
@@ -102,7 +102,7 @@ module Statistrano
         end
 
         def release_list_html
-          release_list = manifest.releases.map { |release| release.as_li }.join('')
+          release_list = manifest.releases_desc.map { |release| release.as_li }.join('')
           template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
           template.gsub( '{{release_list}}', release_list )
         end
