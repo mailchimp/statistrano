@@ -16,7 +16,7 @@ module Statistrano
         def initialize name, config, options={}
           @name    = name
           @config  = config
-          @options = convert_string_keys_to_symbols(options)
+          @options = symbolize_keys options
         end
 
         def time
@@ -59,7 +59,7 @@ module Statistrano
 
         private
 
-          def convert_string_keys_to_symbols hash
+          def symbolize_keys hash
             hash.inject({}) do |opts,(k,v)|
               opts[k.to_sym] = v
               opts
