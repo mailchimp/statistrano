@@ -12,18 +12,17 @@ describe "Releases deployment integration test" do
         c.local_dir = 'build'
         c.remote_dir = File.join( Dir.pwd, 'deployment' )
       end
-      set_time(1372020000)
+      Time.stub( now: 1372020000 )
       reenable_rake_tasks
       Rake::Task["releases1:deploy"].invoke
 
-      set_time(1372030000)
+      Time.stub( now: 1372030000 )
       reenable_rake_tasks
       Rake::Task["releases1:deploy"].invoke
     end
 
     after :all do
       cleanup_fixture
-      Time.thaw
     end
 
 
@@ -59,22 +58,21 @@ describe "Releases deployment integration test" do
         c.release_count = 2
       end
 
-      set_time(1372020000)
+      Time.stub( now:1372020000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
 
-      set_time(1372030000)
+      Time.stub( now:1372030000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
 
-      set_time(1372040000)
+      Time.stub( now:1372040000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
     end
 
     after :all do
       cleanup_fixture
-      Time.thaw
     end
 
     it "removes the oldest deployment" do
