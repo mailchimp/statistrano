@@ -37,10 +37,13 @@ describe "Releases deployment integration test" do
     end
 
     it "returns a list of the currently deployed deployments" do
-      $stdout.rewind
-      Rake::Task["releases1:list"].invoke
-      $stdout.rewind
-      $stdout.readlines[1..2].should == ["\e[0;30;49m-> \e[0m   \e[0;34;49mcurrent\e[0m  Sun Jun 23, 2013 at  7:26 pm\n", "\e[0;30;49m-> \e[0m          \e[0;34;49m\e[0m  Sun Jun 23, 2013 at  4:40 pm\n"]
+      output = Capture.stdout {
+        Rake::Task["releases1:list"].invoke
+      }.split("\n")
+
+      expect( output[0].match("current") ).to be_true
+      expect( output[0].match("Sun Jun 23, 2013 at  7:26 pm") ).to be_true
+      expect( output[1].match("Sun Jun 23, 2013 at  4:40 pm") ).to be_true
     end
   end
 

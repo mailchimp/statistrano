@@ -18,6 +18,30 @@ $stdout = output
 
 ROOT = Dir.pwd
 
+# support
+require 'support/capture'
+
+describe "support" do
+
+  describe Capture do
+    describe "#stdout" do
+      it "returns a string representation fo what is sent to stdout inside the given block" do
+        out = Capture.stdout { $stdout.puts "hello"; $stdout.puts "world" }
+        expect( out ).to eq "hello\nworld\n"
+      end
+    end
+
+    describe "#stderr" do
+      it "returns a string representation fo what is sent to stderr inside the given block" do
+        out = Capture.stderr { $stderr.puts "hello"; $stderr.puts "world" }
+        expect( out ).to eq "hello\nworld\n"
+      end
+    end
+  end
+
+end
+
+
 def pick_fixture name
   Dir.chdir( File.join( ROOT, "fixture", name ) )
 end

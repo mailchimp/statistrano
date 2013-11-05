@@ -40,12 +40,11 @@ describe "creates and manages deployments" do
   end
 
   it "lists the deployed branches" do
-    $stdout.rewind
-    Rake::Task["branches1:list"].invoke
-    $stdout.rewind
-    lines = Array($stdout.readlines[1..2])
-    lines[0].include?("first_branch").should be_true
-    lines[1].include?("second_branch").should be_true
+    output = Capture.stdout {
+      Rake::Task["branches1:list"].invoke
+    }
+    output.include?("first_branch").should be_true
+    output.include?("second_branch").should be_true
   end
 
   it "generates an index page with the correct order of branches" do
