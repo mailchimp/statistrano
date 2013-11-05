@@ -74,7 +74,7 @@ module Statistrano
 
         def setup
           super
-          @manifest = Manifest.new( config, @ssh )
+          @manifest = Manifest.new( config, ssh_session )
         end
 
         # Return array of releases from manifest
@@ -87,11 +87,13 @@ module Statistrano
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          ActualReleases.new( @ssh, release_dir_path ).as_array
+          ActualReleases.new( ssh_session, release_dir_path ).as_array
         end
 
         # service class to get actual releases
         class ActualReleases
+
+          attr_reader :ssh, :dir_path
 
           def initialize ssh, dir_path
             @ssh = ssh
@@ -105,7 +107,7 @@ module Statistrano
           private
 
             def ls_release_dir
-              @ssh.run("ls -m #{@dir_path}").stdout
+              ssh.run("ls -m #{dir_path}").stdout
             end
         end
 
@@ -138,7 +140,7 @@ module Statistrano
 
           if previous_release && previous_release != release_name
             LOG.msg "Setting up the remote by copying previous release"
-            @ssh.run "cp -a #{release_path(previous_release)} #{release_path}"
+            run_remote "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super
           end
@@ -149,7 +151,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           LOG.msg "Removing release '#{name}'"
-          @ssh.run "rm -rf #{release_dir_path}/#{name}"
+          run_remote "rm -rf #{release_dir_path}/#{name}"
 
           @manifest.remove_release(name)
         end
@@ -158,7 +160,7 @@ module Statistrano
         # @param name [String]
         # @return [Void]
         def symlink_release name
-          @ssh.run "ln -nfs #{release_path(name)} #{public_path}"
+          run_remote "ln -nfs #{release_path(name)} #{public_path}"
         end
 
         # Return a release name based on current time

@@ -50,7 +50,14 @@ module Statistrano
 
         def prepare_for_action
           ENV["DEPLOYMENT_ENVIRONMENT"] = @name
-          @ssh = HereOrThere::Remote.session( ssh_options )
+        end
+
+        def ssh_session
+          @_ssh_session ||= HereOrThere::Remote.session( ssh_options )
+        end
+
+        def run_remote command
+          ssh_session.run( command )
         end
 
         def ssh_options
@@ -63,12 +70,12 @@ module Statistrano
         end
 
         def done_with_action
-          @ssh.close_session
+          ssh_session.close_session
         end
 
         # get paths, etc setup on remote
         def setup
-          @ssh.run "mkdir -p #{config.remote_dir}"
+          run_remote "mkdir -p #{config.remote_dir}"
         end
 
         # send code to remote server
@@ -85,7 +92,7 @@ module Statistrano
         # @return [Void]
         def setup_release_path release_path
           LOG.msg "Setting up the remote"
-          @ssh.run "mkdir -p #{release_path}"
+          run_remote "mkdir -p #{release_path}"
         end
 
         # rsync files from local_dir to the remote
