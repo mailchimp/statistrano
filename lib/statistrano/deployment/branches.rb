@@ -24,13 +24,6 @@ module Statistrano
         config.post_deploy_task = "#{@name}:generate_index"
       end
 
-      # define certain things that an action
-      # depends on
-      # @return [Void]
-      def prepare_for_action
-        super
-      end
-
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
