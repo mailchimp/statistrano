@@ -19,10 +19,6 @@ module Statistrano
         @releases     = @remote_store.fetch.sort_by { |release| release.time }
       end
 
-      def releases_asc
-        releases
-      end
-
       def releases_desc
         releases.reverse
       end

@@ -56,10 +56,6 @@ module Statistrano
           config.ssh_session.run( command )
         end
 
-        def run_local command
-          Shell.run_local command
-        end
-
         def done_with_action
           config.ssh_session.close_session
         end
