@@ -120,19 +120,19 @@ module Statistrano
           end
 
           # are there any uncommited changes?
-          if !Git.working_tree_clean?
+          if !Asgit.working_tree_clean?
             LOG.warn "You need to commit or stash your changes before deploying"
             return false
           end
 
           # make sure you're on the branch selected to check against
-          if Git.current_branch != config.git_branch
+          if Asgit.current_branch != config.git_branch
             LOG.warn "You shouldn't deploy from any branch but #{config.git_branch}"
             return false
           end
 
           # make sure you're up to date
-          if !Git.remote_up_to_date?
+          if !Asgit.remote_up_to_date?
             LOG.warn "You need to update or push your changes before deploying"
             return false
           end

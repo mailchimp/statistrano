@@ -5,7 +5,7 @@ describe "creates and manages deployments" do
   before :all do
     pick_fixture "branches_site"
 
-    Statistrano::Git.stub( current_branch: 'first_branch' )
+    Asgit.stub( current_branch: 'first_branch' )
     deployment = define_deployment "branches1", :branches do |c|
       c.build_task = 'remote:copy'
       c.remote = 'localhost'
@@ -18,8 +18,8 @@ describe "creates and manages deployments" do
     Time.stub( now: 1372020000 )
     Rake::Task["branches1:deploy"].invoke
 
-    Statistrano::Git.stub( current_branch: 'second_branch' )
-    deployment.config.public_dir = Statistrano::Git.current_branch
+    Asgit.stub( current_branch: 'second_branch' )
+    deployment.config.public_dir = Asgit.current_branch
 
     reenable_rake_tasks
     Time.stub( now: 1372030000 )

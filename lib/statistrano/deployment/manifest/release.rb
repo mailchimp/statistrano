@@ -24,7 +24,7 @@ module Statistrano
         end
 
         def commit
-          @_commit ||= options.fetch(:commit) { Git.current_commit }
+          @_commit ||= options.fetch(:commit) { Asgit.current_commit }
         end
 
         def link

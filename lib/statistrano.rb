@@ -6,10 +6,10 @@ require 'rake'
 require 'slugity/extend_string'
 require 'benchmark'
 require 'here_or_there'
+require 'asgit'
 
 # utility modules
 require 'statistrano/shell'
-require 'statistrano/git'
 require 'statistrano/log'
 
 # deployment modules

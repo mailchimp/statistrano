@@ -21,5 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency("colorize", ["~> 0.5"])
   s.add_dependency("slugity")
   s.add_dependency("here_or_there")
+  s.add_dependency("asgit")
 
 end

@@ -9,7 +9,7 @@ describe Statistrano::Deployment::Branches do
     end
 
     it "respects the default configs" do
-      Statistrano::Git.stub( current_branch: 'first_branch' )
+      Asgit.stub( current_branch: 'first_branch' )
       deployment = Statistrano::Deployment::Branches.new("name")
 
       deployment.config.public_dir.should == "first_branch"
