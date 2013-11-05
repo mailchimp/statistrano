@@ -52,16 +52,16 @@ module Statistrano
           ENV["DEPLOYMENT_ENVIRONMENT"] = @name
         end
 
-        def ssh_session
-          @_ssh_session ||= HereOrThere::Remote.session( config.ssh_options )
+        def run_remote command
+          config.ssh_session.run( command )
         end
 
-        def run_remote command
-          ssh_session.run( command )
+        def run_local command
+          Shell.run_local command
         end
 
         def done_with_action
-          ssh_session.close_session
+          config.ssh_session.close_session
         end
 
         # get paths, etc setup on remote

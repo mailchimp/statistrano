@@ -87,7 +87,7 @@ module Statistrano
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          ActualReleases.new( ssh_session, release_dir_path ).as_array
+          ActualReleases.new( config.ssh_session, release_dir_path ).as_array
         end
 
         # service class to get actual releases

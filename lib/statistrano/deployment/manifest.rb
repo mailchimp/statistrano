@@ -9,8 +9,8 @@ module Statistrano
 
       def initialize config
         @config = config
-        @ssh = HereOrThere::Remote.session( config.ssh_options )
-        @remote_store = RemoteStore.new(@config, @ssh)
+        @ssh = config.ssh_session
+        @remote_store = RemoteStore.new( @config )
         @releases = @remote_store.fetch
       end
 
@@ -61,28 +61,28 @@ module Statistrano
       #
       class Release
 
-        attr_reader :name
+        attr_reader :name, :config, :options
 
         # init a release
         # @param name [String] name of the release
         # @param config [Obj] the config object
         # @param options [Hash] :time, :commit, & :link || :repo_url
         def initialize name, config, options={}
-          @name = name
-          @config = config
+          @name    = name
+          @config  = config
           @options = convert_string_keys_to_symbols(options)
         end
 
         def time
-          @time ||= @options.fetch(:time) { Time.now.to_i }
+          @_time ||= options.fetch(:time) { Time.now.to_i }
         end
 
         def commit
-          @commit ||= @options.fetch(:commit) { Git.current_commit }
+          @_commit ||= options.fetch(:commit) { Git.current_commit }
         end
 
         def link
-          @link ||= @options.fetch(:link) { (@options[:repo_url]) ? "#{@options[:repo_url]}/tree/#{commit}" : nil }
+          @_link ||= options.fetch(:link) { (options[:repo_url]) ? "#{options[:repo_url]}/tree/#{commit}" : nil }
         end
 
         def log_info
@@ -93,7 +93,7 @@ module Statistrano
         # @return [String]
         def as_li
           "<li>" +
-          "<a href=\"http://#{name}.#{@config.base_domain}\">#{name}</a>" +
+          "<a href=\"http://#{name}.#{config.base_domain}\">#{name}</a>" +
           "<small>updated: #{Time.at(time).strftime('%A %b %d, %Y at %l:%M %P')}</small>" +
           "</li>"
         end
@@ -133,10 +133,11 @@ module Statistrano
         #
         class RemoteStore
 
-          def initialize config, ssh
+          attr_reader :config, :path
+
+          def initialize config
             @config = config
-            @ssh = ssh
-            @path = @config.remote_dir
+            @path   = config.remote_dir
           end
 
           def fetch
@@ -144,8 +145,8 @@ module Statistrano
           end
 
           def update_content string
-            cmd = "touch #{manifest_path} && echo '#{string}' > #{manifest_path}"
-            @ssh.run(cmd)
+            config.ssh_session
+              .run "touch #{manifest_path} && echo '#{string}' > #{manifest_path}"
           end
 
           private
@@ -153,11 +154,11 @@ module Statistrano
             # path to the manifest
             # @return [String]
             def manifest_path
-              File.join( @path, 'manifest.json' )
+              File.join( path, 'manifest.json' )
             end
 
             def fetch_remote_manifest
-              raw_manifest = @ssh.run("touch #{manifest_path} && cat #{manifest_path}")
+              raw_manifest = config.ssh_session.run "touch #{manifest_path} && cat #{manifest_path}"
               if raw_manifest.success? && !raw_manifest.stdout.empty?
                 return JSON.parse( raw_manifest.stdout )
               else
@@ -167,8 +168,8 @@ module Statistrano
 
             def new_release_instance release
               name = release.delete("name")
-              release.merge({ repo_url: @config.repo_url }) if @config.repo_url
-              return Release.new( name, @config, release )
+              release.merge({ repo_url: config.repo_url }) if config.repo_url
+              return Release.new( name, config, release )
             end
         end
     end
