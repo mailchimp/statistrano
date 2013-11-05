@@ -24,8 +24,9 @@ describe "Base deployment integration test" do
 
   it "doesn't create a deployment on the remote & should return false if there is a build error" do
     pick_fixture "error_on_build"
-    Statistrano::Shell.run("rake error:deploy").should be_false
-    Dir.exists?("deployment").should be_false
+    expect( Statistrano::Shell.run_local("rake error:deploy") ).not_to be_success #confirming the error
+
+    expect( Dir.exists?("deployment") ).to be_false
   end
 
 end

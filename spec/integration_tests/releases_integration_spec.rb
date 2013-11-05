@@ -81,9 +81,10 @@ describe "Releases deployment integration test" do
 
     it "rolls back to the previous release" do
       Rake::Task["releases2:rollback"].invoke
-      status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
-      release_folder_contents.should == ["1372030000"]
+      resp = Statistrano::Shell.run_local "ls -l deployment"
+
+      expect( resp.stdout.match("current -> #{Dir.pwd}/deployment/releases/1372030000") ).to be_true
+      expect( release_folder_contents == ["1372030000"] ).to be_true
     end
 
     it "won't rollback if there is only one release" do
