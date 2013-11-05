@@ -72,16 +72,15 @@ module Statistrano
           end
         end
 
-        def setup
-          super
-          @manifest = Manifest.new( config )
+        def manifest
+          @_manifest ||= Manifest.new( config )
         end
 
         # Return array of releases from manifest
         # @return [Array]
         def get_releases
           setup
-          @manifest.list
+          manifest.list
         end
 
         # Return array of releases on the remote
@@ -123,7 +122,7 @@ module Statistrano
         end
 
         def add_release_to_manifest name
-          @manifest.add_release( Manifest::Release.new( name, config ))
+          manifest.add_release( Manifest::Release.new( name, config ))
         end
 
         def create_release_on_remote name
@@ -153,7 +152,7 @@ module Statistrano
           LOG.msg "Removing release '#{name}'"
           run_remote "rm -rf #{release_dir_path}/#{name}"
 
-          @manifest.remove_release(name)
+          manifest.remove_release(name)
         end
 
         # Symlink a release to the public path
