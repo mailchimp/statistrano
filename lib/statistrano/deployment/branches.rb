@@ -62,7 +62,7 @@ module Statistrano
       private
 
         def manifest
-          @_manifest ||= Manifest.new( config, ssh_session )
+          @_manifest ||= Manifest.new( config )
         end
 
         def pick_and_remove_release

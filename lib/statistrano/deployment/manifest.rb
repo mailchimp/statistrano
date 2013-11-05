@@ -7,9 +7,9 @@ module Statistrano
     #
     class Manifest
 
-      def initialize config, ssh_session
+      def initialize config
         @config = config
-        @ssh = ssh_session
+        @ssh = HereOrThere::Remote.session( config.ssh_options )
         @remote_store = RemoteStore.new(@config, @ssh)
         @releases = @remote_store.fetch
       end

@@ -74,7 +74,7 @@ module Statistrano
 
         def setup
           super
-          @manifest = Manifest.new( config, ssh_session )
+          @manifest = Manifest.new( config )
         end
 
         # Return array of releases from manifest
