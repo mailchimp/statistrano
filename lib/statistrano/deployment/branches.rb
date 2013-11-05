@@ -7,7 +7,7 @@ module Statistrano
     #
     class Branches < Base
 
-      options :public_dir, :post_deploy_task, :manifest, :base_domain
+      options :public_dir, :post_deploy_task, :base_domain
 
       task :list, :list_releases, "List branches"
       task :prune, :prune_releases, "Prune a branch"
@@ -34,7 +34,7 @@ module Statistrano
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        @manifest.releases.reverse.each { |release| release.log_info }
+        manifest.releases.reverse.each { |release| release.log_info }
       end
 
       # trim releases not in the manifest,
@@ -60,6 +60,10 @@ module Statistrano
       end
 
       private
+
+        def manifest
+          @_manifest ||= Manifest.new( config, @ssh )
+        end
 
         def pick_and_remove_release
           picked_release = pick_release_to_remove
@@ -98,14 +102,9 @@ module Statistrano
         end
 
         def release_list_html
-          release_list = @manifest.releases.map { |release| release.as_li }.join('')
+          release_list = manifest.releases.map { |release| release.as_li }.join('')
           template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
           template.gsub( '{{release_list}}', release_list )
-        end
-
-        def setup
-          super
-          @manifest = Manifest.new( config, @ssh )
         end
 
         # send code to remote server
@@ -114,7 +113,7 @@ module Statistrano
           setup_release_path(current_release_path)
           rsync_to_remote(current_release_path)
 
-          @manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
+          manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
 
           LOG.msg "Created release at #{config.public_dir}"
         end
@@ -125,13 +124,13 @@ module Statistrano
         def remove_release name
           LOG.msg "Removing release '#{name}'"
           @ssh.run "rm -rf #{release_path(name)}"
-          @manifest.remove_release(name)
+          manifest.remove_release(name)
         end
 
         # return array of releases from the manifest
         # @return [Array]
         def get_releases
-          @manifest.list
+          manifest.list
         end
 
         # return array of releases on the remote
