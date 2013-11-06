@@ -50,16 +50,19 @@ module Statistrano
 
         def prepare_for_action
           ENV["DEPLOYMENT_ENVIRONMENT"] = @name
-          @ssh = ::Statistrano::SSH.new( config )
+        end
+
+        def run_remote command
+          config.ssh_session.run( command )
         end
 
         def done_with_action
-          @ssh.close_session
+          config.ssh_session.close_session
         end
 
         # get paths, etc setup on remote
         def setup
-          @ssh.run_command "mkdir -p #{config.remote_dir}"
+          run_remote "mkdir -p #{config.remote_dir}"
         end
 
         # send code to remote server
@@ -76,7 +79,7 @@ module Statistrano
         # @return [Void]
         def setup_release_path release_path
           LOG.msg "Setting up the remote"
-          @ssh.run_command "mkdir -p #{release_path}"
+          run_remote "mkdir -p #{release_path}"
         end
 
         # rsync files from local_dir to the remote
@@ -86,7 +89,7 @@ module Statistrano
           LOG.msg "Syncing files to remote"
 
           time = Benchmark.realtime do
-            if Shell.run "rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/"
+            if Shell.run_local("rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/").success?
               LOG.success "Files synced to remote"
             else
               LOG.error "Error syncing files to remote"
@@ -117,19 +120,19 @@ module Statistrano
           end
 
           # are there any uncommited changes?
-          if !Git.working_tree_clean?
+          if !Asgit.working_tree_clean?
             LOG.warn "You need to commit or stash your changes before deploying"
             return false
           end
 
           # make sure you're on the branch selected to check against
-          if Git.current_branch != config.git_branch
+          if Asgit.current_branch != config.git_branch
             LOG.warn "You shouldn't deploy from any branch but #{config.git_branch}"
             return false
           end
 
           # make sure you're up to date
-          if !Git.remote_up_to_date?
+          if !Asgit.remote_up_to_date?
             LOG.warn "You need to update or push your changes before deploying"
             return false
           end

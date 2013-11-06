@@ -20,8 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency("rake", ["~> 10.0"])
   s.add_dependency("colorize", ["~> 0.5"])
   s.add_dependency("slugity")
-
-  # Networking
-  s.add_dependency("net-ssh", ["~> 2.6"])
+  s.add_dependency("here_or_there")
+  s.add_dependency("asgit")
 
 end

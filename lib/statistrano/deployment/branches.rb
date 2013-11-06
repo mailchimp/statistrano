@@ -20,21 +20,14 @@ module Statistrano
         # these are set on initialization due to
         # requiring access to instance information
         #
-        config.public_dir = Git.current_branch.to_slug
+        config.public_dir = Asgit.current_branch.to_slug
         config.post_deploy_task = "#{@name}:generate_index"
-      end
-
-      # define certain things that an action
-      # depends on
-      # @return [Void]
-      def prepare_for_action
-        super
       end
 
       # output a list of the releases in manifest
       # @return [Void]
       def list_releases
-        manifest.releases.reverse.each { |release| release.log_info }
+        manifest.releases_desc.each { |release| release.log_info }
       end
 
       # trim releases not in the manifest,
@@ -53,16 +46,16 @@ module Statistrano
       # generate an index file for releases in the manifest
       # @return [Void]
       def generate_index
-        index_dir = File.join( config.remote_dir, "index" )
+        index_dir  = File.join( config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
         setup_release_path( index_dir )
-        @ssh.run_command "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
+        run_remote "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
       end
 
       private
 
         def manifest
-          @_manifest ||= Manifest.new( config, @ssh )
+          @_manifest ||= Manifest.new( config )
         end
 
         def pick_and_remove_release
@@ -102,7 +95,7 @@ module Statistrano
         end
 
         def release_list_html
-          release_list = manifest.releases.map { |release| release.as_li }.join('')
+          release_list = manifest.releases_desc.map { |release| release.as_li }.join('')
           template = IO.read( File.expand_path( '../../../../templates/index.html', __FILE__) )
           template.gsub( '{{release_list}}', release_list )
         end
@@ -123,7 +116,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           LOG.msg "Removing release '#{name}'"
-          @ssh.run_command "rm -rf #{release_path(name)}"
+          run_remote "rm -rf #{release_path(name)}"
           manifest.remove_release(name)
         end
 
@@ -137,9 +130,8 @@ module Statistrano
         # @return [Array]
         def get_actual_releases
           releases = []
-          @ssh.run_command("ls -mp #{config.remote_dir}") do |ch, stream, data|
-            releases = data.strip.split(',')
-          end
+          resp = run_remote("ls -mp #{config.remote_dir}")
+          releases = resp.stdout.strip.split(',')
           releases.keep_if { |release| /\/$/.match(release) }
           releases.map { |release| release.strip.gsub(/(\/$)/, '') }.keep_if { |release| release != "index" }
         end

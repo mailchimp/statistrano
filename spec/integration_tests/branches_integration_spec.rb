@@ -5,7 +5,7 @@ describe "creates and manages deployments" do
   before :all do
     pick_fixture "branches_site"
 
-    Statistrano::Git.set_branch "first_branch"
+    Asgit.stub( current_branch: 'first_branch' )
     deployment = define_deployment "branches1", :branches do |c|
       c.build_task = 'remote:copy'
       c.remote = 'localhost'
@@ -15,22 +15,19 @@ describe "creates and manages deployments" do
     end
 
     reenable_rake_tasks
-    set_time(1372020000)
+    Time.stub( now: 1372020000 )
     Rake::Task["branches1:deploy"].invoke
-    Time.thaw
 
-    Statistrano::Git.set_branch "second_branch"
-    deployment.config.public_dir = Statistrano::Git.current_branch
+    Asgit.stub( current_branch: 'second_branch' )
+    deployment.config.public_dir = Asgit.current_branch
 
     reenable_rake_tasks
-    set_time(1372030000)
+    Time.stub( now: 1372030000 )
     Rake::Task["branches1:deploy"].invoke
-    Time.thaw
   end
 
   after :all do
     cleanup_fixture
-    Statistrano::Git.unset_branch
   end
 
   it "generates a release at the specified branches" do
@@ -40,12 +37,11 @@ describe "creates and manages deployments" do
   end
 
   it "lists the deployed branches" do
-    $stdout.rewind
-    Rake::Task["branches1:list"].invoke
-    $stdout.rewind
-    lines = Array($stdout.readlines[1..2])
-    lines[0].include?("first_branch").should be_true
-    lines[1].include?("second_branch").should be_true
+    output = Capture.stdout {
+      Rake::Task["branches1:list"].invoke
+    }
+    output.include?("first_branch").should be_true
+    output.include?("second_branch").should be_true
   end
 
   it "generates an index page with the correct order of branches" do

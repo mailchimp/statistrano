@@ -15,17 +15,18 @@ describe "Base deployment integration test" do
       c.remote_dir = File.join( Dir.pwd, 'deployment' )
     end
     Rake::Task["base:deploy"].invoke
-    result_a, source = Statistrano::Shell.run("ls source")
-    result_b, deployment = Statistrano::Shell.run("ls deployment")
-    result_a.should be_true
-    result_b.should be_true
-    deployment.should == source
+    result_a = Statistrano::Shell.run_local("ls source")
+    result_b = Statistrano::Shell.run_local("ls deployment")
+    expect( result_a ).to be_success
+    expect( result_b ).to be_success
+    expect( result_a.stdout ).to eq result_b.stdout
   end
 
   it "doesn't create a deployment on the remote & should return false if there is a build error" do
     pick_fixture "error_on_build"
-    Statistrano::Shell.run("rake error:deploy").should be_false
-    Dir.exists?("deployment").should be_false
+    expect( Statistrano::Shell.run_local("rake error:deploy") ).not_to be_success #confirming the error
+
+    expect( Dir.exists?("deployment") ).to be_false
   end
 
 end

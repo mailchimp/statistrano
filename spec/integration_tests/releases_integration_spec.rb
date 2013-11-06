@@ -12,18 +12,17 @@ describe "Releases deployment integration test" do
         c.local_dir = 'build'
         c.remote_dir = File.join( Dir.pwd, 'deployment' )
       end
-      set_time(1372020000)
+      Time.stub( now: 1372020000 )
       reenable_rake_tasks
       Rake::Task["releases1:deploy"].invoke
 
-      set_time(1372030000)
+      Time.stub( now: 1372030000 )
       reenable_rake_tasks
       Rake::Task["releases1:deploy"].invoke
     end
 
     after :all do
       cleanup_fixture
-      Time.thaw
     end
 
 
@@ -32,15 +31,18 @@ describe "Releases deployment integration test" do
     end
 
     it "symlinks the pub_dir to the most recent release" do
-      status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
+      Statistrano::Shell.run_local("ls -l deployment")
+        .stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
     end
 
     it "returns a list of the currently deployed deployments" do
-      $stdout.rewind
-      Rake::Task["releases1:list"].invoke
-      $stdout.rewind
-      $stdout.readlines[1..2].should == ["\e[0;30;49m-> \e[0m   \e[0;34;49mcurrent\e[0m  Sun Jun 23, 2013 at  7:26 pm\n", "\e[0;30;49m-> \e[0m          \e[0;34;49m\e[0m  Sun Jun 23, 2013 at  4:40 pm\n"]
+      output = Capture.stdout {
+        Rake::Task["releases1:list"].invoke
+      }.split("\n")
+
+      expect( output[0].match("current") ).to be_true
+      expect( output[0].match("Sun Jun 23, 2013 at  7:26 pm") ).to be_true
+      expect( output[1].match("Sun Jun 23, 2013 at  4:40 pm") ).to be_true
     end
   end
 
@@ -56,22 +58,21 @@ describe "Releases deployment integration test" do
         c.release_count = 2
       end
 
-      set_time(1372020000)
+      Time.stub( now:1372020000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
 
-      set_time(1372030000)
+      Time.stub( now:1372030000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
 
-      set_time(1372040000)
+      Time.stub( now:1372040000 )
       reenable_rake_tasks
       Rake::Task["releases2:deploy"].invoke
     end
 
     after :all do
       cleanup_fixture
-      Time.thaw
     end
 
     it "removes the oldest deployment" do
@@ -80,9 +81,10 @@ describe "Releases deployment integration test" do
 
     it "rolls back to the previous release" do
       Rake::Task["releases2:rollback"].invoke
-      status, stdout = Statistrano::Shell.run("ls -l deployment")
-      stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
-      release_folder_contents.should == ["1372030000"]
+      resp = Statistrano::Shell.run_local "ls -l deployment"
+
+      expect( resp.stdout.match("current -> #{Dir.pwd}/deployment/releases/1372030000") ).to be_true
+      expect( release_folder_contents == ["1372030000"] ).to be_true
     end
 
     it "won't rollback if there is only one release" do

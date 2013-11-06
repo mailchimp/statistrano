@@ -18,6 +18,30 @@ $stdout = output
 
 ROOT = Dir.pwd
 
+# support
+require 'support/capture'
+
+describe "support" do
+
+  describe Capture do
+    describe "#stdout" do
+      it "returns a string representation fo what is sent to stdout inside the given block" do
+        out = Capture.stdout { $stdout.puts "hello"; $stdout.puts "world" }
+        expect( out ).to eq "hello\nworld\n"
+      end
+    end
+
+    describe "#stderr" do
+      it "returns a string representation fo what is sent to stderr inside the given block" do
+        out = Capture.stderr { $stderr.puts "hello"; $stderr.puts "world" }
+        expect( out ).to eq "hello\nworld\n"
+      end
+    end
+  end
+
+end
+
+
 def pick_fixture name
   Dir.chdir( File.join( ROOT, "fixture", name ) )
 end
@@ -53,123 +77,15 @@ def deployment_folder_contents
   Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
 end
 
-#     Monkey Patch Time
-# ----------------------------------------------------
-
-class Time
-  class << self
-    def frozen_now
-      @now || advancing_now
-    end
-
-    def static_time= time
-      @now = time
-    end
-
-    def thaw
-      @now = nil
-    end
-
-    alias_method :advancing_now, :now
-    alias_method :now, :frozen_now
-  end
-end
-
-def set_time out
-  Time.static_time = Time.at(out)
-end
-
-
-#     Monkey Patch Stat::Git
-# ----------------------------------------------------
-
-module Statistrano
-  module Git
-    class << self
-      def set_branch branch
-        @branch = branch
-      end
-      def static_branch
-        @branch || live_branch
-      end
-      def unset_branch
-        @branch = nil
-      end
-
-      alias_method :live_branch, :current_branch
-      alias_method :current_branch, :static_branch
-    end
-  end
-end
-
 
 #     Patches STDIN for a block
 # ----------------------------------------------------
 
 def fake_stdin(*args)
-  begin
-    $stdin = StringIO.new
-    $stdin.puts(args.shift) until args.empty?
-    $stdin.rewind
-    yield
-  ensure
-    $stdin = STDIN
-  end
-end
-
-
-#     Patches STDOUT for Shell.run
-# ----------------------------------------------------
-
-def fake_stdout out
-  begin
-    Statistrano::Shell.set_stdout out
-    yield
-  ensure
-    Statistrano::Shell.unset_stdout
-  end
-end
-
-def fake_stderr err
-  begin
-    Statistrano::Shell.set_stderr err
-    yield
-  ensure
-    Statistrano::Shell.unset_stderr
-  end
-end
-
-
-module Statistrano
-  module Shell
-    class << self
-      def patched_run command, &block
-        if @shell_out || @shell_err
-          yield @shell_out if block_given?
-          [ true, @shell_out, @shell_err ]
-        else
-          system_run command, &block
-        end
-      end
-
-      def set_stdout out
-        @shell_out = out
-      end
-
-      def unset_stdout
-        @shell_out = nil
-      end
-
-      def set_stderr err
-        @shell_err = err
-      end
-
-      def unset_stderr
-        @shell_err = nil
-      end
-
-      alias_method :system_run, :run
-      alias_method :run, :patched_run
-    end
-  end
+  $stdin = StringIO.new
+  $stdin.puts(args.shift) until args.empty?
+  $stdin.rewind
+  yield
+ensure
+  $stdin = STDIN
 end

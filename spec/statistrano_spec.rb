@@ -18,6 +18,10 @@ describe Statistrano do
       branches.class.should == Statistrano::Deployment::Branches
     end
 
+    it "raises and ArgumentError if a deployment type isn't defined" do
+      expect{ define_deployment("foo", :foo) }.to raise_error NameError
+    end
+
     it "allows the deployment to be configured" do
       deployment = define_deployment "hello" do |config|
         config.remote_dir = "/var/www/example.com"

@@ -19,7 +19,20 @@ module Statistrano
       end
     end
 
+    def ssh_session
+      @_ssh_session ||= HereOrThere::Remote.session ssh_options
+    end
+
     private
+
+      def ssh_options
+        ssh_options = { hostname: remote }
+        [ :user, :password, :keys, :forward_agent ].each do |key|
+          ssh_options[key] = public_send(key) if public_send(key)
+        end
+
+        return ssh_options
+      end
 
       def define_option_accessor name
         define_singleton_method(name) do |*args|

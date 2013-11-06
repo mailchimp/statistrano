@@ -1,3 +1,8 @@
+- misc refactoring
+- switch to Asgit for git status queries
+- change the way ssh sessions are handled, now passed with the config
+- using HereOrThere for running commands (has a consistent response object)
+
 # 0.8.1
 - fix nil error for manifest in branches
 

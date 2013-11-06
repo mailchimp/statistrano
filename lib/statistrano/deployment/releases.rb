@@ -72,26 +72,27 @@ module Statistrano
           end
         end
 
-        def setup
-          super
-          @manifest = Manifest.new( config, @ssh )
+        def manifest
+          @_manifest ||= Manifest.new( config )
         end
 
         # Return array of releases from manifest
         # @return [Array]
         def get_releases
           setup
-          @manifest.list
+          manifest.list
         end
 
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          ActualReleases.new( @ssh, release_dir_path ).as_array
+          ActualReleases.new( config.ssh_session, release_dir_path ).as_array
         end
 
         # service class to get actual releases
         class ActualReleases
+
+          attr_reader :ssh, :dir_path
 
           def initialize ssh, dir_path
             @ssh = ssh
@@ -105,9 +106,7 @@ module Statistrano
           private
 
             def ls_release_dir
-              @ssh.run_command("ls -m #{@dir_path}") do |ch, stream, data|
-                return data
-              end
+              ssh.run("ls -m #{dir_path}").stdout
             end
         end
 
@@ -123,7 +122,7 @@ module Statistrano
         end
 
         def add_release_to_manifest name
-          @manifest.add_release( Manifest::Release.new( name, config ))
+          manifest.add_release( Manifest::Release.new( name, config ))
         end
 
         def create_release_on_remote name
@@ -140,7 +139,7 @@ module Statistrano
 
           if previous_release && previous_release != release_name
             LOG.msg "Setting up the remote by copying previous release"
-            @ssh.run_command "cp -a #{release_path(previous_release)} #{release_path}"
+            run_remote "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super
           end
@@ -151,16 +150,16 @@ module Statistrano
         # @return [Void]
         def remove_release name
           LOG.msg "Removing release '#{name}'"
-          @ssh.run_command "rm -rf #{release_dir_path}/#{name}"
+          run_remote "rm -rf #{release_dir_path}/#{name}"
 
-          @manifest.remove_release(name)
+          manifest.remove_release(name)
         end
 
         # Symlink a release to the public path
         # @param name [String]
         # @return [Void]
         def symlink_release name
-          @ssh.run_command "ln -nfs #{release_path(name)} #{public_path}"
+          run_remote "ln -nfs #{release_path(name)} #{public_path}"
         end
 
         # Return a release name based on current time
