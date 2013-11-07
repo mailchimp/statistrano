@@ -10,29 +10,32 @@ Installation
 
 With Bundler
 ```ruby
-gem 'statistrano', :git => 'git@github.com:mailchimp/statistrano.git'
+gem "statistrano", git: "git@github.com:mailchimp/statistrano.git"
 ```
 
 
 Examples
 ========
 
-### Basic deployment
+### Base deployment
 The base setup simply copies a local directory to a remote directory
 
 ```ruby
 # deploy.rake
 require 'statistrano'
 
-define_deployment "basic" do |config|
+define_deployment "basic" do
 
-  config.remote = 'remote_name'
-  config.user = 'freddie' # optional
-  config.password = 'something long and stuff' # optional
+  remote     'remote_name'
+  user       'freddie' # optional if remote is setup in .ssh/config
+  password   'something long and stuff' # optional if remote is setup in .ssh/config
 
-  config.remote_dir = '/var/www/mailchimp.com'
-  config.local_dir = 'build'
-  config.build_task = 'middleman:build' # optional if nothing needs to be built
+  remote_dir '/var/www/mailchimp.com'
+  local_dir  'build'
+  build_task 'middleman:build' # optional if nothing needs to be built
+
+  check_git  true # optional, set to false if git shouldn't be checked
+  git_branch 'master' # which branch to check against
 
 end
 ```
@@ -66,12 +69,12 @@ Out of the box Statistrano allows you to pick from a release based deployment, o
 # deploy.rake
 require 'statistrano'
 
-define_deployment "production", :releases do |config|
+define_deployment "production", :releases do
 
-  config.remote = 'remote_name'
-  config.build_task = 'middleman:build'
-  config.local_dir = 'build'
-  config.remote_dir = '/var/www/mailchimp.com'
+  remote      'remote_name'
+  build_task  'middleman:build'
+  local_dir   'build'
+  remote_dir  '/var/www/mailchimp.com'
 
 end
 ```
@@ -96,13 +99,13 @@ The branch deployment type adds some nice defaults to use the current branch as 
 
 
 ```ruby
-define_deployment "branches", :branches do |config|
+define_deployment "branches", :branches do
 
-  config.remote = 'remote_name'
-  config.build_task = 'middleman:build'
-  config.local_dir = 'build'
-  config.remote_dir = '/var/www/mailchimp.com'
-  config.base_domain = "mailchimp.com"
+  remote      'remote_name'
+  build_task  'middleman:build'
+  local_dir   'build'
+  remote_dir  '/var/www/mailchimp.com'
+  base_domain "mailchimp.com"
 
 end
 ```
@@ -122,19 +125,19 @@ If you have set a base_domain, opens the branch in your default browser
 shows list of currently deployed branches to pick from and remove
 
 `rake branches:generate_index`  
-manually kicks of index generation, good to run after pruning
+manually kicks of index generation, typically you shouldn't need to do this
 
 
 ### Config Syntax
 
-In addition to yielding config to a block, you may pass no argument and run bare methods to configure deployments.
+In addition to the "DSL" way of configuring, the `define_deployment` block will yield the config if an argument is passed. You can use this if you need to do any specific manipulation to config (is also the "old" syntax).
 
 ```ruby
-define_deployment "basic" do
+define_deployment "basic" do |config|
 
-  remote 'remote_name'
-  remote_dir '/var/www/mailchimp.com'
-  local_dir 'build'
+  config.remote     =  'remote_name'
+  config.remote_dir =  '/var/www/mailchimp.com'
+  config.local_dir  =  'build'
 
 end
 ```
