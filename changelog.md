@@ -1,3 +1,4 @@
+# 0.9.0
 - misc refactoring
 - switch to Asgit for git status queries
 - change the way ssh sessions are handled, now passed with the config
