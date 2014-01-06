@@ -1,3 +1,5 @@
+- remoge Git code (it wasn't being used)
+
 # 0.9.0
 - misc refactoring
 - switch to Asgit for git status queries
