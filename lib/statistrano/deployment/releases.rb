@@ -6,7 +6,7 @@ module Statistrano
     # to rollback to previous deploys.
     #
     class Releases < Base
-
+      register_type :releases
 
       option :release_count, 5
       option :release_dir, "releases"

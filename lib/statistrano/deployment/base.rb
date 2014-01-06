@@ -5,9 +5,12 @@ module Statistrano
     # it holds the common methods needed
     # to create a deployment
     class Base
+      extend ::Statistrano::Deployment::Registerable
       extend ::Statistrano::Config::Configurable
 
       attr_reader :name
+
+      register_type :base
 
       options :remote_dir, :local_dir, :remote, :user, :password, :keys, :forward_agent, :build_task, :check_git, :git_branch, :repo_url, :post_deploy_task
 

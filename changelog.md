@@ -1,3 +1,4 @@
+- add a types cache and register methods for registering deployment types
 - remoge Git code (it wasn't being used)
 
 # 0.9.0

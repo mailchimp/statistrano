@@ -6,6 +6,7 @@ module Statistrano
     # current git branch, eg. doing feature branch deployments
     #
     class Branches < Base
+      register_type :branches
 
       options :public_dir, :post_deploy_task, :base_domain
 
