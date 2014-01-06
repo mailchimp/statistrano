@@ -31,7 +31,7 @@ describe Statistrano::Config::Configurable do
       names = [:one,:two]
 
       names.each do |meth|
-        expect( subject.config.respond_to? meth ).to be_true
+        expect( subject.config.respond_to? meth ).to be_truthy
       end
     end
 

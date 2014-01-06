@@ -5,20 +5,20 @@ describe Statistrano::Deployment::Branches do
   describe "#new" do
     it "creates a deployment with a name" do
       deployment = Statistrano::Deployment::Branches.new("name")
-      deployment.name.should == "name"
+      expect( deployment.name ).to eq "name"
     end
 
     it "respects the default configs" do
-      Asgit.stub( current_branch: 'first_branch' )
+      allow( Asgit ).to receive(:current_branch).and_return('first_branch')
       deployment = Statistrano::Deployment::Branches.new("name")
 
-      deployment.config.public_dir.should == "first_branch"
-      deployment.config.post_deploy_task.should == "name:generate_index"
+      expect( deployment.config.public_dir ).to eq "first_branch"
+      expect( deployment.config.post_deploy_task ).to eq "name:generate_index"
     end
   end
 
   it "should not reek" do
-    Dir["lib/statistrano/deployment/branches.rb"].should_not reek
+    expect( Dir["lib/statistrano/deployment/branches.rb"] ).not_to reek
   end
 
 end

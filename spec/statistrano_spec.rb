@@ -5,7 +5,7 @@ describe Statistrano do
   describe "#define_deployment" do
     it "creates a new deployment with a name" do
       deployment = define_deployment("hello")
-      deployment.name.should == "hello"
+      expect( deployment.name ).to eq "hello"
     end
 
     it "creates a new deployment with the specified type" do
@@ -13,9 +13,9 @@ describe Statistrano do
       releases = define_deployment("releases", :releases)
       branches = define_deployment("branches", :branches)
 
-      default.class.should  == Statistrano::Deployment::Base
-      releases.class.should == Statistrano::Deployment::Releases
-      branches.class.should == Statistrano::Deployment::Branches
+      expect( default.class ).to eq Statistrano::Deployment::Base
+      expect( releases.class ).to eq Statistrano::Deployment::Releases
+      expect( branches.class ).to eq Statistrano::Deployment::Branches
     end
 
     it "raises and ArgumentError if a deployment type isn't defined" do
@@ -35,9 +35,9 @@ describe Statistrano do
         config.base_domain = "foo.com"
       end
 
-      deployment.config.remote_dir.should == "/var/www/example.com"
-      branch.config.base_domain.should == "foo.com"
-      releases.config.build_task.should == "build:something"
+      expect( deployment.config.remote_dir ).to eq "/var/www/example.com"
+      expect( branch.config.base_domain ).to eq "foo.com"
+      expect( releases.config.build_task ).to eq "build:something"
     end
 
     it "has a 'sugar' syntax for configuration" do
@@ -45,7 +45,7 @@ describe Statistrano do
         remote_dir "/var/www/sugarandspice.com"
       end
 
-      deployment.config.remote_dir.should == "/var/www/sugarandspice.com"
+      expect( deployment.config.remote_dir ).to eq "/var/www/sugarandspice.com"
     end
   end
 

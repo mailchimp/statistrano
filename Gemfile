@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :document do
-  gem 'yard'
+  gem "yard"
 end
 
 group :development, :test do
@@ -11,8 +11,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'rspec'
-  gem 'autotest'
-  gem 'simplecov', :require => false
-  gem 'reek'
+  gem "rspec", "~> 3.0.0.beta1 "
+  gem "reek",  "~> 1.3.1"
+  gem "simplecov", :require => false
 end

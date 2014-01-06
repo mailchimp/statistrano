@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Base deployment integration test" do
+describe "Base deployment integration test", :integration do
 
   after :each do
     cleanup_fixture
@@ -26,7 +26,7 @@ describe "Base deployment integration test" do
     pick_fixture "error_on_build"
     expect( Statistrano::Shell.run_local("rake error:deploy") ).not_to be_success #confirming the error
 
-    expect( Dir.exists?("deployment") ).to be_false
+    expect( Dir.exists?("deployment") ).to be_falsy
   end
 
 end
