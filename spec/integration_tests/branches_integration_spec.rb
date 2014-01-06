@@ -2,6 +2,12 @@ require 'spec_helper'
 
 describe "creates and manages deployments", :integration do
 
+
+  # leaving stubs in place until 3.0.0 lands
+  # that will bring the with_temporary_scope and ability
+  # to use new syntax in before :all blocks
+  # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
+  #
   before :all do
     pick_fixture "branches_site"
 
@@ -37,7 +43,7 @@ describe "creates and manages deployments", :integration do
   end
 
   it "lists the deployed branches" do
-    output = Capture.stdout {
+    output = catch_stdout {
       Rake::Task["branches1:list"].invoke
     }
     expect( output ).to include "first_branch"
@@ -50,7 +56,7 @@ describe "creates and manages deployments", :integration do
   end
 
   it "removes the selected branch to prune" do
-    fake_stdin(1) do
+    release_stdin 1 do
       Rake::Task["branches1:prune"].invoke
       expect( Dir[ "deployment/**" ] ).not_to include "deployment/first_branch"
     end

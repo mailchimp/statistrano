@@ -41,7 +41,7 @@ describe "Releases deployment integration test", :integration do
     end
 
     it "returns a list of the currently deployed deployments" do
-      output = Capture.stdout {
+      output = catch_stdout {
         Rake::Task["releases1:list"].invoke
       }.split("\n")
 

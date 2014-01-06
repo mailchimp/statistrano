@@ -1,15 +1,16 @@
-require 'simplecov'
-SimpleCov.start
-
 require 'rspec'
+require 'rake'
 require 'pry-debugger'
-require 'statistrano'
 require 'fileutils'
+require 'catch_and_release'
+require 'catch_and_release/rspec'
 
 require 'reek'
 require 'reek/spec'
+
 RSpec.configure do |c|
-  c.include(Reek::Spec)
+  c.include CatchAndRelease::RSpec
+  c.include Reek::Spec
 end
 
 # for eating up stdout
@@ -18,22 +19,20 @@ $stdout = output
 
 ROOT = Dir.pwd
 
-# support
-require 'support/capture'
 
 describe "support" do
 
-  describe Capture do
+  describe "CatchAndRelease" do
     describe "#stdout" do
       it "returns a string representation fo what is sent to stdout inside the given block" do
-        out = Capture.stdout { $stdout.puts "hello"; $stdout.puts "world" }
+        out = catch_stdout { $stdout.puts "hello"; $stdout.puts "world" }
         expect( out ).to eq "hello\nworld\n"
       end
     end
 
     describe "#stderr" do
       it "returns a string representation fo what is sent to stderr inside the given block" do
-        out = Capture.stderr { $stderr.puts "hello"; $stderr.puts "world" }
+        out = catch_stderr { $stderr.puts "hello"; $stderr.puts "world" }
         expect( out ).to eq "hello\nworld\n"
       end
     end
@@ -41,6 +40,8 @@ describe "support" do
 
 end
 
+#     Fixtures
+# ----------------------------------------------------
 
 def pick_fixture name
   Dir.chdir( File.join( ROOT, "fixture", name ) )
@@ -54,6 +55,10 @@ end
 def tracer msg
   STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
 end
+
+
+#     Rake Helpers
+# ----------------------------------------------------
 
 include ::Rake::DSL
 namespace :remote do
@@ -77,15 +82,10 @@ def deployment_folder_contents
   Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
 end
 
-
-#     Patches STDIN for a block
+#     Startup SimpleCov
 # ----------------------------------------------------
 
-def fake_stdin(*args)
-  $stdin = StringIO.new
-  $stdin.puts(args.shift) until args.empty?
-  $stdin.rewind
-  yield
-ensure
-  $stdin = STDIN
-end
+require 'simplecov'
+SimpleCov.start
+
+require 'statistrano'
