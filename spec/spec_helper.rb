@@ -19,6 +19,7 @@ $stdout = output
 
 ROOT = Dir.pwd
 
+require 'support/given'
 
 describe "support" do
 
@@ -39,23 +40,6 @@ describe "support" do
   end
 
 end
-
-#     Fixtures
-# ----------------------------------------------------
-
-def pick_fixture name
-  Dir.chdir( File.join( ROOT, "fixture", name ) )
-end
-
-def cleanup_fixture
-  FileUtils.rm_rf File.join( Dir.getwd, "deployment" )
-  Dir.chdir( ROOT )
-end
-
-def tracer msg
-  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
-end
-
 
 #     Rake Helpers
 # ----------------------------------------------------
@@ -80,6 +64,10 @@ end
 
 def deployment_folder_contents
   Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
+end
+
+def tracer msg
+  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
 end
 
 #     Startup SimpleCov

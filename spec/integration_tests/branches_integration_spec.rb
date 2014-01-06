@@ -9,7 +9,7 @@ describe "creates and manages deployments", :integration do
   # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
   #
   before :all do
-    pick_fixture "branches_site"
+    Given.fixture "base"
 
     Asgit.stub( current_branch: 'first_branch' )
     deployment = define_deployment "branches1", :branches do |c|
@@ -33,7 +33,7 @@ describe "creates and manages deployments", :integration do
   end
 
   after :all do
-    cleanup_fixture
+    Given.cleanup!
   end
 
   it "generates a release at the specified branches" do

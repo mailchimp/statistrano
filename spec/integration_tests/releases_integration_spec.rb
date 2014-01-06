@@ -10,7 +10,7 @@ describe "Releases deployment integration test", :integration do
     # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
     #
     before :all do
-      pick_fixture "releases_site"
+      Given.fixture "base"
       define_deployment "releases1", :releases do |c|
         c.build_task = 'remote:copy'
         c.remote = 'localhost'
@@ -27,7 +27,7 @@ describe "Releases deployment integration test", :integration do
     end
 
     after :all do
-      cleanup_fixture
+      Given.cleanup!
     end
 
 
@@ -59,7 +59,7 @@ describe "Releases deployment integration test", :integration do
     # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
     #
     before :all do
-      pick_fixture "releases_site"
+      Given.fixture "base"
       define_deployment "releases2", :releases do |c|
         c.build_task = 'remote:copy'
         c.remote = 'localhost'
@@ -82,7 +82,7 @@ describe "Releases deployment integration test", :integration do
     end
 
     after :all do
-      cleanup_fixture
+      Given.cleanup!
     end
 
     it "removes the oldest deployment" do
