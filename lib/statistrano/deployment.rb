@@ -40,3 +40,4 @@ end
 require 'statistrano/deployment/base'
 require 'statistrano/deployment/releases'
 require 'statistrano/deployment/branches'
+require 'statistrano/deployment/multi_target'
