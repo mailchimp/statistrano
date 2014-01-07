@@ -12,6 +12,16 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       subject = described_class.new release_count: 10
       expect( subject.config.release_dir ).to eq "releases"
     end
+
+    it "generates release_name from current time" do
+      time = Time.now
+      allow( Time ).to receive(:now).and_return(time)
+      subject = described_class.new
+
+      allow( Time ).to receive(:now).and_return(time + 1)
+      expect( Time.now ).not_to eq time # ensure that the time + 1 works
+      expect( subject.release_name ).to eq time.to_i.to_s
+    end
   end
 
 end
