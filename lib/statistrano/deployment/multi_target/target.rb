@@ -14,6 +14,8 @@ module Statistrano
           config.options.each do |opt,val|
             config.send opt, options.fetch(opt,val)
           end
+
+          raise ArgumentError, "a remote is required" unless config.remote
         end
 
         def run command

@@ -3,13 +3,7 @@ require 'spec_helper'
 describe Statistrano::Deployment::MultiTarget::Target do
 
   let(:default_options) do
-    {
-      remote:           'web01',
-      user:             nil,
-      password:         nil,
-      keys:             nil,
-      forward_agent:    nil
-    }
+    { remote: 'web01' }
   end
 
   def create_ssh_double
@@ -21,11 +15,18 @@ describe Statistrano::Deployment::MultiTarget::Target do
   describe "#initialize" do
     it "assigns options hash to configuration" do
       subject = described_class.new default_options
-      expect( subject.config.options ).to eq default_options
+      expect( subject.config.options[:remote] ).to eq default_options[:remote]
     end
+
     it "uses config.options defaults if option not given" do
-      subject = described_class.new
-      expect( subject.config.remote ).to be_nil
+      subject = described_class.new default_options
+      expect( subject.config.user ).to be_nil
+    end
+
+    it "raises an error if no remote is given" do
+      expect{
+        described_class.new({user: 'woo'})
+      }.to raise_error ArgumentError, 'a remote is required'
     end
   end
 
@@ -52,7 +53,7 @@ describe Statistrano::Deployment::MultiTarget::Target do
   describe "#create_remote_dir" do
     it "runs mkdir command on remote" do
       ssh_double = create_ssh_double
-      subject = described_class.new
+      subject = described_class.new default_options
 
       expect( ssh_double ).to receive(:run).with("mkdir -p /var/www/proj")
       subject.create_remote_dir "/var/www/proj"
@@ -60,7 +61,7 @@ describe Statistrano::Deployment::MultiTarget::Target do
 
     it "requires an absolute path" do
       ssh_double = create_ssh_double
-      subject = described_class.new
+      subject = described_class.new default_options
 
       expect {
         subject.create_remote_dir "var/www/proj"
