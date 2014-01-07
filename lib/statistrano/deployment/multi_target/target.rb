@@ -8,18 +8,20 @@ module Statistrano
       #
       class Target
         extend ::Statistrano::Config::Configurable
-
-        options :remote_dir, :local_dir,
-                :remote, :user, :password, :keys, :forward_agent
-
-        option :release_count, 5
-        option :release_dir, "releases"
-        option :public_dir,  "current"
+        options :remote, :user, :password, :keys, :forward_agent
 
         def initialize options={}
           config.options.each do |opt,val|
             config.send opt, options.fetch(opt,val)
           end
+        end
+
+        def run command
+          config.ssh_session.run command
+        end
+
+        def done
+          config.ssh_session.close_session
         end
 
       end
