@@ -69,4 +69,39 @@ describe Statistrano::Deployment::MultiTarget::Target do
     end
   end
 
+  describe "#rsync_to_remote" do
+    it "runs command to rsync local to remote" do
+      subject = described_class.new default_options
+
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .with("rsync -aqz --delete-after " +
+                                       "-e ssh local_path/ " +
+                                       "web01:remote_path/")
+                                 .and_return( HereOrThere::Response.new("","",true) )
+
+      subject.rsync_to_remote 'local_path', 'remote_path'
+    end
+
+    it "corrects for adding a trailing slash to local_path or remote_path" do
+      subject = described_class.new default_options
+
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .with("rsync -aqz --delete-after " +
+                                       "-e ssh local_path/ " +
+                                       "web01:remote_path/")
+                                 .and_return( HereOrThere::Response.new("","",true) )
+
+      subject.rsync_to_remote 'local_path/', 'remote_path/'
+    end
+
+    it "exits if rsync command fails" do
+      subject = described_class.new default_options
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .and_return( HereOrThere::Response.new("","",false) )
+      expect{
+        subject.rsync_to_remote 'local_path', 'remote_path'
+        }.to raise_error SystemExit
+    end
+  end
+
 end

@@ -35,6 +35,36 @@ module Statistrano
           run "mkdir -p #{path}"
         end
 
+        def rsync_to_remote local_path, remote_path
+          local_path  = local_path.chomp("/")
+          remote_path = remote_path.chomp("/")
+
+          LOG.msg "Syncing files frome '#{local_path}' to '#{remote_path}' on #{config.remote}"
+
+          time_before = Time.now
+          resp = Shell.run_local "rsync #{rsync_options} " +
+                                 "-e ssh #{local_path}/ " +
+                                 "#{host_connection}:#{remote_path}/"
+          time_after = Time.now
+          total_time = (time_after - time_before).round(2)
+
+          if resp.success?
+            LOG.success "Files synced to remote on #{config.remote} in #{total_time}s"
+          else
+            LOG.error "Error syncing files to remote on #{config.remote}"
+          end
+        end
+
+        private
+
+          def host_connection
+            config.user ? "#{config.user}@#{config.remote}" : config.remote
+          end
+
+          def rsync_options
+            "-aqz --delete-after"
+          end
+
       end
 
     end
