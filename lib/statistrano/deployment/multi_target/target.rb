@@ -24,6 +24,15 @@ module Statistrano
           config.ssh_session.close_session
         end
 
+        def create_remote_dir path
+          unless path[0] == "/"
+            raise ArgumentError, "path must be absolute"
+          end
+
+          LOG.msg "Setting up directory at '#{path}' on #{config.remote}"
+          run "mkdir -p #{path}"
+        end
+
       end
 
     end
