@@ -21,26 +21,6 @@ ROOT = Dir.pwd
 
 require 'support/given'
 
-describe "support" do
-
-  describe "CatchAndRelease" do
-    describe "#stdout" do
-      it "returns a string representation fo what is sent to stdout inside the given block" do
-        out = catch_stdout { $stdout.puts "hello"; $stdout.puts "world" }
-        expect( out ).to eq "hello\nworld\n"
-      end
-    end
-
-    describe "#stderr" do
-      it "returns a string representation fo what is sent to stderr inside the given block" do
-        out = catch_stderr { $stderr.puts "hello"; $stderr.puts "world" }
-        expect( out ).to eq "hello\nworld\n"
-      end
-    end
-  end
-
-end
-
 #     Rake Helpers
 # ----------------------------------------------------
 
