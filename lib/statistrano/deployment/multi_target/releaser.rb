@@ -5,7 +5,8 @@ module Statistrano
       class Releaser
         extend ::Statistrano::Config::Configurable
 
-        option :remote_dir
+        options :remote_dir, :local_dir
+
         option :release_count, 5
         option :release_dir, "releases"
         option :public_dir,  "current"
@@ -17,7 +18,7 @@ module Statistrano
             config.send opt, options.fetch(opt,val)
           end
 
-          raise ArgumentError, "a remote_dir is required" unless config.remote_dir
+          check_required_options :remote_dir, :local_dir
           @release_name = Time.now.to_i.to_s
         end
 
@@ -26,6 +27,12 @@ module Statistrano
         end
 
         private
+
+          def check_required_options *opts
+            opts.each do |opt|
+              raise ArgumentError, "a #{opt} is required" unless config.public_send(opt)
+            end
+          end
 
           def release_path
             File.join( config.remote_dir, config.release_dir, release_name )
