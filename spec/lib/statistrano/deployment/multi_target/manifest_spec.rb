@@ -99,4 +99,23 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
   end
 
+  describe "#remove_if" do
+    it "removes data that matches the condition" do
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      subject = described_class.new '/var/www/proj', target
+
+      subject.remove_if { |item| item.has_key?(:key) }
+      expect( subject.data ).to match_array []
+    end
+    it "retains data that doesn't match condition" do
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      subject = described_class.new '/var/www/proj', target
+
+      subject.remove_if { |item| !item.has_key?(:key) }
+      expect( subject.data ).to match_array [{key:"val"}]
+    end
+  end
+
 end

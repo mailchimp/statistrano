@@ -26,8 +26,10 @@ module Statistrano
           data << Util.symbolize_hash_keys(new_data)
         end
 
-        def remove data_to_remove
-          # removes the matched data from manifest
+        def remove_if &condition
+          data.delete_if do |item|
+            condition.call item
+          end
         end
 
         def save!
