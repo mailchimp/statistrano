@@ -19,7 +19,11 @@ module Statistrano
         end
 
         def push new_data
-          # push data into manifest
+          unless new_data.respond_to? :to_json
+            raise ArgumentError, "data must be serializable as JSON"
+          end
+
+          data << Util.symbolize_hash_keys(new_data)
         end
 
         def remove data_to_remove
