@@ -58,4 +58,28 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
   end
 
+  describe "#rsync_to_remote" do
+    it "calls rsync_to_remote on the target with the local_dir & release_path" do
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      subject = described_class.new default_arguments
+
+      allow( Dir ).to receive(:pwd).and_return('/local')
+      expect( target ).to receive(:rsync_to_remote)
+                      .with( '/local/build', File.join( '/var/www/proj/releases', subject.release_name ) )
+      subject.rsync_to_remote target
+    end
+  end
+
+  describe "#symlink_release" do
+    it "runs symlink command on target" do
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      subject = described_class.new default_arguments
+      release_path = File.join( '/var/www/proj/releases', subject.release_name )
+
+      expect( target ).to receive(:run)
+                      .with( "ln -nfs #{release_path} /var/www/proj/current" )
+      subject.symlink_release target
+    end
+  end
+
 end

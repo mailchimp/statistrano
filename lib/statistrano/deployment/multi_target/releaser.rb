@@ -26,6 +26,14 @@ module Statistrano
           target.create_remote_dir release_path
         end
 
+        def rsync_to_remote target
+          target.rsync_to_remote local_path, release_path
+        end
+
+        def symlink_release target
+          target.run "ln -nfs #{release_path} #{public_path}"
+        end
+
         private
 
           def check_required_options *opts
@@ -34,8 +42,16 @@ module Statistrano
             end
           end
 
+          def local_path
+            File.join( Dir.pwd, config.local_dir )
+          end
+
           def release_path
             File.join( config.remote_dir, config.release_dir, release_name )
+          end
+
+          def public_path
+            File.join( config.remote_dir, config.public_dir )
           end
 
       end
