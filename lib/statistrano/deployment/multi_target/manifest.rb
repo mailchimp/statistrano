@@ -33,7 +33,15 @@ module Statistrano
         end
 
         def save!
-          # saves the current data state to remote
+          resp = target.run "touch #{remote_path} "+
+                            "&& echo '#{serialize}' > #{remote_path}"
+
+          if resp.success?
+            LOG.success "manifest on #{target.config.remote} saved"
+          else
+            LOG.error "problem saving the manifest for #{target.config.remote}\n"+
+                      resp.stderr
+          end
         end
 
         private
@@ -47,8 +55,8 @@ module Statistrano
             end
           end
 
-          def serialize data={}
-            # serialize hash
+          def serialize data=data
+            data.to_json
           end
 
           def remote_path

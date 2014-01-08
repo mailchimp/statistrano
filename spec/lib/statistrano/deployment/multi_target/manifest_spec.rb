@@ -118,4 +118,38 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
   end
 
+  describe "#save!" do
+    it "writes serialized data to remote_path" do
+      config  = double("Statistrano::Config", remote: 'web01')
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      allow( target ).to receive(:run)
+                     .with("cat /var/www/proj/manifest.json")
+                     .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      subject = described_class.new '/var/www/proj', target
+
+      expect( target ).to receive(:run)
+                      .with( "touch /var/www/proj/manifest.json " +
+                             "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
+                      .and_return( HereOrThere::Response.new('','',true) )
+
+      subject.save!
+    end
+    it "logs error if fails" do
+      config  = double("Statistrano::Config", remote: 'web01')
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      allow( target ).to receive(:run)
+                     .with("cat /var/www/proj/manifest.json")
+                     .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      subject = described_class.new '/var/www/proj', target
+
+      expect( target ).to receive(:run)
+                      .with( "touch /var/www/proj/manifest.json " +
+                             "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
+                      .and_return( HereOrThere::Response.new('','couldnt do it',false) )
+
+      expect_any_instance_of( Statistrano::Log ).to receive(:error)
+      subject.save!
+    end
+  end
+
 end
