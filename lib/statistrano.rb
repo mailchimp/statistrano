@@ -9,6 +9,7 @@ require 'here_or_there'
 require 'asgit'
 
 # utility modules
+require 'statistrano/util'
 require 'statistrano/shell'
 require 'statistrano/log'
 

@@ -52,3 +52,4 @@ end
 
 require_relative 'multi_target/releaser'
 require_relative 'multi_target/target'
+require_relative 'multi_target/manifest'
