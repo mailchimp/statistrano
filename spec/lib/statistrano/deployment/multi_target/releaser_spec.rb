@@ -30,4 +30,15 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
   end
 
+  describe "#setup_release_path" do
+    it "creates the release_path on the target" do
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      subject = described_class.new remote_dir: '/var/www/proj'
+
+      expect( target ).to receive(:create_remote_dir)
+                      .with( File.join( '/var/www/proj/releases', subject.release_name ) )
+      subject.setup_release_path target
+    end
+  end
+
 end

@@ -21,6 +21,16 @@ module Statistrano
           @release_name = Time.now.to_i.to_s
         end
 
+        def setup_release_path target
+          target.create_remote_dir release_path
+        end
+
+        private
+
+          def release_path
+            File.join( config.remote_dir, config.release_dir, release_name )
+          end
+
       end
 
     end
