@@ -169,4 +169,20 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
   end
 
+  describe "#create_release" do
+    it "runs through the pipeline" do
+      # stupid spec for now
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      subject = described_class.new default_arguments
+
+      expect(subject).to receive(:setup_release_path).with(target)
+      expect(subject).to receive(:rsync_to_remote).with(target)
+      expect(subject).to receive(:symlink_release).with(target)
+      expect(subject).to receive(:add_release_to_manifest).with(target, arbitrary: 'data')
+      expect(subject).to receive(:prune_releases).with(target)
+
+      subject.create_release target, arbitrary: 'data'
+    end
+  end
+
 end

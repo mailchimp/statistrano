@@ -22,6 +22,14 @@ module Statistrano
           @release_name = Time.now.to_i.to_s
         end
 
+        def create_release target, build_data={}
+          setup_release_path      target
+          rsync_to_remote         target
+          symlink_release         target
+          add_release_to_manifest target, build_data
+          prune_releases          target
+        end
+
         def setup_release_path target
           target.create_remote_dir release_path
         end
