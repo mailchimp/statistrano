@@ -80,7 +80,7 @@ module Statistrano
             manifest ||= Manifest.new config.remote_dir, target
             manifest.data.map do |data|
               data.fetch(:release, nil)
-            end.compact
+            end.compact.sort.reverse
           end
 
           def check_required_options *opts

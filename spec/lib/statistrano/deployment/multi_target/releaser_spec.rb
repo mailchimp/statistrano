@@ -130,13 +130,13 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
                    .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
 
       expect(target).to receive(:run)
-                   .with("rm -rf /var/www/proj/releases/#{releases.last}")
+                   .with("rm -rf /var/www/proj/releases/#{releases.first}")
       expect(manifest).to receive(:save!)
       subject.prune_releases target
 
       # our expectation is for manifest data to be missing
       # the release that is to be removed
-      expect(manifest.data).to eq releases[0..1].map {|r| {release: r}}
+      expect(manifest.data).to eq releases[1..-1].map {|r| {release: r}}
     end
   end
 
