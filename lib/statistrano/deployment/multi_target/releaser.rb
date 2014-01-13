@@ -31,15 +31,15 @@ module Statistrano
         end
 
         def setup_release_path target
-          target.create_remote_dir release_path
+          target.create_remote_dir release_path(target)
         end
 
         def rsync_to_remote target
-          target.rsync_to_remote local_path, release_path
+          target.rsync_to_remote local_path(target), release_path(target)
         end
 
         def symlink_release target
-          target.run "ln -nfs #{release_path} #{public_path}"
+          target.run "ln -nfs #{release_path(target)} #{public_path(target)}"
         end
 
         def prune_releases target
@@ -48,36 +48,40 @@ module Statistrano
         end
 
         def add_release_to_manifest target, build_data={}
-          manifest = Manifest.new config.remote_dir, target
+          manifest = Manifest.new target_overridable_config(:remote_dir, target), target
           manifest.push build_data.merge(release: release_name)
           manifest.save!
         end
 
         private
 
+          def target_overridable_config option, target
+            (target && target.config.public_send(option)) || config.public_send(option)
+          end
+
           def remove_releases_beyond_release_count target
-            manifest = Manifest.new config.remote_dir, target
-            beyond   = tracked_releases(target, manifest)[config.release_count..-1]
+            manifest = Manifest.new target_overridable_config(:remote_dir, target), target
+            beyond   = tracked_releases(target, manifest)[target_overridable_config(:release_count, target)..-1]
             Array(beyond).each do |beyond|
               manifest.remove_if { |r| r[:release] == beyond }
-              target.run("rm -rf #{File.join(releases_path, beyond)}")
+              target.run("rm -rf #{File.join(releases_path(target), beyond)}")
             end
             manifest.save!
           end
 
           def remove_untracked_releases target
             (remote_releases(target) - tracked_releases(target)).each do |untracked|
-              target.run("rm -rf #{File.join(releases_path, untracked)}")
+              target.run("rm -rf #{File.join(releases_path(target), untracked)}")
             end
           end
 
           def remote_releases target
-            target.run("ls -m #{releases_path}").stdout
+            target.run("ls -m #{releases_path(target)}").stdout
                   .split(',').map(&:strip)
           end
 
           def tracked_releases target, manifest=nil
-            manifest ||= Manifest.new config.remote_dir, target
+            manifest ||= Manifest.new target_overridable_config(:remote_dir, target), target
             manifest.data.map do |data|
               data.fetch(:release, nil)
             end.compact.sort.reverse
@@ -89,20 +93,20 @@ module Statistrano
             end
           end
 
-          def local_path
-            File.join( Dir.pwd, config.local_dir )
+          def local_path target=nil
+            File.join( Dir.pwd, target_overridable_config(:local_dir, target) )
           end
 
-          def releases_path
-            File.join( config.remote_dir, config.release_dir )
+          def releases_path target=nil
+            File.join( target_overridable_config(:remote_dir, target), target_overridable_config(:release_dir, target) )
           end
 
-          def release_path
-            File.join( releases_path, release_name )
+          def release_path target=nil
+            File.join( releases_path(target), release_name )
           end
 
-          def public_path
-            File.join( config.remote_dir, config.public_dir )
+          def public_path target=nil
+            File.join( target_overridable_config(:remote_dir, target), target_overridable_config(:public_dir, target) )
           end
 
       end

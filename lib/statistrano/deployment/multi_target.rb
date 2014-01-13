@@ -31,7 +31,8 @@ module Statistrano
       option :release_dir, "releases"
       option :public_dir,  "current"
 
-      option :targets, []
+      options :remote_dir, :local_dir
+      option  :targets, []
 
       def targets
         return @_targets if @_targets
@@ -44,6 +45,17 @@ module Statistrano
         @_targets = targets.map do |t|
                       Target.new(t)
                     end
+      end
+
+      def deploy
+        invoke_build_task
+
+        releaser = Releaser.new config.options
+        targets.each do |t|
+          releaser.create_release t
+        end
+
+        invoke_post_deploy_task
       end
     end
 

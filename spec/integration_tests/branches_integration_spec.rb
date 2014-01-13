@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "creates and manages deployments", :integration do
+describe "Statistrano::Deployment::Branches integration", :integration do
 
 
   # leaving stubs in place until 3.0.0 lands

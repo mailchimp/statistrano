@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Base deployment integration test", :integration do
+describe "Statistrano::Deployment::Base integration", :integration do
 
   after :each do
     Given.cleanup!

@@ -10,6 +10,11 @@ module Statistrano
         extend ::Statistrano::Config::Configurable
         options :remote, :user, :password, :keys, :forward_agent
 
+        # included to allow override in Releaser,
+        # generally these should not be used
+        options :remote_dir, :local_dir,
+                :release_count, :release_dir, :public_dir
+
         def initialize options={}
           config.options.each do |opt,val|
             config.send opt, options.fetch(opt,val)

@@ -14,8 +14,10 @@ RSpec.configure do |c|
 end
 
 # for eating up stdout
-output = StringIO.open('','w+')
-$stdout = output
+unless ENV['VERBOSE']
+  output = StringIO.open('','w+')
+  $stdout = output
+end
 
 ROOT = Dir.pwd
 

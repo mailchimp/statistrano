@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "Releases deployment integration test", :integration do
+describe "Statistrano::Deployment::Releases integration", :integration do
 
   describe "makes release deployments" do
 
