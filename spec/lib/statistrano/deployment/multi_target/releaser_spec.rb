@@ -9,6 +9,16 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     }
   end
 
+  let(:default_target_config_responses) do
+    {
+      remote_dir:    nil,
+      local_dir:     nil,
+      release_count: nil,
+      release_dir:   nil,
+      public_dir:    nil
+    }
+  end
+
   describe "#initialize" do
     it "assigns options hash to configuration" do
       subject = described_class.new default_arguments.merge(release_count: 10)
@@ -49,7 +59,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
   describe "#setup_release_path" do
     it "creates the release_path on the target" do
-      config  = double("Statistrano::Config", remote_dir: nil, release_count: nil, release_dir: nil )
+      config  = double("Statistrano::Config", default_target_config_responses )
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       subject = described_class.new default_arguments
 
@@ -61,7 +71,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
   describe "#rsync_to_remote" do
     it "calls rsync_to_remote on the target with the local_dir & release_path" do
-      config  = double("Statistrano::Config", remote_dir: nil, release_count: nil, local_dir: nil, release_dir: nil )
+      config  = double("Statistrano::Config", default_target_config_responses )
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       subject = described_class.new default_arguments
 
@@ -74,7 +84,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
   describe "#symlink_release" do
     it "runs symlink command on target" do
-      config  = double("Statistrano::Config", remote_dir: nil, release_count: nil, release_dir: nil, public_dir: nil )
+      config  = double("Statistrano::Config", default_target_config_responses )
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       subject = described_class.new default_arguments
       release_path = File.join( '/var/www/proj/releases', subject.release_name )
@@ -87,7 +97,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
   describe "#prune_releases" do
     it "removes releases not tracked in manifest" do
-      config   = double("Statistrano::Config", remote_dir: nil, release_count: nil, release_dir: nil )
+      config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
       subject  = described_class.new default_arguments
@@ -112,7 +122,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
 
     it "removes older releases beyond release count from remote & manifest" do
-      config   = double("Statistrano::Config", remote_dir: nil, release_count: nil, release_dir: nil )
+      config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       subject  = described_class.new default_arguments.merge( release_count: 2 )
       manifest = Statistrano::Deployment::MultiTarget::Manifest.new '/var/www/proj', target
@@ -147,7 +157,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
   describe "#add_release_to_manifest" do
     it "adds release to manifest & saves" do
-      config   = double("Statistrano::Config", remote_dir: nil, release_count: nil )
+      config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
       allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
@@ -161,7 +171,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
 
     it "merges build_data to release in manifest" do
-      config   = double("Statistrano::Config", remote_dir: nil, release_count: nil )
+      config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
       allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
