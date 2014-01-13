@@ -82,4 +82,51 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
   end
 
+  describe "#prune_releases" do
+    it "removes releases not tracked in manifest" do
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      subject  = described_class.new default_arguments
+      releases = [ Time.now.to_i.to_s,
+                  (Time.now.to_i + 1 ).to_s,
+                  (Time.now.to_i + 2 ).to_s ]
+      extra_release = (Time.now.to_i + 3).to_s
+
+      expect(target).to receive(:run)
+                    .with("ls -m /var/www/proj/releases")
+                    .and_return( HereOrThere::Response.new( (releases + [extra_release]).join(','), '', true ) )
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                              .and_return(manifest)
+      allow(manifest).to receive(:data)
+                      .and_return(releases.map { |r| {release: r} })
+
+
+      expect(target).to receive(:run)
+                    .with("rm -rf /var/www/proj/releases/#{extra_release}")
+      subject.prune_releases target
+    end
+
+    it "removes older releases beyond the release count" do
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      subject  = described_class.new default_arguments.merge( release_count: 2 )
+      releases = [ Time.now.to_i.to_s,
+                  (Time.now.to_i + 1 ).to_s,
+                  (Time.now.to_i + 2 ).to_s ]
+
+      expect(target).to receive(:run)
+                    .with("ls -m /var/www/proj/releases")
+                    .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                              .and_return(manifest)
+      allow(manifest).to receive(:data)
+                      .and_return(releases.map { |r| {release: r} })
+
+
+      expect(target).to receive(:run)
+                    .with("rm -rf /var/www/proj/releases/#{releases.last}")
+      subject.prune_releases target
+    end
+  end
+
 end

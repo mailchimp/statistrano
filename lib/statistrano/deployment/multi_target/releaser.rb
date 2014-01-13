@@ -34,7 +34,37 @@ module Statistrano
           target.run "ln -nfs #{release_path} #{public_path}"
         end
 
+        def prune_releases target
+          remove_untracked_releases target
+          remove_releases_beyond_release_count target
+        end
+
         private
+
+          def remove_releases_beyond_release_count target
+            beyond = tracked_releases(target)[config.release_count..-1]
+            Array(beyond).each do |beyond|
+              target.run("rm -rf #{File.join(releases_path, beyond)}")
+            end
+          end
+
+          def remove_untracked_releases target
+            (remote_releases(target) - tracked_releases(target)).each do |untracked|
+              target.run("rm -rf #{File.join(releases_path, untracked)}")
+            end
+          end
+
+          def remote_releases target
+            target.run("ls -m #{releases_path}").stdout
+                  .split(',').map(&:strip)
+          end
+
+          def tracked_releases target
+            manifest = Manifest.new config.remote_dir, target
+            manifest.data.map do |data|
+              data.fetch(:release, nil)
+            end.compact
+          end
 
           def check_required_options *opts
             opts.each do |opt|
@@ -46,8 +76,12 @@ module Statistrano
             File.join( Dir.pwd, config.local_dir )
           end
 
+          def releases_path
+            File.join( config.remote_dir, config.release_dir )
+          end
+
           def release_path
-            File.join( config.remote_dir, config.release_dir, release_name )
+            File.join( releases_path, release_name )
           end
 
           def public_path
