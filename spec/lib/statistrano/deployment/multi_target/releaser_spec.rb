@@ -92,40 +92,80 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
                   (Time.now.to_i + 2 ).to_s ]
       extra_release = (Time.now.to_i + 3).to_s
 
-      expect(target).to receive(:run)
+      allow(target).to receive(:run)
                     .with("ls -m /var/www/proj/releases")
                     .and_return( HereOrThere::Response.new( (releases + [extra_release]).join(','), '', true ) )
       allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
-                                                              .and_return(manifest)
+                                                             .and_return(manifest)
       allow(manifest).to receive(:data)
                       .and_return(releases.map { |r| {release: r} })
 
 
       expect(target).to receive(:run)
                     .with("rm -rf /var/www/proj/releases/#{extra_release}")
+      expect(manifest).to receive(:save!)
       subject.prune_releases target
     end
 
-    it "removes older releases beyond the release count" do
+    it "removes older releases beyond release count from remote & manifest" do
       target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
-      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
       subject  = described_class.new default_arguments.merge( release_count: 2 )
+      manifest = Statistrano::Deployment::MultiTarget::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .with( '/var/www/proj', target )
+                                                             .and_return(manifest)
       releases = [ Time.now.to_i.to_s,
                   (Time.now.to_i + 1 ).to_s,
                   (Time.now.to_i + 2 ).to_s ]
 
-      expect(target).to receive(:run)
-                    .with("ls -m /var/www/proj/releases")
-                    .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
-      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
-                                                              .and_return(manifest)
-      allow(manifest).to receive(:data)
-                      .and_return(releases.map { |r| {release: r} })
+      allow(target).to receive(:run)
+                   .with("ls -m /var/www/proj/releases")
+                   .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
 
+      # this is gnarly but we need to test against
+      # the manifest release data because of the block in
+      # Manifest#remove_if
+      allow(target).to receive(:run)
+                   .with("cat /var/www/proj/manifest.json")
+                   .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
 
       expect(target).to receive(:run)
-                    .with("rm -rf /var/www/proj/releases/#{releases.last}")
+                   .with("rm -rf /var/www/proj/releases/#{releases.last}")
+      expect(manifest).to receive(:save!)
       subject.prune_releases target
+
+      # our expectation is for manifest data to be missing
+      # the release that is to be removed
+      expect(manifest.data).to eq releases[0..1].map {|r| {release: r}}
+    end
+  end
+
+  describe "#add_release_to_manifest" do
+    it "adds release to manifest & saves" do
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .and_return(manifest)
+      subject = described_class.new default_arguments
+
+      expect(manifest).to receive(:push)
+                      .with( release: subject.release_name )
+      expect(manifest).to receive(:save!)
+      subject.add_release_to_manifest target
+    end
+
+    it "merges build_data to release in manifest" do
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .and_return(manifest)
+      subject = described_class.new default_arguments
+
+      expect(manifest).to receive(:push)
+                      .with( release: subject.release_name, arbitrary: 'data' )
+      expect(manifest).to receive(:save!)
+
+      subject.add_release_to_manifest target, arbitrary: 'data'
     end
   end
 

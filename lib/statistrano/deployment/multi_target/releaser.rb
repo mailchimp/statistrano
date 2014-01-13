@@ -39,13 +39,22 @@ module Statistrano
           remove_releases_beyond_release_count target
         end
 
+        def add_release_to_manifest target, build_data={}
+          manifest = Manifest.new config.remote_dir, target
+          manifest.push build_data.merge(release: release_name)
+          manifest.save!
+        end
+
         private
 
           def remove_releases_beyond_release_count target
-            beyond = tracked_releases(target)[config.release_count..-1]
+            manifest = Manifest.new config.remote_dir, target
+            beyond   = tracked_releases(target, manifest)[config.release_count..-1]
             Array(beyond).each do |beyond|
+              manifest.remove_if { |r| r[:release] == beyond }
               target.run("rm -rf #{File.join(releases_path, beyond)}")
             end
+            manifest.save!
           end
 
           def remove_untracked_releases target
@@ -59,8 +68,8 @@ module Statistrano
                   .split(',').map(&:strip)
           end
 
-          def tracked_releases target
-            manifest = Manifest.new config.remote_dir, target
+          def tracked_releases target, manifest=nil
+            manifest ||= Manifest.new config.remote_dir, target
             manifest.data.map do |data|
               data.fetch(:release, nil)
             end.compact
