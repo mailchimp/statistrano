@@ -1,5 +1,6 @@
 require 'rspec'
 require 'rake'
+require 'rainbow'
 require 'pry-debugger'
 require 'fileutils'
 require 'catch_and_release'
@@ -17,6 +18,10 @@ end
 unless ENV['VERBOSE']
   output = StringIO.open('','w+')
   $stdout = output
+end
+
+unless ENV['RAINBOW']
+  Rainbow.enabled = false
 end
 
 ROOT = Dir.pwd

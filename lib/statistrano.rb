@@ -1,5 +1,5 @@
 # required libraries
-require 'colorize'
+require 'rainbow'
 require 'json'
 require 'fileutils'
 require 'rake'

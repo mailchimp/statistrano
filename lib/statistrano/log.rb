@@ -1,6 +1,4 @@
 # encoding: UTF-8
-require 'colorize'
-
 module Statistrano
 
   # Error, Warning and Message Logging
@@ -8,7 +6,7 @@ module Statistrano
 
     # Log a regular message
     # @param [String] text
-    def msg text, status=nil, color=:black
+    def msg text, status=nil, color=:bright
       status ||= ''
       shell_say text, status, color
     end
@@ -46,20 +44,20 @@ module Statistrano
       # Standardize a width of output
       class StandardizeInput
 
-        def initialize input, color=:black
+        def initialize input, color=:bright
           @input = input
           @color = color
           @width = 11
         end
 
         def output
-          anchor + padding + @input.colorize(@color)
+         anchor + padding + Rainbow(@input).public_send(@color)
         end
 
         private
 
           def anchor
-            "-> ".colorize(:black)
+            Rainbow("-> ").bright
           end
 
           def padding
