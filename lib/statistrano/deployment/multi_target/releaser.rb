@@ -38,8 +38,8 @@ module Statistrano
           target.rsync_to_remote local_path(target), release_path(target)
         end
 
-        def symlink_release target
-          target.run "ln -nfs #{release_path(target)} #{public_path(target)}"
+        def symlink_release target, release=nil
+          target.run "ln -nfs #{release_path(target, release)} #{public_path(target)}"
         end
 
         def prune_releases target
@@ -49,6 +49,15 @@ module Statistrano
 
         def list_releases target
           tracked_releases target
+        end
+
+        def rollback_release target
+          manifest = Manifest.new target_overridable_config(:remote_dir, target), target
+          releases = tracked_releases target, manifest
+
+          symlink_release target, releases[1]
+          manifest.remove_if { |r| r[:release] == releases[0] }
+          manifest.save!
         end
 
         def add_release_to_manifest target, build_data={}
@@ -105,8 +114,9 @@ module Statistrano
             File.join( target_overridable_config(:remote_dir, target), target_overridable_config(:release_dir, target) )
           end
 
-          def release_path target=nil
-            File.join( releases_path(target), release_name )
+          def release_path target=nil, release=nil
+            release ||= release_name
+            File.join( releases_path(target), release )
           end
 
           def public_path target=nil

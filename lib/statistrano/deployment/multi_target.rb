@@ -61,7 +61,6 @@ module Statistrano
       def deploy
         invoke_build_task
 
-        releaser = Releaser.new config.options
         targets.each do |t|
           releaser.create_release t
         end
@@ -69,21 +68,29 @@ module Statistrano
         invoke_post_deploy_task
       end
 
+      def rollback_release
+        targets.each do |t|
+          releaser.rollback_release t
+        end
+      end
+
       def prune_releases
-        releaser = Releaser.new config.options
         targets.each do |t|
           releaser.prune_releases t
         end
       end
 
       def list_releases
-        releaser = Releaser.new config.options
         targets.each do |t,out|
           LOG.msg releaser.list_releases(t), t.config.remote
         end
       end
 
       private
+
+        def releaser
+          Releaser.new config.options
+        end
 
         # Run the post_deploy_task
         # return [Void]

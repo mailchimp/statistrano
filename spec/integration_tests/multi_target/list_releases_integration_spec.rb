@@ -12,7 +12,7 @@ describe "Statistrano::Deployment::MultiTarget#list_releases integration", :inte
         remote     "localhost"
         remote_dir File.join( Dir.pwd, "deployment" )
 
-        release_count 1
+        release_count 2
         targets [
           { remote_dir: File.join( Dir.pwd, "deployment", "target01" ) },
           { remote_dir: File.join( Dir.pwd, "deployment", "target02" ) },
