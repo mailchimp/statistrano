@@ -331,6 +331,24 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       subject.rollback_release target
       expect( manifest.data ).to eq releases[1..-1].map {|r| {release: r}}
     end
+
+    it "errors if there is only one release" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .and_return(manifest)
+
+      release_one   = ( Time.now.to_i + 0 ).to_s
+      allow( manifest ).to receive(:data)
+                       .and_return([
+                          { release: release_one }
+                        ])
+
+      expect( Statistrano::LOG ).to receive(:error)
+      subject.rollback_release target
+    end
   end
 
 end

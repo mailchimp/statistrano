@@ -60,6 +60,10 @@ module Statistrano
           manifest = new_manifest target
           releases = tracked_releases target, manifest
 
+          unless releases.length > 1
+            return LOG.error "There is only on release, best not to remove it"
+          end
+
           symlink_release target, releases[1]
           target.run("rm -rf #{File.join(releases_path(target), releases[0])}")
           manifest.remove_if { |r| r[:release] == releases[0] }
