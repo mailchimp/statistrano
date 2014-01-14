@@ -1,10 +1,13 @@
-# required libraries
-require 'rainbow'
+# stdlib
 require 'json'
+require 'forwardable'
 require 'fileutils'
+require 'benchmark'
+
+# libraries
+require 'rainbow'
 require 'rake'
 require 'slugity/extend_string'
-require 'benchmark'
 require 'here_or_there'
 require 'asgit'
 

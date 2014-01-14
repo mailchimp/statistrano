@@ -1,8 +1,35 @@
 # encoding: UTF-8
 module Statistrano
 
-  # Error, Warning and Message Logging
+  # interface should match the ruby logger
+  # so we will implement:
+  #
+  # => fatal
+  # => error
+  # => warn
+  # => info
+  # => debug
+  #
+
   class Log
+    extend SingleForwardable
+    def_delegators :logger_instance, :fatal, :error, :warn, :info, :debug
+
+    class << self
+      def set_logger logger
+        @_logger = logger
+      end
+
+      def logger_instance
+        @_logger ||= DefaultLogger.new
+      end
+    end
+  end
+
+
+
+  # Error, Warning and Message Logging
+  class DefaultLogger
 
     # Log a regular message
     # @param [String] text
