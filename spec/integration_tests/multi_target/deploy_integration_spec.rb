@@ -74,16 +74,6 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
       Given.cleanup!
     end
 
-    def multi_release_folder_contents
-      Dir[ "deployment/**/**" ].keep_if do |path|
-        path.match /releases\/(.+)/
-      end.keep_if do |path|
-        File.directory?(path)
-      end.map do |dir|
-        dir.sub("deployment/",'')
-      end
-    end
-
     it "generates a release with the correct time stamp,\n" +
        "restricts the release count to the defined number,\n" +
        "& symlinks the pub_dir to the most recent release" do

@@ -48,6 +48,16 @@ def deployment_folder_contents
   Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
 end
 
+def multi_release_folder_contents
+  Dir[ "deployment/**/**" ].keep_if do |path|
+    path.match /releases\/(.+)/
+  end.keep_if do |path|
+    File.directory?(path)
+  end.map do |dir|
+    dir.sub("deployment/",'')
+  end
+end
+
 def tracer msg
   STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
 end

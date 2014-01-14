@@ -69,6 +69,13 @@ module Statistrano
         invoke_post_deploy_task
       end
 
+      def prune_releases
+        releaser = Releaser.new config.options
+        targets.each do |t|
+          releaser.prune_releases t
+        end
+      end
+
       private
 
         # Run the post_deploy_task
