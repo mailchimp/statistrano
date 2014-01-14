@@ -238,6 +238,99 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
   end
 
   describe "#rollback_release" do
+    it "symlinks the previous release" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .with( '/var/www/proj', target )
+                                                             .and_return(manifest)
+
+
+      release_one   = ( Time.now.to_i + 0 ).to_s
+      release_two   = ( Time.now.to_i + 1 ).to_s
+      release_three = ( Time.now.to_i + 2 ).to_s
+
+      allow( manifest ).to receive(:data)
+                       .and_return([
+                          {release: release_one},
+                          {release: release_two},
+                          {release: release_three}
+                        ])
+      allow( target ).to receive(:run)
+      allow( manifest ).to receive(:remove_if)
+      allow( manifest ).to receive(:save!)
+
+      expect( subject ).to receive(:symlink_release)
+                       .with( target, release_two )
+
+      subject.rollback_release target
+    end
+
+    it "removes the newest release from disk on target" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .with( '/var/www/proj', target )
+                                                             .and_return(manifest)
+
+      release_one   = ( Time.now.to_i + 0 ).to_s
+      release_two   = ( Time.now.to_i + 1 ).to_s
+      release_three = ( Time.now.to_i + 2 ).to_s
+
+      allow( manifest ).to receive(:data)
+                       .and_return([
+                          {release: release_one},
+                          {release: release_two},
+                          {release: release_three}
+                        ])
+
+
+      allow( subject ).to receive(:symlink_release)
+                       .with( target, release_two )
+      allow( manifest ).to receive(:remove_if)
+      allow( manifest ).to receive(:save!)
+
+      expect( target ).to receive(:run)
+                      .with("rm -rf /var/www/proj/releases/#{release_three}")
+
+      subject.rollback_release target
+    end
+
+    it "removes the newest release from the manifest" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = Statistrano::Deployment::MultiTarget::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .with( '/var/www/proj', target )
+                                                             .and_return(manifest)
+
+
+      release_one   = ( Time.now.to_i + 0 ).to_s
+      release_two   = ( Time.now.to_i + 1 ).to_s
+      release_three = ( Time.now.to_i + 2 ).to_s
+      releases      = [release_three,release_two,release_one]
+      allow( target ).to receive(:run)
+
+
+      # this is gnarly but we need to test against
+      # the manifest release data because of the block in
+      # Manifest#remove_if
+      allow(target).to receive(:run)
+                   .with("cat /var/www/proj/manifest.json")
+                   .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
+
+      allow( subject ).to receive(:symlink_release)
+                       .with( target, release_two )
+
+      expect( manifest ).to receive(:save!)
+      subject.rollback_release target
+      expect( manifest.data ).to eq releases[1..-1].map {|r| {release: r}}
+    end
   end
 
 end

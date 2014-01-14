@@ -61,6 +61,7 @@ module Statistrano
           releases = tracked_releases target, manifest
 
           symlink_release target, releases[1]
+          target.run("rm -rf #{File.join(releases_path(target), releases[0])}")
           manifest.remove_if { |r| r[:release] == releases[0] }
           manifest.save!
         end
