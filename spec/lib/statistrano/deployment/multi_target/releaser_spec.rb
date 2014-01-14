@@ -215,7 +215,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       allow(manifest).to receive(:data)
                      .and_return( release_data + [{not_release:"foo"}])
 
-      expect( subject.list_releases(target) ).to eq release_data
+      expect( subject.list_releases(target) ).to match_array release_data
     end
     it "sorts releases by release data (newest first)" do
       config   = double("Statistrano::Config", default_target_config_responses )
@@ -225,11 +225,15 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
                                                              .and_return(manifest)
 
-      release_data = [{release:"12345"},{release:"32345"},{release:"22345"}]
+      release_one   = ( Time.now.to_i + 0 ).to_s
+      release_two   = ( Time.now.to_i + 1 ).to_s
+      release_three = ( Time.now.to_i + 2 ).to_s
+
+      release_data = [{release:release_one},{release:release_three},{release:release_two}]
       allow(manifest).to receive(:data)
                      .and_return( release_data + [{not_release:"foo"}])
 
-      expect( subject.list_releases(target) ).to match_array [{release:"32345"},{release:"22345"},{release:"12345"}]
+      expect( subject.list_releases(target) ).to eq [{release:release_three},{release:release_two},{release:release_one}]
     end
   end
 

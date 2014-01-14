@@ -82,7 +82,8 @@ module Statistrano
 
       def list_releases
         targets.each do |t,out|
-          LOG.msg releaser.list_releases(t), t.config.remote
+          releases = releaser.list_releases(t).map { |rel| rel[:release] }
+          LOG.msg releases, t.config.remote
         end
       end
 

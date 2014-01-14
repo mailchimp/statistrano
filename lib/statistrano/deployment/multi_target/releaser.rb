@@ -53,7 +53,7 @@ module Statistrano
             rel.has_key?(:release)
           end.sort_by do |rel|
             rel[:release]
-          end
+          end.reverse
         end
 
         def rollback_release target
