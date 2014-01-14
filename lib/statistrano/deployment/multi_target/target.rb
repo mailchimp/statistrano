@@ -56,7 +56,8 @@ module Statistrano
           if resp.success?
             LOG.success "Files synced to remote on #{config.remote} in #{total_time}s"
           else
-            LOG.error "Error syncing files to remote on #{config.remote}"
+            LOG.error "Error syncing files to remote on #{config.remote}\n" +
+                      resp.stderr
           end
         end
 

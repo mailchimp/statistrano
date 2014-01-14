@@ -24,15 +24,26 @@ module Statistrano
     #     #
     #   end
     #
-    class MultiTarget < Base
+    class MultiTarget
+      extend ::Statistrano::Deployment::Registerable
+      extend ::Statistrano::Config::Configurable
+
       register_type :multi_target
+
+      options :remote_dir, :local_dir,
+              :remote, :user, :password, :keys, :forward_agent,
+              :build_task, :post_deploy_task,
+              :check_git, :git_branch, :repo_url
 
       option :release_count, 5
       option :release_dir, "releases"
       option :public_dir,  "current"
 
-      options :remote_dir, :local_dir
       option  :targets, []
+
+      def initialize name
+        @name = name
+      end
 
       def targets
         return @_targets if @_targets
@@ -57,6 +68,27 @@ module Statistrano
 
         invoke_post_deploy_task
       end
+
+      private
+
+        # Run the post_deploy_task
+        # return [Void]
+        def invoke_post_deploy_task
+          if config.post_deploy_task
+            LOG.msg "Running the post deploy task", nil
+            Rake::Task[ config.post_deploy_task ].invoke
+          end
+        end
+
+        # Run the build_task supplied
+        # return [Void]
+        def invoke_build_task
+          Rake::Task[config.build_task].invoke
+        rescue Exception => e
+          LOG.error "exiting due to error in build task" +
+            "\n\t  msg  #{e.class}: #{e}"
+        end
+
     end
 
   end
