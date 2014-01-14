@@ -47,6 +47,10 @@ module Statistrano
           remove_releases_beyond_release_count target
         end
 
+        def list_releases target
+          tracked_releases target
+        end
+
         def add_release_to_manifest target, build_data={}
           manifest = Manifest.new target_overridable_config(:remote_dir, target), target
           manifest.push build_data.merge(release: release_name)

@@ -76,6 +76,13 @@ module Statistrano
         end
       end
 
+      def list_releases
+        releaser = Releaser.new config.options
+        targets.each do |t,out|
+          LOG.msg releaser.list_releases(t), t.config.remote
+        end
+      end
+
       private
 
         # Run the post_deploy_task
