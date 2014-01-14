@@ -202,4 +202,38 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
     end
   end
 
+  describe "#list_releases" do
+    it "returns manifest data of releases" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .and_return(manifest)
+
+      release_data = [{release:"one"},{release:"two"}]
+      allow(manifest).to receive(:data)
+                     .and_return( release_data + [{not_release:"foo"}])
+
+      expect( subject.list_releases(target) ).to eq release_data
+    end
+    it "sorts releases by release data (newest first)" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::MultiTarget::Manifest")
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .and_return(manifest)
+
+      release_data = [{release:"12345"},{release:"32345"},{release:"22345"}]
+      allow(manifest).to receive(:data)
+                     .and_return( release_data + [{not_release:"foo"}])
+
+      expect( subject.list_releases(target) ).to match_array [{release:"32345"},{release:"22345"},{release:"12345"}]
+    end
+  end
+
+  describe "#rollback_release" do
+  end
+
 end

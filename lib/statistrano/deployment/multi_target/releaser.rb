@@ -48,11 +48,16 @@ module Statistrano
         end
 
         def list_releases target
-          tracked_releases target
+          manifest = new_manifest target
+          manifest.data.keep_if do |rel|
+            rel.has_key?(:release)
+          end.sort_by do |rel|
+            rel[:release]
+          end
         end
 
         def rollback_release target
-          manifest = Manifest.new target_overridable_config(:remote_dir, target), target
+          manifest = new_manifest target
           releases = tracked_releases target, manifest
 
           symlink_release target, releases[1]
@@ -61,19 +66,23 @@ module Statistrano
         end
 
         def add_release_to_manifest target, build_data={}
-          manifest = Manifest.new target_overridable_config(:remote_dir, target), target
+          manifest = new_manifest target
           manifest.push build_data.merge(release: release_name)
           manifest.save!
         end
 
         private
 
+          def new_manifest target
+            Manifest.new target_overridable_config(:remote_dir, target), target
+          end
+
           def target_overridable_config option, target
             (target && target.config.public_send(option)) || config.public_send(option)
           end
 
           def remove_releases_beyond_release_count target
-            manifest = Manifest.new target_overridable_config(:remote_dir, target), target
+            manifest = new_manifest target
             beyond   = tracked_releases(target, manifest)[target_overridable_config(:release_count, target)..-1]
             Array(beyond).each do |beyond|
               manifest.remove_if { |r| r[:release] == beyond }
@@ -94,7 +103,7 @@ module Statistrano
           end
 
           def tracked_releases target, manifest=nil
-            manifest ||= Manifest.new target_overridable_config(:remote_dir, target), target
+            manifest ||= new_manifest target
             manifest.data.map do |data|
               data.fetch(:release, nil)
             end.compact.sort.reverse
