@@ -107,17 +107,76 @@ describe Statistrano::Deployment::MultiTarget do
       end
     end
 
-    it "invokes the build task once" do
-      @subject = define_deployment "multi", :multi_target do
-        build_task 'foo:bar'
+    context "when build task is defined as a Proc" do
+      it "calls the build task" do
+        subject = define_deployment "multi", :multi_target
+        task_target = double( call: 'foo' )
+        config  = double("Statistrano::Config", build_task: task_target,
+                                                check_git: false,
+                                                options: { targets: [] },
+                                                post_deploy_task: nil)
+        allow( subject ).to receive(:config).and_return(config)
+
+        expect( task_target ).to receive(:call)
+        subject.deploy
       end
 
-      task_double = double
-      expect( Rake::Task ).to receive(:[]).with('foo:bar')
-                          .and_return(task_double)
-      expect( task_double ).to receive(:invoke).once
+      context "when build task returns hash" do
+        it "passes hash to build" do
+          subject = define_deployment "multi", :multi_target do
+            build_task do
+              {foo: 'bar'}
+            end
+            targets [{one: 'two'}]
+          end
+          target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          allow( Statistrano::Deployment::MultiTarget::Target ).to receive(:new)
+                                                               .and_return(target)
+          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+                                                                 .and_return(releaser)
 
-      @subject.deploy
+          expect( releaser ).to receive(:create_release)
+                            .with( target, {foo: 'bar'})
+
+          subject.deploy
+        end
+      end
+      context "when build task returns foo" do
+        it "passes a blank hash to create_release" do
+          subject = define_deployment "multi", :multi_target do
+            build_task do
+              'foo'
+            end
+            targets [{one: 'two'}]
+          end
+          target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          allow( Statistrano::Deployment::MultiTarget::Target ).to receive(:new)
+                                                               .and_return(target)
+          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+                                                                 .and_return(releaser)
+
+          expect( releaser ).to receive(:create_release)
+                            .with( target, {})
+
+          subject.deploy
+        end
+      end
+    end
+    context "when build task is defined as a string" do
+      it "invokes the build task once" do
+        @subject = define_deployment "multi", :multi_target do
+          build_task 'foo:bar'
+        end
+
+        task_double = double
+        expect( Rake::Task ).to receive(:[]).with('foo:bar')
+                            .and_return(task_double)
+        expect( task_double ).to receive(:invoke).once
+
+        @subject.deploy
+      end
     end
 
     it "runs create_release for each target" do
@@ -138,7 +197,7 @@ describe Statistrano::Deployment::MultiTarget do
                                                            .and_return(releaser)
 
       expect( releaser ).to receive(:create_release)
-                        .with(target).twice
+                        .with(target, {}).twice
       @subject.deploy
     end
 

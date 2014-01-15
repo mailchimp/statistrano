@@ -64,10 +64,15 @@ module Statistrano
           abort()
         end
 
-        invoke_build_task
+        build_data = invoke_build_task
+        if build_data.respond_to? :to_hash
+          build_data = build_data.to_hash
+        else
+          build_data = {}
+        end
 
         targets.each do |t|
-          releaser.create_release t
+          releaser.create_release t, build_data
         end
 
         invoke_post_deploy_task
@@ -110,7 +115,11 @@ module Statistrano
         # Run the build_task supplied
         # return [Void]
         def invoke_build_task
-          Rake::Task[config.build_task].invoke
+          if config.build_task.respond_to? :call
+            config.build_task.call
+          else
+            Rake::Task[config.build_task].invoke
+          end
         rescue Exception => e
           Log.error "exiting due to error in build task",
                     "#{e.class}: #{e}"
