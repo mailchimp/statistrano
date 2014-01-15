@@ -29,7 +29,7 @@ describe Statistrano::Log do
       expect( Statistrano::Log.logger_instance ).to eq 'foo'
     end
     it "initializes a new DefaultLogger if no logger is set" do
-      expect( Statistrano::DefaultLogger ).to receive(:new)
+      expect( Statistrano::Log::DefaultLogger ).to receive(:new)
       Statistrano::Log.logger_instance
     end
   end
