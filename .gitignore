@@ -9,3 +9,4 @@ fixture/**/deployment
 *.gem
 coverage
 tmp
+.bundle
