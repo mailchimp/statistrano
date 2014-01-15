@@ -61,6 +61,13 @@ describe Statistrano::Config::Configurable do
       expect( config.foo ).to eq("badazz")
     end
 
+    it "sets the value do a block if given one" do
+      config.foo do
+        "badazz"
+      end
+      expect( config.foo.call ).to eq "badazz"
+    end
+
     it "raises and ArgumentError if given more than 1 argument" do
       expect{ config.foo "bar", "baz" }.to raise_error ArgumentError
     end
