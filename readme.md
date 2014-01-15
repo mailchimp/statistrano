@@ -128,6 +128,68 @@ shows list of currently deployed branches to pick from and remove
 manually kicks of index generation, typically you shouldn't need to do this
 
 
+### MultiTarget Deployment
+
+MultiTarget deployments are a test run of a new impelementation architecture for deployments, when you need to release accross multiple remotes, you'll use one of these.
+
+MultiTarget *does not* register it's own rake tasks, so you'll need to create your own and call methods on the deployment directly.
+
+```ruby
+# setup our deployment
+deployment = define_deployment "multi", :multi_target do
+
+  build_task 'build'
+  local_dir  'build'
+
+  check_git  true
+  git_branch 'master'
+
+  remote_dir '/var/www/project'
+
+  targets [
+    { remote: 'web01' },
+    { remote: 'web02' }
+  ]
+
+  post_deploy_task 'after'
+
+end
+```
+
+Each remote is defined with the config option `targets` as hashes. Any option assigned here will override the option set as a global on the deployment. So, if we'd like `web02` to be deployed to a different remote_directory would could define it as `{ remote: 'web02', remote_dir: '/var/www/web02.project' }`.
+
+**Methods**
+
+`#targets`  
+Returns an array of initialized `Target` objects, these represent each remote and handle their own ssh connections and running tasks on that machine.
+
+`#deploy`  
+Creates a release on each target running the `build_task` and `post_deploy_task` once.
+
+`#rollback_release`  
+Rolls back to the previous release, note that you can't roll back with only one release on a remote.
+
+`#prune_releases`  
+Cleans up your release directories to contain only tracked releases. It also removes releases beyond the release count, so you may run this if you've reduced that count.
+
+`#list_releases`  
+puts an array of release names for each remote.
+
+Of note, the `build_task` can be defined as a block, if that block returns a hash that data will be merged into the release data in the manifest.
+
+```ruby
+deployment = define_deployment 'multi', :multi_target do
+  build_task do
+    Rake::Task['build'].invoke
+    { commit: Asgit.current_commit }
+  end
+end
+
+deployment.deploy
+# => remote/manifest.manifest will end up with [{release: 'timestamp', commit: 'commit_sha'}]
+```
+
+
 ### Config Syntax
 
 In addition to the "DSL" way of configuring, the `define_deployment` block will yield the config if an argument is passed. You can use this if you need to do any specific manipulation to config (is also the "old" syntax).
@@ -146,9 +208,9 @@ end
 Testing
 =======
 
-Integraton tests run through `localhost`, this requires that you setup ssh through localhost to run the tests. Look at [setup](#setup) for help with that.
-
 Tests are written in rspec, and can be run with `rspec`. To run an individual test, run `rspec path/to/spec.rb`.
+
+Integraton tests run through `localhost`, this requires that you setup ssh through localhost to run the tests. Look at [setup](#setup) for help with that.
 
 [Reek](https://github.com/troessner/reek) is also included in the bundle to check for some code smells. Run `reek lib/*` to check the whole lib directory.
 
@@ -173,6 +235,10 @@ Then add your pub key to `.ssh/authorized_keys`.
 
 Depending on how you've setup your `.bashrc` is setup, you may need to move any PATH manipulation to the front of the file to prevent commands from failing.
 
+
+### Test accross multiple rubies
+
+To run specs accross the supported rubies, run `bin/multi_ruby_rspec`
 
 
 Contributing
