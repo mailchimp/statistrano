@@ -6,8 +6,12 @@ group :document do
   gem "yard"
 end
 
-group :development, :test do
-  gem "pry-debugger"
+group :debug do
+  if RUBY_VERSION >= "2.0"
+    gem "pry-byebug",   "~> 1.2"
+  else
+    gem "pry-debugger", "~> 0.2.2"
+  end
 end
 
 group :test do

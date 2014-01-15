@@ -1,7 +1,6 @@
 require 'rspec'
 require 'rake'
 require 'rainbow'
-require 'pry-debugger'
 require 'fileutils'
 require 'catch_and_release'
 require 'catch_and_release/rspec'
@@ -14,7 +13,10 @@ RSpec.configure do |c|
   c.include Reek::Spec
 end
 
-# for eating up stdout
+if ENV['DEBUG']
+  require 'pry'
+end
+
 # for eating up stdout & stderr
 unless ENV['VERBOSE']
   stdout  = StringIO.open('','w+')
