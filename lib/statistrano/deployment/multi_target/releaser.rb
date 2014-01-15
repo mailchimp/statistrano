@@ -90,10 +90,14 @@ module Statistrano
             manifest = new_manifest target
             beyond   = tracked_releases(target, manifest)[target_overridable_config(:release_count, target)..-1]
             Array(beyond).each do |beyond|
-              manifest.remove_if { |r| r[:release] == beyond }
-              target.run("rm -rf #{File.join(releases_path(target), beyond)}")
+              remove_release beyond, target, manifest
             end
             manifest.save!
+          end
+
+          def remove_release release_name, target, manifest
+            manifest.remove_if { |r| r[:release] == release_name }
+            target.run("rm -rf #{File.join(releases_path(target), release_name)}")
           end
 
           def remove_untracked_releases target
