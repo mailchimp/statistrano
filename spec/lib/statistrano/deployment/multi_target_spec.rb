@@ -69,4 +69,95 @@ describe Statistrano::Deployment::MultiTarget do
     end
   end
 
+  describe "#deploy" do
+    context "when check_git set to true" do
+      before :each do
+        @subject = define_deployment "multi", :multi_target do
+          check_git  true
+          git_branch 'master'
+        end
+
+        allow( Asgit ).to receive(:working_tree_clean?).and_return(true)
+        allow( Asgit ).to receive(:current_branch).and_return('master')
+        allow( Asgit ).to receive(:remote_up_to_date?).and_return(true)
+      end
+
+      it "exits if the working_tree is dirty" do
+        allow( Asgit ).to receive(:working_tree_clean?).and_return(false)
+
+        expect{
+          @subject.deploy
+        }.to raise_error(SystemExit)
+      end
+
+      it "exits if current_branch is not set to branch" do
+        allow( Asgit ).to receive(:current_branch).and_return('something_else')
+
+        expect{
+          @subject.deploy
+        }.to raise_error(SystemExit)
+      end
+
+      it "exits if out of sync with remote" do
+        allow( Asgit ).to receive(:remote_up_to_date?).and_return(false)
+
+        expect{
+          @subject.deploy
+        }.to raise_error(SystemExit)
+      end
+    end
+
+    it "invokes the build task once" do
+      @subject = define_deployment "multi", :multi_target do
+        build_task 'foo:bar'
+      end
+
+      task_double = double
+      expect( Rake::Task ).to receive(:[]).with('foo:bar')
+                          .and_return(task_double)
+      expect( task_double ).to receive(:invoke).once
+
+      @subject.deploy
+    end
+
+    it "runs create_release for each target" do
+      @subject = define_deployment "multi", :multi_target do
+        build_task 'nil:bar'
+        post_deploy_task 'foo:bar'
+        targets [{remote: 'one'},{remote: 'two'}]
+      end
+      task_double = double(invoke: nil)
+      allow( Rake::Task ).to receive(:[])
+                         .and_return(task_double)
+
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+      allow( Statistrano::Deployment::MultiTarget::Target ).to receive(:new)
+                                                           .and_return(target)
+      allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+                                                           .and_return(releaser)
+
+      expect( releaser ).to receive(:create_release)
+                        .with(target).twice
+      @subject.deploy
+    end
+
+    it "invokes the post_deploy_task once" do
+      @subject = define_deployment "multi", :multi_target do
+        build_task 'nil:bar'
+        post_deploy_task 'foo:bar'
+      end
+
+      task_double      = double(invoke: nil)
+      post_task_double = double
+      allow( Rake::Task ).to receive(:[]).with('nil:bar')
+                         .and_return(task_double)
+      expect( Rake::Task ).to receive(:[]).with('foo:bar')
+                          .and_return(post_task_double)
+      expect( post_task_double ).to receive(:invoke).once
+
+      @subject.deploy
+    end
+  end
+
 end

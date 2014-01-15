@@ -36,7 +36,7 @@ module Statistrano
 
         unless safe_to_deploy?
           Log.error "exiting due to git check failing"
-          exit()
+          abort()
         end
 
         Log.info "starting deployment to #{name}", "deploying"
