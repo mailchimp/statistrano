@@ -32,7 +32,7 @@ module Statistrano
         end
 
         def log_info
-          LOG.msg "#{name} created at #{Time.at(time).strftime('%a %b %d, %Y at %l:%M %P')}"
+          Log.info "#{name} created at #{Time.at(time).strftime('%a %b %d, %Y at %l:%M %P')}"
         end
 
         # convert the release to an li element

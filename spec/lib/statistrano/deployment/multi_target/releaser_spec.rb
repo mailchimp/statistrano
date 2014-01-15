@@ -346,7 +346,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
                           { release: release_one }
                         ])
 
-      expect( Statistrano::LOG ).to receive(:error)
+      expect( Statistrano::Log ).to receive(:error)
       subject.rollback_release target
     end
   end

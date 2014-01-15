@@ -14,8 +14,8 @@ module Statistrano
         def data
           @_data ||= Array( JSON.parse(raw) ).map { |h| Util.symbolize_hash_keys(h) }
         rescue JSON::ParserError => e
-          LOG.error "manifest on #{target.config.remote} had invalid JSON\n" +
-                    "===\n#{e.message}"
+          Log.error "manifest on #{target.config.remote} had invalid JSON\n",
+                    e.message
         end
 
         def push new_data
@@ -37,9 +37,9 @@ module Statistrano
                             "&& echo '#{serialize}' > #{remote_path}"
 
           if resp.success?
-            LOG.success "manifest on #{target.config.remote} saved"
+            Log.info :success, "manifest on #{target.config.remote} saved"
           else
-            LOG.error "problem saving the manifest for #{target.config.remote}\n"+
+            Log.error "problem saving the manifest for #{target.config.remote}",
                       resp.stderr
           end
         end

@@ -41,7 +41,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
       expect( target ).to receive(:run)
                       .with('cat /var/www/proj/manifest.json')
                       .and_return( HereOrThere::Response.new("invalid","",true))
-      expect_any_instance_of( Statistrano::Log ).to receive(:error)
+      expect( Statistrano::Log ).to receive(:error)
       subject.data
     end
 
@@ -147,7 +147,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
                              "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
                       .and_return( HereOrThere::Response.new('','couldnt do it',false) )
 
-      expect_any_instance_of( Statistrano::Log ).to receive(:error)
+      expect( Statistrano::Log ).to receive(:error)
       subject.save!
     end
   end

@@ -35,10 +35,11 @@ module Statistrano
       def deploy
 
         unless safe_to_deploy?
-          LOG.error "exiting due to git check failing"
+          Log.error "exiting due to git check failing"
+          exit()
         end
 
-        LOG.msg "starting deployment to #{name}", "deploying"
+        Log.info "starting deployment to #{name}", "deploying"
 
         invoke_build_task
         setup
@@ -46,7 +47,7 @@ module Statistrano
         clean_up
         invoke_post_deploy_task
 
-        LOG.success "Deployment Complete"
+        Log.info :success, "Deployment Complete"
       end
 
       private
@@ -74,14 +75,14 @@ module Statistrano
           setup_release_path config.remote_dir
           rsync_to_remote config.remote_dir
 
-          LOG.msg "Created release at #{config.remote_dir}"
+          Log.info "Created release at #{config.remote_dir}"
         end
 
         # create the release dir on the remote
         # @param release_path [String] path of release on remote
         # @return [Void]
         def setup_release_path release_path
-          LOG.msg "Setting up the remote"
+          Log.info "Setting up the remote"
           run_remote "mkdir -p #{release_path}"
         end
 
@@ -89,17 +90,17 @@ module Statistrano
         # @param remote_path [String] path to sync to on remote
         # @return [Void]
         def rsync_to_remote remote_path
-          LOG.msg "Syncing files to remote"
+          Log.info "Syncing files to remote"
 
           time = Benchmark.realtime do
             if Shell.run_local("rsync #{rsync_options} -e ssh #{local_path}/ #{host_connection}:#{remote_path}/").success?
-              LOG.success "Files synced to remote"
+              Log.info :success, "Files synced to remote"
             else
-              LOG.error "Error syncing files to remote"
+              Log.error "Error syncing files to remote"
             end
           end
 
-          LOG.msg "Synced in #{time} seconds"
+          Log.info "Synced in #{time} seconds"
         end
 
         def rsync_options
@@ -124,19 +125,19 @@ module Statistrano
 
           # are there any uncommited changes?
           if !Asgit.working_tree_clean?
-            LOG.warn "You need to commit or stash your changes before deploying"
+            Log.warn "You need to commit or stash your changes before deploying"
             return false
           end
 
           # make sure you're on the branch selected to check against
           if Asgit.current_branch != config.git_branch
-            LOG.warn "You shouldn't deploy from any branch but #{config.git_branch}"
+            Log.warn "You shouldn't deploy from any branch but #{config.git_branch}"
             return false
           end
 
           # make sure you're up to date
           if !Asgit.remote_up_to_date?
-            LOG.warn "You need to update or push your changes before deploying"
+            Log.warn "You need to update or push your changes before deploying"
             return false
           end
 
@@ -147,7 +148,7 @@ module Statistrano
         # Remove the local_directory
         # @return [Void]
         def clean_up
-          LOG.msg "Cleaning up", nil
+          Log.info "Cleaning up"
           FileUtils.rm_r local_path
         end
 
@@ -161,7 +162,7 @@ module Statistrano
         # return [Void]
         def invoke_post_deploy_task
           if config.post_deploy_task
-            LOG.msg "Running the post deploy task", nil
+            Log.info "Running the post deploy task"
             Rake::Task[ config.post_deploy_task ].invoke
           end
         end
@@ -171,8 +172,9 @@ module Statistrano
         def invoke_build_task
           Rake::Task[config.build_task].invoke
         rescue Exception => e
-          LOG.error "exiting due to error in build task" +
-            "\n\t  msg  #{e.class}: #{e}"
+          Log.error "exiting due to error in build task",
+                    "#{e.class}: #{e}"
+          abort()
         end
 
     end

@@ -36,7 +36,7 @@ module Statistrano
             raise ArgumentError, "path must be absolute"
           end
 
-          LOG.msg "Setting up directory at '#{path}' on #{config.remote}"
+          Log.info "Setting up directory at '#{path}' on #{config.remote}"
           run "mkdir -p #{path}"
         end
 
@@ -44,7 +44,7 @@ module Statistrano
           local_path  = local_path.chomp("/")
           remote_path = remote_path.chomp("/")
 
-          LOG.msg "Syncing files frome '#{local_path}' to '#{remote_path}' on #{config.remote}"
+          Log.info "Syncing files frome '#{local_path}' to '#{remote_path}' on #{config.remote}"
 
           time_before = Time.now
           resp = Shell.run_local "rsync #{rsync_options} " +
@@ -54,9 +54,9 @@ module Statistrano
           total_time = (time_after - time_before).round(2)
 
           if resp.success?
-            LOG.success "Files synced to remote on #{config.remote} in #{total_time}s"
+            Log.info :success, "Files synced to remote on #{config.remote} in #{total_time}s"
           else
-            LOG.error "Error syncing files to remote on #{config.remote}\n" +
+            Log.error "Error syncing files to remote on #{config.remote}",
                       resp.stderr
           end
         end

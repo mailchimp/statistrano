@@ -94,13 +94,13 @@ describe Statistrano::Deployment::MultiTarget::Target do
       subject.rsync_to_remote 'local_path/', 'remote_path/'
     end
 
-    it "exits if rsync command fails" do
+    it "logs error if rsync command fails" do
       subject = described_class.new default_options
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .and_return( HereOrThere::Response.new("","",false) )
-      expect{
-        subject.rsync_to_remote 'local_path', 'remote_path'
-        }.to raise_error SystemExit
+
+      expect( Statistrano::Log ).to receive(:error)
+      subject.rsync_to_remote 'local_path', 'remote_path'
     end
   end
 

@@ -15,9 +15,13 @@ RSpec.configure do |c|
 end
 
 # for eating up stdout
+# for eating up stdout & stderr
 unless ENV['VERBOSE']
-  output = StringIO.open('','w+')
-  $stdout = output
+  stdout  = StringIO.open('','w+')
+  $stdout = stdout
+
+  stderr  = StringIO.open('','w+')
+  $stderr = stderr
 end
 
 unless ENV['RAINBOW']

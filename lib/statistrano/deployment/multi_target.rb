@@ -83,7 +83,7 @@ module Statistrano
       def list_releases
         targets.each do |t,out|
           releases = releaser.list_releases(t).map { |rel| rel[:release] }
-          LOG.msg releases, t.config.remote
+          Log.info :"#{t.config.remote}", releases
         end
       end
 
@@ -97,7 +97,7 @@ module Statistrano
         # return [Void]
         def invoke_post_deploy_task
           if config.post_deploy_task
-            LOG.msg "Running the post deploy task", nil
+            Log.info "Running the post deploy task"
             Rake::Task[ config.post_deploy_task ].invoke
           end
         end
@@ -107,8 +107,8 @@ module Statistrano
         def invoke_build_task
           Rake::Task[config.build_task].invoke
         rescue Exception => e
-          LOG.error "exiting due to error in build task" +
-            "\n\t  msg  #{e.class}: #{e}"
+          Log.error "exiting due to error in build task",
+                    "#{e.class}: #{e}"
         end
 
     end
