@@ -1,3 +1,6 @@
+# 0.9.1
+- bump Asgit dependency to 0.1
+
 # 0.9.0
 - misc refactoring
 - switch to Asgit for git status queries

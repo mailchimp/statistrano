@@ -11,7 +11,7 @@ group :development, :test do
 end
 
 group :test do
-  gem 'rspec'
+  gem 'rspec', '~> 2.14'
   gem 'autotest'
   gem 'simplecov', :require => false
   gem 'reek'
