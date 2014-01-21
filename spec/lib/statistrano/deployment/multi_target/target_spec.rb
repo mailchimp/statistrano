@@ -102,6 +102,15 @@ describe Statistrano::Deployment::MultiTarget::Target do
       expect( Statistrano::Log ).to receive(:error)
       subject.rsync_to_remote 'local_path', 'remote_path'
     end
+
+    it "returns the response" do
+      subject = described_class.new default_options
+      response = HereOrThere::Response.new("woo","",true)
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .and_return( response )
+
+      expect( subject.rsync_to_remote('local_path','remote_path') ).to eq response
+    end
   end
 
 end

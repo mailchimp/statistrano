@@ -59,6 +59,8 @@ module Statistrano
             Log.error "Error syncing files to remote on #{config.remote}",
                       resp.stderr
           end
+
+          resp
         end
 
         private
