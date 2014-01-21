@@ -78,6 +78,7 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       allow( Dir ).to receive(:pwd).and_return('/local')
       expect( target ).to receive(:rsync_to_remote)
                       .with( '/local/build', File.join( '/var/www/proj/releases', subject.release_name ) )
+                      .and_return( HereOrThere::Response.new("","",true) )
       subject.rsync_to_remote target
     end
   end

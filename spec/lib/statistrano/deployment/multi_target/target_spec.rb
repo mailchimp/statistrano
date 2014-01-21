@@ -55,7 +55,7 @@ describe Statistrano::Deployment::MultiTarget::Target do
       ssh_double = create_ssh_double
       subject = described_class.new default_options
 
-      expect( ssh_double ).to receive(:run).with("mkdir -p /var/www/proj")
+      expect( ssh_double ).to receive(:run).with("mkdir -p -m 770 /var/www/proj")
       subject.create_remote_dir "/var/www/proj"
     end
 
@@ -74,7 +74,7 @@ describe Statistrano::Deployment::MultiTarget::Target do
       subject = described_class.new default_options
 
       expect( Statistrano::Shell ).to receive(:run_local)
-                                 .with("rsync -aqz --delete-after " +
+                                 .with("rsync -aqz --delete-after --chmod g=rwx " +
                                        "-e ssh local_path/ " +
                                        "web01:remote_path/")
                                  .and_return( HereOrThere::Response.new("","",true) )
@@ -86,7 +86,7 @@ describe Statistrano::Deployment::MultiTarget::Target do
       subject = described_class.new default_options
 
       expect( Statistrano::Shell ).to receive(:run_local)
-                                 .with("rsync -aqz --delete-after " +
+                                 .with("rsync -aqz --delete-after --chmod g=rwx " +
                                        "-e ssh local_path/ " +
                                        "web01:remote_path/")
                                  .and_return( HereOrThere::Response.new("","",true) )

@@ -37,7 +37,7 @@ module Statistrano
           end
 
           Log.info "Setting up directory at '#{path}' on #{config.remote}"
-          run "mkdir -p #{path}"
+          run "mkdir -p -m 770 #{path}"
         end
 
         def rsync_to_remote local_path, remote_path
@@ -70,7 +70,7 @@ module Statistrano
           end
 
           def rsync_options
-            "-aqz --delete-after"
+            "-aqz --delete-after --chmod g=rwx"
           end
 
       end
