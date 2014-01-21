@@ -35,7 +35,10 @@ module Statistrano
         end
 
         def rsync_to_remote target
-          target.rsync_to_remote local_path(target), release_path(target)
+          resp = target.rsync_to_remote local_path(target), release_path(target)
+          unless resp.success?
+            abort()
+          end
         end
 
         def symlink_release target, release=nil
