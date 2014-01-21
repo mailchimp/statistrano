@@ -129,6 +129,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
       expect( target ).to receive(:run)
                       .with( "touch /var/www/proj/manifest.json " +
+                             "&& chmod 770 /var/www/proj/manifest.json " +
                              "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
                       .and_return( HereOrThere::Response.new('','',true) )
 
@@ -144,6 +145,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
       expect( target ).to receive(:run)
                       .with( "touch /var/www/proj/manifest.json " +
+                             "&& chmod 770 /var/www/proj/manifest.json " +
                              "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
                       .and_return( HereOrThere::Response.new('','couldnt do it',false) )
 

@@ -33,7 +33,8 @@ module Statistrano
         end
 
         def save!
-          resp = target.run "touch #{remote_path} "+
+          resp = target.run "touch #{remote_path} " +
+                            "&& chmod 770 #{remote_path} " +
                             "&& echo '#{serialize}' > #{remote_path}"
 
           if resp.success?
