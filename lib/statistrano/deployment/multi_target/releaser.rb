@@ -61,7 +61,7 @@ module Statistrano
           releases = tracked_releases target, manifest
 
           unless releases.length > 1
-            return Log.error "There is only on release, best not to remove it"
+            return Log.error "There is only one release, best not to remove it"
           end
 
           symlink_release target, releases[1]
