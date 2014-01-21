@@ -10,7 +10,8 @@ module Statistrano
               else key
               end
           v = case value
-              when Hash then symbolize_keys(value)
+              when Hash  then symbolize_hash_keys(value)
+              when Array then value.map { |h| symbolize_hash_keys(h) }
               else value
               end
           out[k] = v

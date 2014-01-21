@@ -1,5 +1,6 @@
+- fix Util::symbolize_hash_keys to work with nested hashes
 - add a types cache and register methods for registering deployment types
-- remoge Git code (it wasn't being used)
+- remove Git code (it wasn't being used)
 
 # 0.9.0
 - misc refactoring
