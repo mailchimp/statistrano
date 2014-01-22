@@ -25,6 +25,22 @@ module Statistrano
           raise ArgumentError, "a remote is required" unless config.remote
         end
 
+        def test_connection
+          Log.info "testing connection to #{config.remote}"
+
+          resp = run 'whoami'
+          done
+
+          if resp.success?
+            Log.info "#{config.remote} says \"Hello #{resp.stdout}\""
+            return true
+          else
+            Log.error "connection failed for #{config.remote}",
+                      resp.stderr
+            return false
+          end
+        end
+
         def run command
           if config.verbose
             Log.info :"#{config.remote}", "running cmd: #{command}"

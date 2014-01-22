@@ -1,3 +1,4 @@
+- add Target#test_connection method to allow for early testing of remote connections
 - MultiTarget post_deploy_task accepts blocks just like build_task
 - add a "verbose" option to Target to log each command run
 

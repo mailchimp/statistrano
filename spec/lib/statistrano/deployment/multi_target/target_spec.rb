@@ -61,6 +61,36 @@ describe Statistrano::Deployment::MultiTarget::Target do
     end
   end
 
+  describe "#test_connection" do
+    it "runs whoami on remote" do
+      ssh_double = create_ssh_double
+      allow(ssh_double).to receive(:close_session)
+      subject    = described_class.new default_options
+
+      expect( ssh_double ).to receive(:run).with('whoami')
+                          .and_return( HereOrThere::Response.new("statistrano","",true))
+      subject.test_connection
+    end
+    it "returns true if successful" do
+      ssh_double = create_ssh_double
+      allow(ssh_double).to receive(:close_session)
+      subject    = described_class.new default_options
+
+      expect( ssh_double ).to receive(:run).with('whoami')
+                          .and_return( HereOrThere::Response.new("statistrano","",true))
+      expect( subject.test_connection ).to be_truthy
+    end
+    it "returns false if fails" do
+      ssh_double = create_ssh_double
+      allow(ssh_double).to receive(:close_session)
+      subject    = described_class.new default_options
+
+      expect( ssh_double ).to receive(:run).with('whoami')
+                          .and_return( HereOrThere::Response.new("","error",false))
+      expect( subject.test_connection ).to be_falsy
+    end
+  end
+
   describe "#create_remote_dir" do
     it "runs mkdir command on remote" do
       ssh_double = create_ssh_double
