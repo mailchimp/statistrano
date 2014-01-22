@@ -12,7 +12,7 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
         remote_dir File.join( Dir.pwd, "deployment" )
 
         release_count 2
-        targets [{ remote: 'localhost' }]
+        targets [{ remote: 'localhost', verbose: true }]
       end
 
       # binding.pry

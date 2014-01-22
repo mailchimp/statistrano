@@ -106,19 +106,22 @@ module Statistrano
         # Run the post_deploy_task
         # return [Void]
         def invoke_post_deploy_task
-          if config.post_deploy_task
-            Log.info "Running the post deploy task"
-            Rake::Task[ config.post_deploy_task ].invoke
-          end
+          Log.info "Running the post deploy task"
+          call_or_invoke_task config.post_deploy_task
         end
 
         # Run the build_task supplied
         # return [Void]
         def invoke_build_task
-          if config.build_task.respond_to? :call
-            config.build_task.call
+          Log.info "Running the build task"
+          call_or_invoke_task config.build_task
+        end
+
+        def call_or_invoke_task task
+          if task.respond_to? :call
+            task.call
           else
-            Rake::Task[config.build_task].invoke
+            Rake::Task[task].invoke
           end
         rescue Exception => e
           Log.error "exiting due to error in build task",

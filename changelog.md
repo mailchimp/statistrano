@@ -1,4 +1,5 @@
-- add a "verbose" option to targets to log each command
+- MultiTarget post_deploy_task accepts blocks just like build_task
+- add a "verbose" option to Target to log each command run
 
 # 0.10.0.beta1
 - add a "new architecture" MultiTarget deployment type

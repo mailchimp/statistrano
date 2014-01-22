@@ -201,21 +201,37 @@ describe Statistrano::Deployment::MultiTarget do
       @subject.deploy
     end
 
-    it "invokes the post_deploy_task once" do
-      @subject = define_deployment "multi", :multi_target do
-        build_task 'nil:bar'
-        post_deploy_task 'foo:bar'
+    context "when post_deploy_task is a proc" do
+      it "calls the post_deploy_task task" do
+        subject     = define_deployment "multi", :multi_target
+        task_double = double( call: 'foo' )
+        config      = double("Statistrano::Config", build_task: -> {},
+                                                    check_git: false,
+                                                    options: { targets: [] },
+                                                    post_deploy_task: task_double)
+        allow( subject ).to receive(:config).and_return(config)
+
+        expect( task_double ).to receive(:call)
+        subject.deploy
       end
+    end
+    context "when post_deploy_task is a string" do
+      it "invokes the post_deploy_task once" do
+        @subject = define_deployment "multi", :multi_target do
+          build_task 'nil:bar'
+          post_deploy_task 'foo:bar'
+        end
 
-      task_double      = double(invoke: nil)
-      post_task_double = double
-      allow( Rake::Task ).to receive(:[]).with('nil:bar')
-                         .and_return(task_double)
-      expect( Rake::Task ).to receive(:[]).with('foo:bar')
-                          .and_return(post_task_double)
-      expect( post_task_double ).to receive(:invoke).once
+        task_double      = double(invoke: nil)
+        post_task_double = double
+        allow( Rake::Task ).to receive(:[]).with('nil:bar')
+                           .and_return(task_double)
+        expect( Rake::Task ).to receive(:[]).with('foo:bar')
+                            .and_return(post_task_double)
+        expect( post_task_double ).to receive(:invoke).once
 
-      @subject.deploy
+        @subject.deploy
+      end
     end
   end
 
