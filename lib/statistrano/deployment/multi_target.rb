@@ -106,8 +106,10 @@ module Statistrano
         # Run the post_deploy_task
         # return [Void]
         def invoke_post_deploy_task
-          Log.info "Running the post deploy task"
-          call_or_invoke_task config.post_deploy_task
+          if config.post_deploy_task
+            Log.info "Running the post deploy task"
+            call_or_invoke_task config.post_deploy_task
+          end
         end
 
         # Run the build_task supplied
@@ -126,6 +128,7 @@ module Statistrano
         rescue Exception => e
           Log.error "exiting due to error in build task",
                     "#{e.class}: #{e}"
+          abort()
         end
 
         def safe_to_deploy?

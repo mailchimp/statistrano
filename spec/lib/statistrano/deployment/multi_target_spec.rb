@@ -163,6 +163,26 @@ describe Statistrano::Deployment::MultiTarget do
           subject.deploy
         end
       end
+      context "when build task raises error" do
+        it "exits" do
+          subject = define_deployment "multi", :multi_target do
+            build_task do
+              raise "hell"
+            end
+            targets [{one: 'two'}]
+          end
+          target   = instance_double("Statistrano::Deployment::MultiTarget::Target")
+          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          allow( Statistrano::Deployment::MultiTarget::Target ).to receive(:new)
+                                                               .and_return(target)
+          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+                                                                 .and_return(releaser)
+
+          expect{
+            subject.deploy
+            }.to raise_error(SystemExit)
+        end
+      end
     end
     context "when build task is defined as a string" do
       it "invokes the build task once" do
