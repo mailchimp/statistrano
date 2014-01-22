@@ -107,7 +107,7 @@ module Statistrano
         # return [Void]
         def invoke_post_deploy_task
           if config.post_deploy_task
-            Log.info "Running the post deploy task"
+            Log.info :post_deploy, "Running the post deploy task"
             call_or_invoke_task config.post_deploy_task
           end
         end
@@ -115,7 +115,7 @@ module Statistrano
         # Run the build_task supplied
         # return [Void]
         def invoke_build_task
-          Log.info "Running the build task"
+          Log.info :build, "Running the build task"
           call_or_invoke_task config.build_task
         end
 
