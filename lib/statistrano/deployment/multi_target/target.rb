@@ -15,6 +15,8 @@ module Statistrano
         options :remote_dir, :local_dir,
                 :release_count, :release_dir, :public_dir
 
+        option  :verbose, false
+
         def initialize options={}
           config.options.each do |opt,val|
             config.send opt, options.fetch(opt,val)
@@ -24,6 +26,10 @@ module Statistrano
         end
 
         def run command
+          if config.verbose
+            Log.info :"#{config.remote}", "running cmd: #{command}"
+          end
+
           config.ssh_session.run command
         end
 

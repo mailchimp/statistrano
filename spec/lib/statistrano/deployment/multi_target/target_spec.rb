@@ -38,6 +38,17 @@ describe Statistrano::Deployment::MultiTarget::Target do
       expect( ssh_double ).to receive(:run).with('ls')
       subject.run 'ls'
     end
+
+    it "logs the command if verbose is true" do
+      ssh_double = create_ssh_double
+      subject    = described_class.new default_options.merge verbose: true
+
+
+      allow( ssh_double ).to receive(:run).with('ls')
+      expect( Statistrano::Log ).to receive(:info)
+                                .with( :web01, "running cmd: ls")
+      subject.run 'ls'
+    end
   end
 
   describe "#done" do

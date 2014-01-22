@@ -1,3 +1,4 @@
+- add a "verbose" option to targets to log each command
 
 # 0.10.0.beta1
 - add a "new architecture" MultiTarget deployment type
