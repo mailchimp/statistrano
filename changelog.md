@@ -1,3 +1,6 @@
+
+# 0.10.0.beta1
+- add a "new architecture" MultiTarget deployment type
 - fix Util::symbolize_hash_keys to work with nested hashes
 - add a types cache and register methods for registering deployment types
 - remove Git code (it wasn't being used)
