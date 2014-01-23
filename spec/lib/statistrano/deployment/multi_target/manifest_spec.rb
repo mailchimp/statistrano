@@ -119,34 +119,87 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
   end
 
   describe "#save!" do
+    it "tests if file exists" do
+      config  = double("Statistrano::Config", remote: 'web01')
+      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      allow( target ).to receive(:run)
+                     .and_return( HereOrThere::Response.new("",'',true) )
+      subject = described_class.new '/var/www/proj', target
+
+      expect( target ).to receive(:run)
+                      .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
+                      .and_return( HereOrThere::Response.new("exists\n",'',true) )
+      subject.save!
+    end
+
+    context "when manifest didn't previously exist" do
+      it "creates manifest" do
+        config  = double("Statistrano::Config", remote: 'web01')
+        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        allow( target ).to receive(:run)
+                       .and_return( HereOrThere::Response.new("",'',true) )
+        subject = described_class.new '/var/www/proj', target
+
+        expect( target ).to receive(:run)
+                        .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
+                        .and_return( HereOrThere::Response.new('','',true) )
+        expect( target ).to receive(:run)
+                        .with("touch /var/www/proj/manifest.json " +
+                              "&& chmod 770 /var/www/proj/manifest.json")
+                        .and_return( HereOrThere::Response.new("",'',true) )
+        subject.save!
+      end
+    end
+
+    context "when manifest exists" do
+      it "doesn't touch & chmod file" do
+        config  = double("Statistrano::Config", remote: 'web01')
+        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        allow( target ).to receive(:run)
+                       .and_return( HereOrThere::Response.new("",'',true) )
+        subject = described_class.new '/var/www/proj', target
+
+        expect( target ).to receive(:run)
+                        .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
+                        .and_return( HereOrThere::Response.new("exists\n",'',true) )
+        expect( target ).not_to receive(:run)
+                        .with("touch /var/www/proj/manifest.json " +
+                              "&& chmod 770 /var/www/proj/manifest.json")
+        subject.save!
+      end
+    end
+
     it "writes serialized data to remote_path" do
       config  = double("Statistrano::Config", remote: 'web01')
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       allow( target ).to receive(:run)
                      .with("cat /var/www/proj/manifest.json")
                      .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      allow( target ).to receive(:run)
+                     .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
+                     .and_return( HereOrThere::Response.new("exists\n",'',true) )
       subject = described_class.new '/var/www/proj', target
 
       expect( target ).to receive(:run)
-                      .with( "touch /var/www/proj/manifest.json " +
-                             "&& chmod 770 /var/www/proj/manifest.json " +
-                             "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
+                      .with( "echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
                       .and_return( HereOrThere::Response.new('','',true) )
 
       subject.save!
     end
+
     it "logs error if fails" do
       config  = double("Statistrano::Config", remote: 'web01')
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       allow( target ).to receive(:run)
                      .with("cat /var/www/proj/manifest.json")
                      .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+      allow( target ).to receive(:run)
+                     .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
+                     .and_return( HereOrThere::Response.new("exists\n",'',true) )
       subject = described_class.new '/var/www/proj', target
 
       expect( target ).to receive(:run)
-                      .with( "touch /var/www/proj/manifest.json " +
-                             "&& chmod 770 /var/www/proj/manifest.json " +
-                             "&& echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
+                      .with( "echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
                       .and_return( HereOrThere::Response.new('','couldnt do it',false) )
 
       expect( Statistrano::Log ).to receive(:error)

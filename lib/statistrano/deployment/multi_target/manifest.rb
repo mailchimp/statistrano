@@ -33,9 +33,8 @@ module Statistrano
         end
 
         def save!
-          resp = target.run "touch #{remote_path} " +
-                            "&& chmod 770 #{remote_path} " +
-                            "&& echo '#{serialize}' > #{remote_path}"
+          create_remote_file unless remote_file_exists?
+          resp = target.run "echo '#{serialize}' > #{remote_path}"
 
           if resp.success?
             Log.info :success, "manifest on #{target.config.remote} saved"
@@ -46,6 +45,23 @@ module Statistrano
         end
 
         private
+
+          def remote_file_exists?
+            resp = target.run "[ -f #{remote_path} ] && echo \"exists\""
+            resp.success? && resp.stdout.strip == "exists"
+          end
+
+          def create_remote_file
+            resp = target.run "touch #{remote_path} " +
+                              "&& chmod 770 #{remote_path}"
+
+            if resp.success?
+              Log.info :success, "created manifest file on #{target.config.remote}"
+            else
+              Log.error "problem saving the manifest for #{target.config.remote}",
+                        resp.stderr
+            end
+          end
 
           def raw
             resp = target.run "cat #{remote_path}"
