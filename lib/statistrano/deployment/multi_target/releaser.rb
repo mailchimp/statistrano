@@ -98,6 +98,11 @@ module Statistrano
           end
 
           def remove_release release_name, target, manifest
+            if release_name == current_release(target)
+              Log.warn "did not remove release '#{release_name}' because it is current"
+              return
+            end
+
             manifest.remove_if { |r| r[:release] == release_name }
             target.run("rm -rf #{File.join(releases_path(target), release_name)}")
           end
@@ -106,6 +111,11 @@ module Statistrano
             (remote_releases(target) - tracked_releases(target)).each do |untracked|
               target.run("rm -rf #{File.join(releases_path(target), untracked)}")
             end
+          end
+
+          def current_release target
+            resp = target.run("readlink #{public_path(target)}")
+            resp.stdout.sub( /#{releases_path(target)}\/?/, '' ).strip
           end
 
           def remote_releases target

@@ -1,3 +1,5 @@
+- add guard to not remove a currently symlinked release
+
 # 0.10.0.beta2
 - manifests check if they exist before trying to create themselves
 - add Target#test_connection method to allow for early testing of remote connections

@@ -110,6 +110,9 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       allow(target).to receive(:run)
                     .with("ls -m /var/www/proj/releases")
                     .and_return( HereOrThere::Response.new( (releases + [extra_release]).join(','), '', true ) )
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("",'',true) )
       allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
                                                              .and_return(manifest)
       allow(manifest).to receive(:data)
@@ -137,6 +140,9 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       allow(target).to receive(:run)
                    .with("ls -m /var/www/proj/releases")
                    .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("",'',true) )
 
       # this is gnarly but we need to test against
       # the manifest release data because of the block in
@@ -153,6 +159,39 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       # our expectation is for manifest data to be missing
       # the release that is to be removed
       expect(manifest.data).to eq releases[1..-1].map {|r| {release: r}}
+    end
+
+    it "skips removing a release if it is currently symlinked" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      target   = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      subject  = described_class.new default_arguments.merge( release_count: 2 )
+      manifest = Statistrano::Deployment::MultiTarget::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::MultiTarget::Manifest ).to receive(:new)
+                                                             .with( '/var/www/proj', target )
+                                                             .and_return(manifest)
+      releases = [ Time.now.to_i.to_s,
+                  (Time.now.to_i + 1 ).to_s,
+                  (Time.now.to_i + 2 ).to_s ]
+
+      allow(target).to receive(:run)
+                   .with("ls -m /var/www/proj/releases")
+                   .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
+
+      # this is gnarly but we need to test against
+      # the manifest release data because of the block in
+      # Manifest#remove_if
+      allow(target).to receive(:run)
+                   .with("cat /var/www/proj/manifest.json")
+                   .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
+
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("/var/www/proj/releases/#{releases.first}\n",'',true) )
+      expect(target).not_to receive(:run)
+                    .with("rm -rf /var/www/proj/releases/#{releases.first}")
+      expect(manifest).to receive(:save!)
+
+      subject.prune_releases target
     end
   end
 
@@ -260,6 +299,9 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
                           {release: release_three}
                         ])
       allow( target ).to receive(:run)
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("",'',true) )
       allow( manifest ).to receive(:remove_if)
       allow( manifest ).to receive(:save!)
 
@@ -291,10 +333,13 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
 
 
       allow( subject ).to receive(:symlink_release)
-                       .with( target, release_two )
+                      .with( target, release_two )
       allow( manifest ).to receive(:remove_if)
       allow( manifest ).to receive(:save!)
 
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("",'',true) )
       expect( target ).to receive(:run)
                       .with("rm -rf /var/www/proj/releases/#{release_three}")
 
@@ -316,6 +361,9 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       release_three = ( Time.now.to_i + 2 ).to_s
       releases      = [release_three,release_two,release_one]
       allow( target ).to receive(:run)
+      allow(target).to receive(:run)
+                   .with("readlink /var/www/proj/current")
+                   .and_return( HereOrThere::Response.new("",'',true) )
 
 
       # this is gnarly but we need to test against
