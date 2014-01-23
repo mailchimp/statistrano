@@ -32,7 +32,7 @@ module Statistrano
           done
 
           if resp.success?
-            Log.info "#{config.remote} says \"Hello #{resp.stdout}\""
+            Log.info "#{config.remote} says \"Hello #{resp.stdout.strip}\""
             return true
           else
             Log.error "connection failed for #{config.remote}",
