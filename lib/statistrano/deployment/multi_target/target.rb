@@ -59,7 +59,7 @@ module Statistrano
           end
 
           Log.info "Setting up directory at '#{path}' on #{config.remote}"
-          resp = run "mkdir -p -m 770 #{path}"
+          resp = run "mkdir -p -m 775 #{path}"
           unless resp.success?
             Log.error "Unable to create directory '#{path}' on #{config.remote}",
                       resp.stderr
