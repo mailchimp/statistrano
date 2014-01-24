@@ -1,3 +1,5 @@
+# 0.10.0.beta3
+- release dir created recursively, ensures permissions on releases dir
 - add guard to not remove a currently symlinked release
 
 # 0.10.0.beta2
