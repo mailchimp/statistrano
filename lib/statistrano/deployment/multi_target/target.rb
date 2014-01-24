@@ -59,14 +59,19 @@ module Statistrano
           end
 
           Log.info "Setting up directory at '#{path}' on #{config.remote}"
-          run "mkdir -p -m 770 #{path}"
+          resp = run "mkdir -p -m 770 #{path}"
+          unless resp.success?
+            Log.error "Unable to create directory '#{path}' on #{config.remote}",
+                      resp.stderr
+            abort()
+          end
         end
 
         def rsync_to_remote local_path, remote_path
           local_path  = local_path.chomp("/")
           remote_path = remote_path.chomp("/")
 
-          Log.info "Syncing files frome '#{local_path}' to '#{remote_path}' on #{config.remote}"
+          Log.info "Syncing files from '#{local_path}' to '#{remote_path}' on #{config.remote}"
 
           time_before = Time.now
           resp = Shell.run_local "rsync #{rsync_options} " +

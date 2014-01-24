@@ -31,6 +31,7 @@ module Statistrano
         end
 
         def setup_release_path target
+          target.create_remote_dir releases_path(target)
           target.create_remote_dir release_path(target)
         end
 

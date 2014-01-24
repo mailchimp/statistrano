@@ -96,7 +96,9 @@ describe Statistrano::Deployment::MultiTarget::Target do
       ssh_double = create_ssh_double
       subject = described_class.new default_options
 
-      expect( ssh_double ).to receive(:run).with("mkdir -p -m 770 /var/www/proj")
+      expect( ssh_double ).to receive(:run)
+                          .with("mkdir -p -m 770 /var/www/proj")
+                          .and_return( HereOrThere::Response.new("","",true) )
       subject.create_remote_dir "/var/www/proj"
     end
 
@@ -107,6 +109,23 @@ describe Statistrano::Deployment::MultiTarget::Target do
       expect {
         subject.create_remote_dir "var/www/proj"
       }.to raise_error ArgumentError, "path must be absolute"
+    end
+
+    context "when remote dir creation fails" do
+      it "logs error & exits" do
+        ssh_double = create_ssh_double
+        subject = described_class.new default_options
+        allow( ssh_double ).to receive(:run)
+                            .with("mkdir -p -m 770 /var/www/proj")
+                            .and_return( HereOrThere::Response.new("","oh noes",false) )
+
+        expect( Statistrano::Log ).to receive(:error)
+                                  .with( "Unable to create directory '/var/www/proj' on web01",
+                                          "oh noes")
+        expect{
+          subject.create_remote_dir "/var/www/proj"
+        }.to raise_error SystemExit
+      end
     end
   end
 

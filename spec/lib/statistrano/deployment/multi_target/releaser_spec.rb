@@ -64,6 +64,8 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       subject = described_class.new default_arguments
 
       expect( target ).to receive(:create_remote_dir)
+                      .with( '/var/www/proj/releases' )
+      expect( target ).to receive(:create_remote_dir)
                       .with( File.join( '/var/www/proj/releases', subject.release_name ) )
       subject.setup_release_path target
     end
