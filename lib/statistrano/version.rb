@@ -1,3 +1,3 @@
 module Statistrano
-  VERSION = "0.10.0.beta3"
+  VERSION = "0.10.0.rc1"
 end
