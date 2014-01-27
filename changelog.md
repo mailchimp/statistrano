@@ -1,3 +1,5 @@
+- fix copy current release step, target needs to not exist
+
 # 0.10.0.rc2
 - copy current release to help reduce time spent rsyncing new build
 

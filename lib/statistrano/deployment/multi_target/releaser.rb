@@ -31,9 +31,14 @@ module Statistrano
         end
 
         def setup_release_path target
+          current_release = current_release target
           target.create_remote_dir releases_path(target)
-          target.create_remote_dir release_path(target)
-          copy_current_release     target
+
+          if current_release.empty?
+            target.create_remote_dir release_path(target)
+          else
+            target.run "cp -a #{release_path(target, current_release)} #{release_path(target)}"
+          end
         end
 
         def rsync_to_remote target
@@ -112,13 +117,6 @@ module Statistrano
           def remove_untracked_releases target
             (remote_releases(target) - tracked_releases(target)).each do |untracked|
               target.run("rm -rf #{File.join(releases_path(target), untracked)}")
-            end
-          end
-
-          def copy_current_release target
-            current_release = current_release target
-            if !current_release.empty?
-              target.run "cp -a #{release_path(target, current_release)} #{release_path(target)}"
             end
           end
 
