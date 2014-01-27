@@ -1,3 +1,4 @@
+# 0.10.0.rc3
 - fix copy current release step, target needs to not exist
 
 # 0.10.0.rc2
