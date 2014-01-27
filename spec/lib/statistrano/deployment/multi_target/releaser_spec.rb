@@ -62,12 +62,56 @@ describe Statistrano::Deployment::MultiTarget::Releaser do
       config  = double("Statistrano::Config", default_target_config_responses )
       target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
       subject = described_class.new default_arguments
+      allow( target ).to receive(:run)
+                     .and_return( HereOrThere::Response.new("","",true) )
 
       expect( target ).to receive(:create_remote_dir)
                       .with( '/var/www/proj/releases' )
       expect( target ).to receive(:create_remote_dir)
                       .with( File.join( '/var/www/proj/releases', subject.release_name ) )
       subject.setup_release_path target
+    end
+    context "with an existing release" do
+      it "copies existing 'current' release to release_path" do
+        config  = double("Statistrano::Config", default_target_config_responses )
+        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        subject = described_class.new default_arguments
+        release_path = File.join( '/var/www/proj/releases', subject.release_name )
+        allow( target ).to receive(:run)
+                       .and_return( HereOrThere::Response.new("","",true) )
+
+        expect( target ).to receive(:create_remote_dir)
+                        .with( '/var/www/proj/releases' )
+        expect( target ).to receive(:create_remote_dir)
+                        .with( release_path )
+
+        allow( target ).to receive(:run).with("readlink /var/www/proj/current")
+                       .and_return( HereOrThere::Response.new("/var/www/proj/releases/1234","",true) )
+        expect( target ).to receive(:run)
+                        .with("cp -a /var/www/proj/releases/1234 #{release_path}")
+        subject.setup_release_path target
+      end
+    end
+    context "with no existing releases" do
+      it "does not attempt to copy release to release_path" do
+        config  = double("Statistrano::Config", default_target_config_responses )
+        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        subject = described_class.new default_arguments
+        release_path = File.join( '/var/www/proj/releases', subject.release_name )
+        allow( target ).to receive(:run)
+                       .and_return( HereOrThere::Response.new("","",true) )
+
+        expect( target ).to receive(:create_remote_dir)
+                        .with( '/var/www/proj/releases' )
+        expect( target ).to receive(:create_remote_dir)
+                        .with( release_path )
+
+        allow( target ).to receive(:run).with("readlink /var/www/proj/current")
+                       .and_return( HereOrThere::Response.new("","",true) )
+        expect( target ).not_to receive(:run)
+                        .with("cp -a /var/www/proj/releases/ #{release_path}")
+        subject.setup_release_path target
+      end
     end
   end
 

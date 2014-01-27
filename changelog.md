@@ -1,3 +1,5 @@
+- copy current release to help reduce time spent rsyncing new build
+
 # 0.10.0.rc1
 - make dir with 775, so global (ngnx) can read them
 
