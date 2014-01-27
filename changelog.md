@@ -1,3 +1,4 @@
+# 0.10.0.rc2
 - copy current release to help reduce time spent rsyncing new build
 
 # 0.10.0.rc1
