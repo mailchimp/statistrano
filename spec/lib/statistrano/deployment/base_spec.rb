@@ -6,7 +6,7 @@ describe Statistrano::Deployment::Base do
 
     it "creates a deployment with a name" do
       deployment = Statistrano::Deployment::Base.new("name")
-      deployment.name.should == "name"
+      expect( deployment.name ).to eq "name"
     end
 
     it "configuration is configurable" do
@@ -15,15 +15,15 @@ describe Statistrano::Deployment::Base do
       deployment.config.local_dir = "world"
       deployment.config.remote = "foo"
 
-      deployment.config.remote_dir.should == "hello"
-      deployment.config.local_dir.should == "world"
-      deployment.config.remote.should == "foo"
+      expect( deployment.config.remote_dir ).to eq "hello"
+      expect( deployment.config.local_dir ).to eq "world"
+      expect( deployment.config.remote ).to eq "foo"
     end
 
   end
 
   it "should not reek" do
-    Dir["lib/statistrano/deployment/base.rb"].should_not reek
+    expect( Dir["lib/statistrano/deployment/base.rb"] ).not_to reek
   end
 
 end

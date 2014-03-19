@@ -1,11 +1,16 @@
 require 'spec_helper'
 
-describe "Releases deployment integration test" do
+describe "Statistrano::Deployment::Releases integration", :integration do
 
   describe "makes release deployments" do
 
+    # leaving stubs in place until 3.0.0 lands
+    # that will bring the with_temporary_scope and ability
+    # to use new syntax in before :all blocks
+    # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
+    #
     before :all do
-      pick_fixture "releases_site"
+      Given.fixture "base"
       define_deployment "releases1", :releases do |c|
         c.build_task = 'remote:copy'
         c.remote = 'localhost'
@@ -22,34 +27,39 @@ describe "Releases deployment integration test" do
     end
 
     after :all do
-      cleanup_fixture
+      Given.cleanup!
     end
 
 
     it "generates releases with the correct timestamp" do
-      release_folder_contents.should == ["1372020000","1372030000"]
+      expect( release_folder_contents ).to match_array ["1372020000","1372030000"]
     end
 
     it "symlinks the pub_dir to the most recent release" do
-      Statistrano::Shell.run_local("ls -l deployment")
-        .stdout.should =~ /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
+      out = Statistrano::Shell.run_local("ls -l deployment").stdout
+      expect( out ).to match /current -> #{Dir.pwd.gsub("/", "\/")}\/deployment\/releases\/1372030000/
     end
 
     it "returns a list of the currently deployed deployments" do
-      output = Capture.stdout {
+      output = catch_stdout {
         Rake::Task["releases1:list"].invoke
       }.split("\n")
 
-      expect( output[0].match("current") ).to be_true
-      expect( output[0].match("Sun Jun 23, 2013 at  7:26 pm") ).to be_true
-      expect( output[1].match("Sun Jun 23, 2013 at  4:40 pm") ).to be_true
+      expect( output[0].match("current") ).to be_truthy
+      expect( output[0].match("Sun Jun 23, 2013 at  7:26 pm") ).to be_truthy
+      expect( output[1].match("Sun Jun 23, 2013 at  4:40 pm") ).to be_truthy
     end
   end
 
   describe "restricts to the release count and rolls back" do
 
+    # leaving stubs in place until 3.0.0 lands
+    # that will bring the with_temporary_scope and ability
+    # to use new syntax in before :all blocks
+    # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
+    #
     before :all do
-      pick_fixture "releases_site"
+      Given.fixture "base"
       define_deployment "releases2", :releases do |c|
         c.build_task = 'remote:copy'
         c.remote = 'localhost'
@@ -72,19 +82,19 @@ describe "Releases deployment integration test" do
     end
 
     after :all do
-      cleanup_fixture
+      Given.cleanup!
     end
 
     it "removes the oldest deployment" do
-      release_folder_contents.should == ["1372030000","1372040000"]
+      expect( release_folder_contents ).to match_array ["1372030000","1372040000"]
     end
 
     it "rolls back to the previous release" do
       Rake::Task["releases2:rollback"].invoke
       resp = Statistrano::Shell.run_local "ls -l deployment"
 
-      expect( resp.stdout.match("current -> #{Dir.pwd}/deployment/releases/1372030000") ).to be_true
-      expect( release_folder_contents == ["1372030000"] ).to be_true
+      expect( resp.stdout.match("current -> #{Dir.pwd}/deployment/releases/1372030000") ).to be_truthy
+      expect( release_folder_contents == ["1372030000"] ).to be_truthy
     end
 
     it "won't rollback if there is only one release" do
@@ -92,7 +102,7 @@ describe "Releases deployment integration test" do
         reenable_rake_tasks
         Rake::Task["releases2:rollback"].invoke
       }.to raise_error(SystemExit)
-      release_folder_contents.should == ["1372030000"]
+      expect( release_folder_contents ).to match_array ["1372030000"]
     end
 
   end

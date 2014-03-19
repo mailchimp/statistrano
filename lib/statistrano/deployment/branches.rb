@@ -6,6 +6,7 @@ module Statistrano
     # current git branch, eg. doing feature branch deployments
     #
     class Branches < Base
+      register_type :branches
 
       options :public_dir, :post_deploy_task, :base_domain
 
@@ -39,7 +40,7 @@ module Statistrano
         if get_releases && get_releases.length > 0
           pick_and_remove_release
         else
-          LOG.warn "no releases to prune"
+          Log.warn "no releases to prune"
         end
       end
 
@@ -64,7 +65,7 @@ module Statistrano
             remove_release(picked_release)
             generate_index
           else
-            LOG.warn "sorry, that isn't one of the releases"
+            Log.warn "sorry, that isn't one of the releases"
           end
         end
 
@@ -82,7 +83,7 @@ module Statistrano
 
         def list_releases_with_index
           get_releases.each_with_index do |release,idx|
-            LOG.msg "#{release}", "[#{idx}]", :blue
+            Log.info :"[#{idx}]", "#{release}"
           end
         end
 
@@ -108,14 +109,14 @@ module Statistrano
 
           manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
 
-          LOG.msg "Created release at #{config.public_dir}"
+          Log.info "Created release at #{config.public_dir}"
         end
 
         # remove a release
         # @param name [String]
         # @return [Void]
         def remove_release name
-          LOG.msg "Removing release '#{name}'"
+          Log.info "Removing release '#{name}'"
           run_remote "rm -rf #{release_path(name)}"
           manifest.remove_release(name)
         end

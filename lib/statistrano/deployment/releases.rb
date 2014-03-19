@@ -6,7 +6,7 @@ module Statistrano
     # to rollback to previous deploys.
     #
     class Releases < Base
-
+      register_type :releases
 
       option :release_count, 5
       option :release_dir, "releases"
@@ -27,7 +27,10 @@ module Statistrano
       # @return [Void]
       def rollback_release
         releases = get_releases
-        return LOG.error "Whoa there, there's only one release -- you definetly shouldn't remove it" unless releases.length > 1
+        unless releases.length > 1
+          Log.error "Whoa there, there's only one release -- you definetly shouldn't remove it"
+          abort()
+        end
 
         symlink_release( releases[1] ) # previous release
         remove_release( releases[0] ) # current release
@@ -45,7 +48,7 @@ module Statistrano
       def list_releases
         get_releases.each_with_index do |release, idx|
           current = ( idx == 0 ) ? "current" : nil
-          LOG.msg Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P'), current, :blue
+          Log.info :"#{current}", Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P')
         end
       end
 
@@ -57,7 +60,7 @@ module Statistrano
               remove_release(release)
             end
           else
-            LOG.msg( "No releases to prune", nil )
+            Log.info "No releases to prune"
           end
         end
 
@@ -118,7 +121,7 @@ module Statistrano
           create_release_on_remote(current_release)
           add_release_to_manifest(current_release)
 
-          LOG.msg "Created release at #{public_path}"
+          Log.info "Created release at #{public_path}"
         end
 
         def add_release_to_manifest name
@@ -138,7 +141,7 @@ module Statistrano
           previous_release = get_releases[0] # the current release is the previous in this case
 
           if previous_release && previous_release != release_name
-            LOG.msg "Setting up the remote by copying previous release"
+            Log.info "Setting up the remote by copying previous release"
             run_remote "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super
@@ -149,7 +152,7 @@ module Statistrano
         # @param name [String]
         # @return [Void]
         def remove_release name
-          LOG.msg "Removing release '#{name}'"
+          Log.info "Removing release '#{name}'"
           run_remote "rm -rf #{release_dir_path}/#{name}"
 
           manifest.remove_release(name)

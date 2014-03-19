@@ -31,7 +31,7 @@ describe Statistrano::Config::Configurable do
       names = [:one,:two]
 
       names.each do |meth|
-        expect( subject.config.respond_to? meth ).to be_true
+        expect( subject.config.respond_to? meth ).to be_truthy
       end
     end
 
@@ -59,6 +59,13 @@ describe Statistrano::Config::Configurable do
     it "sets the value if given an #=" do
       config.foo = "badazz"
       expect( config.foo ).to eq("badazz")
+    end
+
+    it "sets the value do a block if given one" do
+      config.foo do
+        "badazz"
+      end
+      expect( config.foo.call ).to eq "badazz"
     end
 
     it "raises and ArgumentError if given more than 1 argument" do

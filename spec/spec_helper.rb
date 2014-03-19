@@ -1,59 +1,41 @@
-require 'simplecov'
-SimpleCov.start
-
 require 'rspec'
-require 'pry-debugger'
-require 'statistrano'
+require 'rake'
+require 'rainbow'
 require 'fileutils'
+require 'catch_and_release'
+require 'catch_and_release/rspec'
 
 require 'reek'
 require 'reek/spec'
+
 RSpec.configure do |c|
-  c.include(Reek::Spec)
+  c.include CatchAndRelease::RSpec
+  c.include Reek::Spec
 end
 
-# for eating up stdout
-output = StringIO.open('','w+')
-$stdout = output
+if ENV['DEBUG']
+  require 'pry'
+end
+
+# for eating up stdout & stderr
+unless ENV['VERBOSE']
+  stdout  = StringIO.open('','w+')
+  $stdout = stdout
+
+  stderr  = StringIO.open('','w+')
+  $stderr = stderr
+end
+
+unless ENV['RAINBOW']
+  Rainbow.enabled = false
+end
 
 ROOT = Dir.pwd
 
-# support
-require 'support/capture'
+require 'support/given'
 
-describe "support" do
-
-  describe Capture do
-    describe "#stdout" do
-      it "returns a string representation fo what is sent to stdout inside the given block" do
-        out = Capture.stdout { $stdout.puts "hello"; $stdout.puts "world" }
-        expect( out ).to eq "hello\nworld\n"
-      end
-    end
-
-    describe "#stderr" do
-      it "returns a string representation fo what is sent to stderr inside the given block" do
-        out = Capture.stderr { $stderr.puts "hello"; $stderr.puts "world" }
-        expect( out ).to eq "hello\nworld\n"
-      end
-    end
-  end
-
-end
-
-
-def pick_fixture name
-  Dir.chdir( File.join( ROOT, "fixture", name ) )
-end
-
-def cleanup_fixture
-  FileUtils.rm_rf File.join( Dir.getwd, "deployment" )
-  Dir.chdir( ROOT )
-end
-
-def tracer msg
-  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
-end
+#     Rake Helpers
+# ----------------------------------------------------
 
 include ::Rake::DSL
 namespace :remote do
@@ -77,15 +59,26 @@ def deployment_folder_contents
   Dir[ "deployment/**" ].map { |d| d.gsub("deployment/", '' ) }
 end
 
+def multi_release_folder_contents
+  Dir[ "deployment/**/**" ].keep_if do |path|
+    path.match /releases\/(.+)/
+  end.keep_if do |path|
+    File.directory?(path)
+  end.map do |dir|
+    dir.sub("deployment/",'')
+  end
+end
 
-#     Patches STDIN for a block
+def tracer msg
+  STDOUT.puts "\n\n==========================\n\n#{msg}\n\n==========================\n"
+end
+
+#     Startup SimpleCov
 # ----------------------------------------------------
 
-def fake_stdin(*args)
-  $stdin = StringIO.new
-  $stdin.puts(args.shift) until args.empty?
-  $stdin.rewind
-  yield
-ensure
-  $stdin = STDIN
+require 'simplecov'
+SimpleCov.start do
+  add_filter 'spec'
 end
+
+require 'statistrano'

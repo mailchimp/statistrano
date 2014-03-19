@@ -1,0 +1,17 @@
+#!/bin/bash --login
+
+set -e
+
+function run_spec {
+  ruby_version=`ruby -v`;
+  echo "Running specs against $ruby_version";
+  bundle --quiet --without=debug;
+  bundle exec rspec --format progress;
+  bundle config --delete without;
+}
+
+rvm use ruby-1.9.3@statistrano_test_193 --create
+run_spec
+
+rvm use ruby-2.0.0@statistrano_test_200 --create
+run_spec

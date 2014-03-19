@@ -1,3 +1,28 @@
+# 0.10.0.rc3
+- fix copy current release step, target needs to not exist
+
+# 0.10.0.rc2
+- copy current release to help reduce time spent rsyncing new build
+
+# 0.10.0.rc1
+- make dir with 775, so global (ngnx) can read them
+
+# 0.10.0.beta3
+- release dir created recursively, ensures permissions on releases dir
+- add guard to not remove a currently symlinked release
+
+# 0.10.0.beta2
+- manifests check if they exist before trying to create themselves
+- add Target#test_connection method to allow for early testing of remote connections
+- MultiTarget post_deploy_task accepts blocks just like build_task
+- add a "verbose" option to Target to log each command run
+
+# 0.10.0.beta1
+- add a "new architecture" MultiTarget deployment type
+- fix Util::symbolize_hash_keys to work with nested hashes
+- add a types cache and register methods for registering deployment types
+- remove Git code (it wasn't being used)
+
 # 0.9.1
 - bump Asgit dependency to 0.1
 

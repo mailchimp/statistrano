@@ -35,7 +35,12 @@ module Statistrano
       end
 
       def define_option_accessor name
-        define_singleton_method(name) do |*args|
+        define_singleton_method(name) do |*args, &block|
+          if block
+            @options[name] = block
+            return
+          end
+
           if args.length == 1
             @options[name] = args[0]
           elsif args.empty?

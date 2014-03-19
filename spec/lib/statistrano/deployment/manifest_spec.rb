@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Statistrano::Deployment::Manifest do
 
   it "should not reek" do
-    Dir["lib/statistrano/deployment/manifest.rb"].should_not reek
+    expect( Dir["lib/statistrano/deployment/manifest.rb"] ).not_to reek
   end
 
 end

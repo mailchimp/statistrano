@@ -8,3 +8,5 @@ fixture/**/deployment
 .ruby-gemset
 *.gem
 coverage
+tmp
+.bundle
