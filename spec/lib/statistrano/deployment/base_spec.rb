@@ -22,8 +22,4 @@ describe Statistrano::Deployment::Base do
 
   end
 
-  it "should not reek" do
-    expect( Dir["lib/statistrano/deployment/base.rb"] ).not_to reek
-  end
-
 end

@@ -17,8 +17,4 @@ describe Statistrano::Deployment::Branches do
     end
   end
 
-  it "should not reek" do
-    expect( Dir["lib/statistrano/deployment/branches.rb"] ).not_to reek
-  end
-
 end

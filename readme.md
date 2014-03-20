@@ -212,8 +212,6 @@ Tests are written in rspec, and can be run with `rspec`. To run an individual te
 
 Integraton tests run through `localhost`, this requires that you setup ssh through localhost to run the tests. Look at [setup](#setup) for help with that.
 
-[Reek](https://github.com/troessner/reek) is also included in the bundle to check for some code smells. Run `reek lib/*` to check the whole lib directory.
-
 
 ### Setup
 

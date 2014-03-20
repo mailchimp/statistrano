@@ -20,8 +20,4 @@ describe Statistrano::Deployment::Releases do
     end
   end
 
-  it "should not reek" do
-    expect( Dir["lib/statistrano/deployment/releases.rb"] ).not_to reek
-  end
-
 end

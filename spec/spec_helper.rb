@@ -5,12 +5,8 @@ require 'fileutils'
 require 'catch_and_release'
 require 'catch_and_release/rspec'
 
-require 'reek'
-require 'reek/spec'
-
 RSpec.configure do |c|
   c.include CatchAndRelease::RSpec
-  c.include Reek::Spec
 end
 
 if ENV['DEBUG']
