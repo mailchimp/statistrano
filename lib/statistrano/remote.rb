@@ -43,11 +43,11 @@ module Statistrano
         Log.info :"#{config.remote}", "running cmd: #{command}"
       end
 
-      config.ssh_session.run command
+      session.run command
     end
 
     def done
-      config.ssh_session.close_session
+      session.close_session
     end
 
     def create_remote_dir path
@@ -88,6 +88,19 @@ module Statistrano
     end
 
     private
+
+      def session
+        @_ssh_session ||= HereOrThere::Remote.session ssh_options
+      end
+
+      def ssh_options
+        ssh_options = { hostname: config.remote }
+        [ :user, :password, :keys, :forward_agent ].each do |key|
+          ssh_options[key] = config.public_send(key) if config.public_send(key)
+        end
+
+        return ssh_options
+      end
 
       def host_connection
         config.user ? "#{config.user}@#{config.remote}" : config.remote

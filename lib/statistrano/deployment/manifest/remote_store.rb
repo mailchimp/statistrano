@@ -6,10 +6,11 @@ module Statistrano
       #
       class RemoteStore
 
-        attr_reader :config, :path
+        attr_reader :config, :remote, :path
 
-        def initialize config
+        def initialize config, remote
           @config = config
+          @remote = remote
           @path   = config.remote_dir
         end
 
@@ -18,7 +19,7 @@ module Statistrano
         end
 
         def update_content string
-          config.ssh_session
+          remote
             .run "touch #{manifest_path} && echo '#{string}' > #{manifest_path}"
         end
 
@@ -31,7 +32,7 @@ module Statistrano
           end
 
           def fetch_remote_manifest
-            raw_manifest = config.ssh_session.run "touch #{manifest_path} && cat #{manifest_path}"
+            raw_manifest = remote.run "touch #{manifest_path} && cat #{manifest_path}"
             if raw_manifest.success? && !raw_manifest.stdout.empty?
               return JSON.parse( raw_manifest.stdout )
             else

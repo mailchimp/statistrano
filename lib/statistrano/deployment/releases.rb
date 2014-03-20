@@ -76,7 +76,7 @@ module Statistrano
         end
 
         def manifest
-          @_manifest ||= Manifest.new( config )
+          @_manifest ||= Manifest.new( config, remote )
         end
 
         # Return array of releases from manifest
@@ -89,16 +89,16 @@ module Statistrano
         # Return array of releases on the remote
         # @return [Array]
         def get_actual_releases
-          ActualReleases.new( config.ssh_session, release_dir_path ).as_array
+          ActualReleases.new( remote, release_dir_path ).as_array
         end
 
         # service class to get actual releases
         class ActualReleases
 
-          attr_reader :ssh, :dir_path
+          attr_reader :remote, :dir_path
 
-          def initialize ssh, dir_path
-            @ssh = ssh
+          def initialize remote, dir_path
+            @remote = remote
             @dir_path = dir_path
           end
 
@@ -109,7 +109,7 @@ module Statistrano
           private
 
             def ls_release_dir
-              ssh.run("ls -m #{dir_path}").stdout
+              remote.run("ls -m #{dir_path}").stdout
             end
         end
 

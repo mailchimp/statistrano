@@ -64,7 +64,7 @@ module Statistrano
         end
 
         def done_with_action
-          config.ssh_session.close_session
+          remote.done
         end
 
         # get paths, etc setup on remote

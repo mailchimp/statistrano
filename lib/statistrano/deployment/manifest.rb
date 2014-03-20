@@ -12,10 +12,9 @@ module Statistrano
 
       attr_reader :config, :releases, :remote_store
 
-      def initialize config
+      def initialize config, remote
         @config = config
-        @ssh    = config.ssh_session
-        @remote_store = RemoteStore.new( @config )
+        @remote_store = RemoteStore.new( @config, remote )
         @releases     = @remote_store.fetch.sort_by { |release| release.time }
       end
 

@@ -8,7 +8,7 @@ describe Statistrano::Remote do
 
   def create_ssh_double
     ssh_double = instance_double("HereOrThere::Remote::SSH")
-    allow_any_instance_of( Statistrano::Config ).to receive(:ssh_session).and_return(ssh_double)
+    allow( HereOrThere::Remote ).to receive(:session).and_return(ssh_double)
     return ssh_double
   end
 
