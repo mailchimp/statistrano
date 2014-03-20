@@ -12,14 +12,14 @@ require 'here_or_there'
 require 'asgit'
 
 # utility modules
-require 'statistrano/util'
-require 'statistrano/shell'
-require 'statistrano/log'
+require_relative 'statistrano/util'
+require_relative 'statistrano/shell'
+require_relative 'statistrano/log'
 
 # deployment modules
-require 'statistrano/config'
-require 'statistrano/remote'
-require 'statistrano/deployment'
+require_relative 'statistrano/config'
+require_relative 'statistrano/remote'
+require_relative 'statistrano/deployment'
 
 
 # DSL for defining deployments of static files

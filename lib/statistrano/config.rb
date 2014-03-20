@@ -1,4 +1,4 @@
-require 'statistrano/config/configurable'
+require_relative 'config/configurable'
 
 module Statistrano
   class Config

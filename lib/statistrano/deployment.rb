@@ -1,6 +1,6 @@
 # deployment utils
-require 'statistrano/deployment/manifest'
-require 'statistrano/deployment/rake_tasks'
+require_relative 'deployment/manifest'
+require_relative 'deployment/rake_tasks'
 
 module Statistrano
   module Deployment
@@ -37,7 +37,7 @@ end
 
 
 # deployment types
-require 'statistrano/deployment/base'
-require 'statistrano/deployment/releases'
-require 'statistrano/deployment/branches'
-require 'statistrano/deployment/multi_target'
+require_relative 'deployment/base'
+require_relative 'deployment/releases'
+require_relative 'deployment/branches'
+require_relative 'deployment/multi_target'
