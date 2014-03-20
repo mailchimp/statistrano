@@ -4,26 +4,27 @@ describe "Statistrano::Deployment::Releases integration", :integration do
 
   describe "makes release deployments" do
 
-    # leaving stubs in place until 3.0.0 lands
-    # that will bring the with_temporary_scope and ability
-    # to use new syntax in before :all blocks
-    # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
-    #
     before :all do
       Given.fixture "base"
-      define_deployment "releases1", :releases do |c|
-        c.build_task = 'remote:copy'
-        c.remote = 'localhost'
-        c.local_dir = 'build'
-        c.remote_dir = File.join( Dir.pwd, 'deployment' )
-      end
-      Time.stub( now: 1372020000 )
-      reenable_rake_tasks
-      Rake::Task["releases1:deploy"].invoke
 
-      Time.stub( now: 1372030000 )
-      reenable_rake_tasks
-      Rake::Task["releases1:deploy"].invoke
+      RSpec::Mocks.with_temporary_scope do
+        define_deployment "releases1", :releases do |c|
+          c.build_task = 'remote:copy'
+          c.remote = 'localhost'
+          c.local_dir = 'build'
+          c.remote_dir = File.join( Dir.pwd, 'deployment' )
+        end
+
+        allow( Time ).to receive(:now)
+                     .and_return(1372020000)
+        reenable_rake_tasks
+        Rake::Task["releases1:deploy"].invoke
+
+        allow( Time ).to receive(:now)
+                     .and_return(1372030000)
+        reenable_rake_tasks
+        Rake::Task["releases1:deploy"].invoke
+      end
     end
 
     after :all do
@@ -53,32 +54,33 @@ describe "Statistrano::Deployment::Releases integration", :integration do
 
   describe "restricts to the release count and rolls back" do
 
-    # leaving stubs in place until 3.0.0 lands
-    # that will bring the with_temporary_scope and ability
-    # to use new syntax in before :all blocks
-    # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
-    #
     before :all do
       Given.fixture "base"
-      define_deployment "releases2", :releases do |c|
-        c.build_task = 'remote:copy'
-        c.remote = 'localhost'
-        c.local_dir = 'build'
-        c.remote_dir = File.join( Dir.pwd, 'deployment' )
-        c.release_count = 2
+
+      RSpec::Mocks.with_temporary_scope do
+        define_deployment "releases2", :releases do |c|
+          c.build_task = 'remote:copy'
+          c.remote = 'localhost'
+          c.local_dir = 'build'
+          c.remote_dir = File.join( Dir.pwd, 'deployment' )
+          c.release_count = 2
+        end
+
+        allow( Time ).to receive(:now)
+                     .and_return(1372020000)
+        reenable_rake_tasks
+        Rake::Task["releases2:deploy"].invoke
+
+        allow( Time ).to receive(:now)
+                     .and_return(1372030000)
+        reenable_rake_tasks
+        Rake::Task["releases2:deploy"].invoke
+
+        allow( Time ).to receive(:now)
+                     .and_return(1372040000)
+        reenable_rake_tasks
+        Rake::Task["releases2:deploy"].invoke
       end
-
-      Time.stub( now:1372020000 )
-      reenable_rake_tasks
-      Rake::Task["releases2:deploy"].invoke
-
-      Time.stub( now:1372030000 )
-      reenable_rake_tasks
-      Rake::Task["releases2:deploy"].invoke
-
-      Time.stub( now:1372040000 )
-      reenable_rake_tasks
-      Rake::Task["releases2:deploy"].invoke
     end
 
     after :all do

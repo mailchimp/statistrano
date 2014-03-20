@@ -2,34 +2,35 @@ require 'spec_helper'
 
 describe "Statistrano::Deployment::Branches integration", :integration do
 
-
-  # leaving stubs in place until 3.0.0 lands
-  # that will bring the with_temporary_scope and ability
-  # to use new syntax in before :all blocks
-  # https://github.com/rspec/rspec-mocks/commit/3dcef6d4499e83cc64c970f5b17b68c9cc6e83ae
-  #
   before :all do
     Given.fixture "base"
 
-    Asgit.stub( current_branch: 'first_branch' )
-    deployment = define_deployment "branches1", :branches do |c|
-      c.build_task = 'remote:copy'
-      c.remote = 'localhost'
-      c.local_dir = 'build'
-      c.remote_dir = File.join( Dir.pwd, 'deployment' )
-      c.base_domain = "example.com"
+    RSpec::Mocks.with_temporary_scope do
+      allow( Asgit ).to receive(:current_branch)
+                    .and_return('first_branch')
+
+      deployment = define_deployment "branches1", :branches do |c|
+        c.build_task = 'remote:copy'
+        c.remote = 'localhost'
+        c.local_dir = 'build'
+        c.remote_dir = File.join( Dir.pwd, 'deployment' )
+        c.base_domain = "example.com"
+      end
+
+      reenable_rake_tasks
+      allow( Time ).to receive(:now)
+                   .and_return(1372020000)
+      Rake::Task["branches1:deploy"].invoke
+
+      allow( Asgit ).to receive(:current_branch)
+                    .and_return('second_branch')
+      deployment.config.public_dir = Asgit.current_branch
+
+      reenable_rake_tasks
+      allow( Time ).to receive(:now)
+                   .and_return(1372030000)
+      Rake::Task["branches1:deploy"].invoke
     end
-
-    reenable_rake_tasks
-    Time.stub( now: 1372020000 )
-    Rake::Task["branches1:deploy"].invoke
-
-    Asgit.stub( current_branch: 'second_branch' )
-    deployment.config.public_dir = Asgit.current_branch
-
-    reenable_rake_tasks
-    Time.stub( now: 1372030000 )
-    Rake::Task["branches1:deploy"].invoke
   end
 
   after :all do
