@@ -54,7 +54,7 @@ module Statistrano
                   end
 
         @_targets = targets.map do |t|
-                      Target.new(t)
+                      Remote.new(t)
                     end
       end
 
@@ -166,5 +166,4 @@ module Statistrano
 end
 
 require_relative 'multi_target/releaser'
-require_relative 'multi_target/target'
 require_relative 'multi_target/manifest'

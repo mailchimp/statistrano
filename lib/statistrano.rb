@@ -18,6 +18,7 @@ require 'statistrano/log'
 
 # deployment modules
 require 'statistrano/config'
+require 'statistrano/remote'
 require 'statistrano/deployment'
 
 

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Statistrano::Deployment::MultiTarget::Target do
+describe Statistrano::Remote do
 
   let(:default_options) do
     { remote: 'web01' }

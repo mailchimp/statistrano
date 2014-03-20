@@ -50,14 +50,17 @@ module Statistrano
         Log.info :success, "Deployment Complete"
       end
 
+      def remote
+        return @_remote if @_remote
+
+        options = config.options.dup
+        @_remote = Remote.new options
+      end
+
       private
 
         def prepare_for_action
           ENV["DEPLOYMENT_ENVIRONMENT"] = @name
-        end
-
-        def run_remote command
-          config.ssh_session.run( command )
         end
 
         def done_with_action
@@ -66,7 +69,7 @@ module Statistrano
 
         # get paths, etc setup on remote
         def setup
-          run_remote "mkdir -p #{config.remote_dir}"
+          remote.run "mkdir -p #{config.remote_dir}"
         end
 
         # send code to remote server
@@ -83,7 +86,7 @@ module Statistrano
         # @return [Void]
         def setup_release_path release_path
           Log.info "Setting up the remote"
-          run_remote "mkdir -p #{release_path}"
+          remote.run "mkdir -p #{release_path}"
         end
 
         # rsync files from local_dir to the remote

@@ -142,7 +142,7 @@ module Statistrano
 
           if previous_release && previous_release != release_name
             Log.info "Setting up the remote by copying previous release"
-            run_remote "cp -a #{release_path(previous_release)} #{release_path}"
+            remote.run "cp -a #{release_path(previous_release)} #{release_path}"
           else
             super
           end
@@ -153,7 +153,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           Log.info "Removing release '#{name}'"
-          run_remote "rm -rf #{release_dir_path}/#{name}"
+          remote.run "rm -rf #{release_dir_path}/#{name}"
 
           manifest.remove_release(name)
         end
@@ -162,7 +162,7 @@ module Statistrano
         # @param name [String]
         # @return [Void]
         def symlink_release name
-          run_remote "ln -nfs #{release_path(name)} #{public_path}"
+          remote.run "ln -nfs #{release_path(name)} #{public_path}"
         end
 
         # Return a release name based on current time

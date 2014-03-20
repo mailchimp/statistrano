@@ -50,7 +50,7 @@ module Statistrano
         index_dir  = File.join( config.remote_dir, "index" )
         index_path = File.join( index_dir, "index.html" )
         setup_release_path( index_dir )
-        run_remote "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
+        remote.run "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
       end
 
       private
@@ -117,7 +117,7 @@ module Statistrano
         # @return [Void]
         def remove_release name
           Log.info "Removing release '#{name}'"
-          run_remote "rm -rf #{release_path(name)}"
+          remote.run "rm -rf #{release_path(name)}"
           manifest.remove_release(name)
         end
 
@@ -131,7 +131,7 @@ module Statistrano
         # @return [Array]
         def get_actual_releases
           releases = []
-          resp = run_remote("ls -mp #{config.remote_dir}")
+          resp = remote.run("ls -mp #{config.remote_dir}")
           releases = resp.stdout.strip.split(',')
           releases.keep_if { |release| /\/$/.match(release) }
           releases.map { |release| release.strip.gsub(/(\/$)/, '') }.keep_if { |release| release != "index" }
