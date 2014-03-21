@@ -9,11 +9,11 @@ describe "Statistrano::Deployment::MultiTarget#rollback_release integration", :i
       @subject = define_deployment "multi_target", :multi_target do
         build_task "remote:copy"
         local_dir  "build"
-        remote     "localhost"
+        hostname   "localhost"
         remote_dir File.join( Dir.pwd, "deployment" )
 
         release_count 2
-        targets [
+        remotes [
           { remote_dir: File.join( Dir.pwd, "deployment", "target01" ) },
           { remote_dir: File.join( Dir.pwd, "deployment", "target02" ) },
           { remote_dir: File.join( Dir.pwd, "deployment", "target03" ) }

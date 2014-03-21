@@ -10,8 +10,8 @@ describe "Statistrano::Deployment::Base integration", :integration do
     Given.fixture "base"
     define_deployment "base" do |c|
       c.build_task = 'remote:copy'
-      c.remote = 'localhost'
-      c.local_dir = 'build'
+      c.hostname   = 'localhost'
+      c.local_dir  = 'build'
       c.remote_dir = File.join( Dir.pwd, 'deployment' )
     end
     Rake::Task["base:deploy"].invoke

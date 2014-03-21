@@ -5,17 +5,17 @@ module Statistrano
 
         class Manifest
 
-          attr_reader :remote_dir, :target
+          attr_reader :remote_dir, :remote
 
-          def initialize remote_dir, target
+          def initialize remote_dir, remote
             @remote_dir = remote_dir
-            @target     = target
+            @remote     = remote
           end
 
           def data
             @_data ||= Array( JSON.parse(raw) ).map { |h| Util.symbolize_hash_keys(h) }
           rescue JSON::ParserError => e
-            Log.error "manifest on #{target.config.remote} had invalid JSON\n",
+            Log.error "manifest on #{remote.config.hostname} had invalid JSON\n",
                       e.message
           end
 
@@ -35,12 +35,12 @@ module Statistrano
 
           def save!
             create_remote_file unless remote_file_exists?
-            resp = target.run "echo '#{serialize}' > #{remote_path}"
+            resp = remote.run "echo '#{serialize}' > #{remote_path}"
 
             if resp.success?
-              Log.info :success, "manifest on #{target.config.remote} saved"
+              Log.info :success, "manifest on #{remote.config.hostname} saved"
             else
-              Log.error "problem saving the manifest for #{target.config.remote}",
+              Log.error "problem saving the manifest for #{remote.config.hostname}",
                         resp.stderr
             end
           end
@@ -48,24 +48,24 @@ module Statistrano
           private
 
             def remote_file_exists?
-              resp = target.run "[ -f #{remote_path} ] && echo \"exists\""
+              resp = remote.run "[ -f #{remote_path} ] && echo \"exists\""
               resp.success? && resp.stdout.strip == "exists"
             end
 
             def create_remote_file
-              resp = target.run "touch #{remote_path} " +
+              resp = remote.run "touch #{remote_path} " +
                                 "&& chmod 770 #{remote_path}"
 
               if resp.success?
-                Log.info :success, "created manifest file on #{target.config.remote}"
+                Log.info :success, "created manifest file on #{remote.config.hostname}"
               else
-                Log.error "problem saving the manifest for #{target.config.remote}",
+                Log.error "problem saving the manifest for #{remote.config.hostname}",
                           resp.stderr
               end
             end
 
             def raw
-              resp = target.run "cat #{remote_path}"
+              resp = remote.run "cat #{remote_path}"
               if resp.success?
                 resp.stdout
               else

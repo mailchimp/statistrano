@@ -10,8 +10,8 @@ describe "Statistrano::Deployment::Releases integration", :integration do
       RSpec::Mocks.with_temporary_scope do
         define_deployment "releases1", :releases do |c|
           c.build_task = 'remote:copy'
-          c.remote = 'localhost'
-          c.local_dir = 'build'
+          c.hostname   = 'localhost'
+          c.local_dir  = 'build'
           c.remote_dir = File.join( Dir.pwd, 'deployment' )
         end
 
@@ -60,8 +60,8 @@ describe "Statistrano::Deployment::Releases integration", :integration do
       RSpec::Mocks.with_temporary_scope do
         define_deployment "releases2", :releases do |c|
           c.build_task = 'remote:copy'
-          c.remote = 'localhost'
-          c.local_dir = 'build'
+          c.hostname   = 'localhost'
+          c.local_dir  = 'build'
           c.remote_dir = File.join( Dir.pwd, 'deployment' )
           c.release_count = 2
         end

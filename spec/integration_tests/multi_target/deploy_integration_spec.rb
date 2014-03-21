@@ -12,7 +12,7 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
         remote_dir File.join( Dir.pwd, "deployment" )
 
         release_count 2
-        targets [{ remote: 'localhost', verbose: true }]
+        remotes [{ hostname: 'localhost', verbose: true }]
       end
 
       # binding.pry
@@ -40,7 +40,7 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
     end
   end
 
-  context "with multiple targets" do
+  context "with multiple remotes" do
 
     before :each do
       reenable_rake_tasks
@@ -48,11 +48,11 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
       subject = define_deployment "multi_target", :multi_target do
         build_task "remote:copy"
         local_dir  "build"
-        remote     "localhost"
+        hostname   "localhost"
         remote_dir File.join( Dir.pwd, "deployment" )
 
         release_count 2
-        targets [
+        remotes [
           { remote_dir: File.join( Dir.pwd, "deployment", "target01" ) },
           { remote_dir: File.join( Dir.pwd, "deployment", "target02" ) },
           { remote_dir: File.join( Dir.pwd, "deployment", "target03" ) }

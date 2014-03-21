@@ -10,10 +10,10 @@ describe "Statistrano::Deployment::Branches integration", :integration do
                     .and_return('first_branch')
 
       deployment = define_deployment "branches1", :branches do |c|
-        c.build_task = 'remote:copy'
-        c.remote = 'localhost'
-        c.local_dir = 'build'
-        c.remote_dir = File.join( Dir.pwd, 'deployment' )
+        c.build_task  = 'remote:copy'
+        c.hostname    = 'localhost'
+        c.local_dir   = 'build'
+        c.remote_dir  = File.join( Dir.pwd, 'deployment' )
         c.base_domain = "example.com"
       end
 

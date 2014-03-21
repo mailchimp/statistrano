@@ -15,12 +15,12 @@ module Statistrano
       #     check_git  true
       #     git_branch 'master'
       #
-      #     targets [
-      #       { remote: 'web01' },
-      #       { remote: 'web02' }
+      #     remotes [
+      #       { hostname: 'web01' },
+      #       { hostname: 'web02' }
       #     ]
       #
-      #     # each target gets merged with the global
+      #     # each remote gets merged with the global
       #     # configs and deployed to individually
       #     #
       #   end
@@ -34,7 +34,7 @@ module Statistrano
         register_strategy :multi_target
 
         options :remote_dir, :local_dir,
-                :remote, :user, :password, :keys, :forward_agent,
+                :hostname, :user, :password, :keys, :forward_agent,
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url
 
@@ -42,21 +42,21 @@ module Statistrano
         option :release_dir, "releases"
         option :public_dir,  "current"
 
-        option  :targets, []
+        option :remotes, []
 
         def initialize name
           @name = name
         end
 
-        def targets
-          return @_targets if @_targets
+        def remotes
+          return @_remotes if @_remotes
 
           options = config.options.dup
-          targets = options.delete(:targets).map do |t|
+          remotes = options.delete(:remotes).map do |t|
                       options.merge(t)
                     end
 
-          @_targets = targets.map do |t|
+          @_remotes = remotes.map do |t|
                         Remote.new(t)
                       end
         end
@@ -74,7 +74,7 @@ module Statistrano
             build_data = {}
           end
 
-          targets.each do |t|
+          remotes.each do |t|
             releaser.create_release t, build_data
           end
 
@@ -82,21 +82,21 @@ module Statistrano
         end
 
         def rollback_release
-          targets.each do |t|
+          remotes.each do |t|
             releaser.rollback_release t
           end
         end
 
         def prune_releases
-          targets.each do |t|
+          remotes.each do |t|
             releaser.prune_releases t
           end
         end
 
         def list_releases
-          targets.each do |t,out|
+          remotes.each do |t,out|
             releases = releaser.list_releases(t).map { |rel| rel[:release] }
-            Log.info :"#{t.config.remote}", releases
+            Log.info :"#{t.config.hostname}", releases
           end
         end
 

@@ -13,11 +13,11 @@ describe Statistrano::Deployment::Strategy::Base do
       deployment = described_class.new("name")
       deployment.config.remote_dir = "hello"
       deployment.config.local_dir = "world"
-      deployment.config.remote = "foo"
+      deployment.config.hostname = "foo"
 
       expect( deployment.config.remote_dir ).to eq "hello"
       expect( deployment.config.local_dir ).to eq "world"
-      expect( deployment.config.remote ).to eq "foo"
+      expect( deployment.config.hostname ).to eq "foo"
     end
 
   end

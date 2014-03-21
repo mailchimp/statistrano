@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Statistrano::Remote do
 
   let(:default_options) do
-    { remote: 'web01' }
+    { hostname: 'web01' }
   end
 
   def create_ssh_double
@@ -23,10 +23,10 @@ describe Statistrano::Remote do
       expect( subject.config.user ).to be_nil
     end
 
-    it "raises an error if no remote is given" do
+    it "raises an error if no hostname is given" do
       expect{
         described_class.new({user: 'woo'})
-      }.to raise_error ArgumentError, 'a remote is required'
+      }.to raise_error ArgumentError, 'a hostname is required'
     end
   end
 

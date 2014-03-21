@@ -16,7 +16,7 @@ module Statistrano
         register_strategy :base
 
         options :remote_dir, :local_dir,
-                :remote, :user, :password, :keys, :forward_agent,
+                :hostname, :user, :password, :keys, :forward_agent,
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url
 
@@ -54,7 +54,7 @@ module Statistrano
           def remote
             return @_remote if @_remote
 
-            options = config.options.dup
+            options  = config.options.dup
             @_remote = Remote.new options
           end
 

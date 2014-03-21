@@ -6,13 +6,13 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
     expect( Statistrano::Deployment::Strategy.find(:multi_target) ).to eq described_class
   end
 
-  describe "#targets" do
+  describe "#remotes" do
 
     let(:default_options) do
       {
         remote_dir:       nil,
         local_dir:        nil,
-        remote:           nil,
+        hostname:         nil,
         user:             nil,
         password:         nil,
         keys:             nil,
@@ -28,44 +28,44 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
       }
     end
 
-    it "returns targets cache if set" do
+    it "returns remotes cache if set" do
       subject = described_class.new 'multi'
-      subject.instance_variable_set(:@_targets, 'targets')
+      subject.instance_variable_set(:@_remotes, 'remotes')
 
-      expect( subject.targets ).to eq 'targets'
+      expect( subject.remotes ).to eq 'remotes'
     end
 
-    it "sets target cache with results" do
+    it "sets remote cache with results" do
       subject = described_class.new 'multi'
-      targets = subject.targets
+      remotes = subject.remotes
 
-      expect( targets ).not_to be_nil
-      expect( subject.instance_variable_get(:@_targets) ).to eq targets
+      expect( remotes ).not_to be_nil
+      expect( subject.instance_variable_get(:@_remotes) ).to eq remotes
     end
 
-    it "initializes a MultiTarget::Target with each target" do
+    it "initializes a Remote with each remote" do
       deployment = define_deployment "multi", :multi_target do
-        targets [
-          { remote: 'web01' },
-          { remote: 'web02' }
+        remotes [
+          { hostname: 'web01' },
+          { hostname: 'web02' }
         ]
       end
 
       expect( Statistrano::Remote ).to receive(:new).exactly(2).times
-      deployment.targets
+      deployment.remotes
     end
 
-    it "merges target data with global data" do
+    it "merges remote data with global data" do
       deployment = define_deployment "multi", :multi_target do
         remote_dir "remote_dir"
-        targets [
-          { remote: 'web01', remote_dir: 'web01_remote_dir' }
+        remotes [
+          { hostname: 'web01', remote_dir: 'web01_remote_dir' }
         ]
       end
 
       expect( Statistrano::Remote ).to receive(:new)
-        .with(default_options.merge({remote: 'web01', remote_dir: 'web01_remote_dir'}))
-      deployment.targets
+        .with(default_options.merge({hostname: 'web01', remote_dir: 'web01_remote_dir'}))
+      deployment.remotes
     end
   end
 
@@ -114,17 +114,17 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
             build_task do
               {foo: 'bar'}
             end
-            targets [{one: 'two'}]
+            remotes [{one: 'two'}]
           end
-          target   = instance_double("Statistrano::Remote")
+          remote   = instance_double("Statistrano::Remote")
           releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
           allow( Statistrano::Remote ).to receive(:new)
-                                                               .and_return(target)
+                                                               .and_return(remote)
           allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
                                                                  .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
-                            .with( target, {foo: 'bar'})
+                            .with( remote, {foo: 'bar'})
 
           subject.deploy
         end
@@ -136,42 +136,42 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
             build_task do
               'foo'
             end
-            targets [{one: 'two'}]
+            remotes [{one: 'two'}]
           end
-          target   = instance_double("Statistrano::Remote")
+          remote   = instance_double("Statistrano::Remote")
           releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
           allow( Statistrano::Remote ).to receive(:new)
-                                                               .and_return(target)
+                                                               .and_return(remote)
           allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
                                                                  .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
-                            .with( target, {})
+                            .with( remote, {})
 
           subject.deploy
         end
       end
     end
 
-    it "runs create_release for each target" do
+    it "runs create_release for each remote" do
       @subject = define_deployment "multi", :multi_target do
         build_task 'nil:bar'
         post_deploy_task 'foo:bar'
-        targets [{remote: 'one'},{remote: 'two'}]
+        remotes [{remote: 'one'},{remote: 'two'}]
       end
       task_double = double(invoke: nil)
       allow( Rake::Task ).to receive(:[])
                          .and_return(task_double)
 
-      target   = instance_double("Statistrano::Remote")
+      remote   = instance_double("Statistrano::Remote")
       releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
       allow( Statistrano::Remote ).to receive(:new)
-                                                           .and_return(target)
+                                                           .and_return(remote)
       allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
                                                            .and_return(releaser)
 
       expect( releaser ).to receive(:create_release)
-                        .with(target, {}).twice
+                        .with(remote, {}).twice
       @subject.deploy
     end
 
@@ -181,7 +181,7 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
         task_double = double( call: 'foo' )
         config      = double("Statistrano::Config", build_task: -> {},
                                                     check_git: false,
-                                                    options: { targets: [] },
+                                                    options: { remotes: [] },
                                                     post_deploy_task: task_double)
         allow( subject ).to receive(:config).and_return(config)
 

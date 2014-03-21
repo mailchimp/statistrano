@@ -5,7 +5,7 @@ module Statistrano
   # including it's own ssh connection to it's target server
   class Remote
     extend ::Statistrano::Config::Configurable
-    options :remote, :user, :password, :keys, :forward_agent
+    options :hostname, :user, :password, :keys, :forward_agent
 
     # included to allow override in Releaser,
     # generally these should not be used
@@ -19,20 +19,20 @@ module Statistrano
         config.send opt, options.fetch(opt,val)
       end
 
-      raise ArgumentError, "a remote is required" unless config.remote
+      raise ArgumentError, "a hostname is required" unless config.hostname
     end
 
     def test_connection
-      Log.info "testing connection to #{config.remote}"
+      Log.info "testing connection to #{config.hostname}"
 
       resp = run 'whoami'
       done
 
       if resp.success?
-        Log.info "#{config.remote} says \"Hello #{resp.stdout.strip}\""
+        Log.info "#{config.hostname} says \"Hello #{resp.stdout.strip}\""
         return true
       else
-        Log.error "connection failed for #{config.remote}",
+        Log.error "connection failed for #{config.hostname}",
                   resp.stderr
         return false
       end
@@ -40,7 +40,7 @@ module Statistrano
 
     def run command
       if config.verbose
-        Log.info :"#{config.remote}", "running cmd: #{command}"
+        Log.info :"#{config.hostname}", "running cmd: #{command}"
       end
 
       session.run command
@@ -55,10 +55,10 @@ module Statistrano
         raise ArgumentError, "path must be absolute"
       end
 
-      Log.info "Setting up directory at '#{path}' on #{config.remote}"
+      Log.info "Setting up directory at '#{path}' on #{config.hostname}"
       resp = run "mkdir -p -m 775 #{path}"
       unless resp.success?
-        Log.error "Unable to create directory '#{path}' on #{config.remote}",
+        Log.error "Unable to create directory '#{path}' on #{config.hostname}",
                   resp.stderr
         abort()
       end
@@ -68,7 +68,7 @@ module Statistrano
       local_path  = local_path.chomp("/")
       remote_path = remote_path.chomp("/")
 
-      Log.info "Syncing files from '#{local_path}' to '#{remote_path}' on #{config.remote}"
+      Log.info "Syncing files from '#{local_path}' to '#{remote_path}' on #{config.hostname}"
 
       time_before = Time.now
       resp = Shell.run_local "rsync #{rsync_options} " +
@@ -78,9 +78,9 @@ module Statistrano
       total_time = (time_after - time_before).round(2)
 
       if resp.success?
-        Log.info :success, "Files synced to remote on #{config.remote} in #{total_time}s"
+        Log.info :success, "Files synced to remote on #{config.hostname} in #{total_time}s"
       else
-        Log.error "Error syncing files to remote on #{config.remote}",
+        Log.error "Error syncing files to remote on #{config.hostname}",
                   resp.stderr
       end
 
@@ -94,7 +94,7 @@ module Statistrano
       end
 
       def ssh_options
-        ssh_options = { hostname: config.remote }
+        ssh_options = { hostname: config.hostname }
         [ :user, :password, :keys, :forward_agent ].each do |key|
           ssh_options[key] = config.public_send(key) if config.public_send(key)
         end
@@ -103,7 +103,7 @@ module Statistrano
       end
 
       def host_connection
-        config.user ? "#{config.user}@#{config.remote}" : config.remote
+        config.user ? "#{config.user}@#{config.hostname}" : config.hostname
       end
 
       def rsync_options
