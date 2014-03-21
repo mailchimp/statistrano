@@ -101,7 +101,7 @@ module Statistrano
         private
 
           def releaser
-            Releaser.new config.options
+            ::Statistrano::Deployment::Releaser::Revisions.new config.options
           end
 
           # Run the post_deploy_task
@@ -167,5 +167,4 @@ module Statistrano
   end
 end
 
-require_relative 'multi_target/releaser'
 require_relative 'multi_target/manifest'
