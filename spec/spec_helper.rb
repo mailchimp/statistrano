@@ -6,6 +6,12 @@ require 'catch_and_release'
 require 'catch_and_release/rspec'
 
 RSpec.configure do |c|
+
+  c.mock_with :rspec do |mocks|
+    mocks.verify_doubled_constant_names = true
+    mocks.verify_partial_doubles        = true
+  end
+
   c.include CatchAndRelease::RSpec
 end
 
