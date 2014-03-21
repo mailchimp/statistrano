@@ -29,6 +29,7 @@ end
 
 # strategy utils
 require_relative 'strategy/invoke_tasks'
+require_relative 'strategy/check_git'
 
 # strategies
 require_relative 'strategy/base'
