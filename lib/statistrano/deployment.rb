@@ -1,43 +1,8 @@
 # deployment utils
 require_relative 'deployment/manifest'
 require_relative 'deployment/rake_tasks'
-
-module Statistrano
-  module Deployment
-
-    class << self
-
-      def types
-        @_types ||= {}
-      end
-
-      def register_type deployment, name
-        types[name.to_sym] = deployment
-      end
-
-      def find name
-        types.fetch(name.to_sym) do
-          raise UndefinedDeployment, "no deployments are registered as :#{name}"
-        end
-      end
-
-    end
-
-    module Registerable
-      def register_type name
-        Deployment.register_type( self, name )
-      end
-    end
-
-    class UndefinedDeployment < StandardError
-    end
-
-  end
-end
+require_relative 'deployment/registerable'
 
 
 # deployment types
-require_relative 'deployment/base'
-require_relative 'deployment/releases'
-require_relative 'deployment/branches'
-require_relative 'deployment/multi_target'
+require_relative 'deployment/strategy'

@@ -17,6 +17,7 @@ describe "Statistrano::Deployment::Base integration", :integration do
     Rake::Task["base:deploy"].invoke
     result_a = Statistrano::Shell.run_local("ls source")
     result_b = Statistrano::Shell.run_local("ls deployment")
+
     expect( result_a ).to be_success
     expect( result_b ).to be_success
     expect( result_a.stdout ).to eq result_b.stdout

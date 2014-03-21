@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Statistrano::Deployment::MultiTarget::Manifest do
+describe Statistrano::Deployment::Strategy::MultiTarget::Manifest do
 
   describe "#initialize" do
     it "stores the provided remote_dir & target" do
@@ -15,7 +15,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
   describe "#data" do
     it "returns serialized data from target" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       subject = described_class.new '/var/www/proj', target
       expect( target ).to receive(:run)
                       .with('cat /var/www/proj/manifest.json')
@@ -25,7 +25,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
 
     it "returns empty array if manifest file is missing" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       subject = described_class.new '/var/www/proj', target
       expect( target ).to receive(:run)
                       .with('cat /var/www/proj/manifest.json')
@@ -36,7 +36,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
     it "logs error when manifest contains invalid JSON" do
       config  = double("Statistrano::Config", remote: 'web01')
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
       subject = described_class.new '/var/www/proj', target
       expect( target ).to receive(:run)
                       .with('cat /var/www/proj/manifest.json')
@@ -46,7 +46,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
 
     it "returns @_data if set" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       subject = described_class.new '/var/www/proj', target
 
       subject.instance_variable_set(:@_data, 'data')
@@ -54,7 +54,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
 
     it "sets @_data with return" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       subject = described_class.new '/var/www/proj', target
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
 
@@ -65,7 +65,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
   describe "#push" do
     it "adds data to the data array" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
       subject = described_class.new '/var/www/proj', target
 
@@ -75,7 +75,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
 
     it "symbolizes keys in passed data" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
       subject = described_class.new '/var/www/proj', target
 
@@ -85,7 +85,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     end
 
     it "raises error if provided data cannot be converted to JSON" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
       subject = described_class.new '/var/www/proj', target
 
@@ -101,7 +101,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
   describe "#remove_if" do
     it "removes data that matches the condition" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
       subject = described_class.new '/var/www/proj', target
 
@@ -109,7 +109,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
       expect( subject.data ).to match_array []
     end
     it "retains data that doesn't match condition" do
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target")
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target")
       allow( target ).to receive(:run).and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
       subject = described_class.new '/var/www/proj', target
 
@@ -121,7 +121,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
   describe "#save!" do
     it "tests if file exists" do
       config  = double("Statistrano::Config", remote: 'web01')
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
       allow( target ).to receive(:run)
                      .and_return( HereOrThere::Response.new("",'',true) )
       subject = described_class.new '/var/www/proj', target
@@ -135,7 +135,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     context "when manifest didn't previously exist" do
       it "creates manifest" do
         config  = double("Statistrano::Config", remote: 'web01')
-        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
         allow( target ).to receive(:run)
                        .and_return( HereOrThere::Response.new("",'',true) )
         subject = described_class.new '/var/www/proj', target
@@ -154,7 +154,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
     context "when manifest exists" do
       it "doesn't touch & chmod file" do
         config  = double("Statistrano::Config", remote: 'web01')
-        target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+        target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
         allow( target ).to receive(:run)
                        .and_return( HereOrThere::Response.new("",'',true) )
         subject = described_class.new '/var/www/proj', target
@@ -171,7 +171,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
     it "writes serialized data to remote_path" do
       config  = double("Statistrano::Config", remote: 'web01')
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
       allow( target ).to receive(:run)
                      .with("cat /var/www/proj/manifest.json")
                      .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
@@ -189,7 +189,7 @@ describe Statistrano::Deployment::MultiTarget::Manifest do
 
     it "logs error if fails" do
       config  = double("Statistrano::Config", remote: 'web01')
-      target  = instance_double("Statistrano::Deployment::MultiTarget::Target", config: config )
+      target  = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Target", config: config )
       allow( target ).to receive(:run)
                      .with("cat /var/www/proj/manifest.json")
                      .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )

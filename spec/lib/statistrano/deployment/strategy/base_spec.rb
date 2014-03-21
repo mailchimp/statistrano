@@ -1,16 +1,16 @@
 require 'spec_helper'
 
-describe Statistrano::Deployment::Base do
+describe Statistrano::Deployment::Strategy::Base do
 
   describe '#new' do
 
     it "creates a deployment with a name" do
-      deployment = Statistrano::Deployment::Base.new("name")
+      deployment = described_class.new("name")
       expect( deployment.name ).to eq "name"
     end
 
     it "configuration is configurable" do
-      deployment = Statistrano::Deployment::Base.new("name")
+      deployment = described_class.new("name")
       deployment.config.remote_dir = "hello"
       deployment.config.local_dir = "world"
       deployment.config.remote = "foo"

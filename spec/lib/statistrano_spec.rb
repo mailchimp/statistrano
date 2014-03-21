@@ -13,13 +13,13 @@ describe Statistrano do
       releases = define_deployment("releases", :releases)
       branches = define_deployment("branches", :branches)
 
-      expect( default.class ).to  eq Statistrano::Deployment::Base
-      expect( releases.class ).to eq Statistrano::Deployment::Releases
-      expect( branches.class ).to eq Statistrano::Deployment::Branches
+      expect( default.class ).to  eq Statistrano::Deployment::Strategy::Base
+      expect( releases.class ).to eq Statistrano::Deployment::Strategy::Releases
+      expect( branches.class ).to eq Statistrano::Deployment::Strategy::Branches
     end
 
     it "raises and ArgumentError if a deployment type isn't defined" do
-      expect{ define_deployment("foo", :foo) }.to raise_error Statistrano::Deployment::UndefinedDeployment
+      expect{ define_deployment("foo", :foo) }.to raise_error Statistrano::Deployment::Strategy::UndefinedStrategy
     end
 
     it "allows the deployment to be configured" do

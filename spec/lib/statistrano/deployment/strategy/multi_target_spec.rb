@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe Statistrano::Deployment::MultiTarget do
+describe Statistrano::Deployment::Strategy::MultiTarget do
 
   it "is registered as :multi_target" do
-    expect( Statistrano::Deployment.find(:multi_target) ).to eq described_class
+    expect( Statistrano::Deployment::Strategy.find(:multi_target) ).to eq described_class
   end
 
   describe "#targets" do
@@ -130,10 +130,10 @@ describe Statistrano::Deployment::MultiTarget do
             targets [{one: 'two'}]
           end
           target   = instance_double("Statistrano::Remote")
-          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          releaser = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Releaser")
           allow( Statistrano::Remote ).to receive(:new)
                                                                .and_return(target)
-          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+          allow( Statistrano::Deployment::Strategy::MultiTarget::Releaser ).to receive(:new)
                                                                  .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
@@ -151,10 +151,10 @@ describe Statistrano::Deployment::MultiTarget do
             targets [{one: 'two'}]
           end
           target   = instance_double("Statistrano::Remote")
-          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          releaser = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Releaser")
           allow( Statistrano::Remote ).to receive(:new)
                                                                .and_return(target)
-          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+          allow( Statistrano::Deployment::Strategy::MultiTarget::Releaser ).to receive(:new)
                                                                  .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
@@ -172,10 +172,10 @@ describe Statistrano::Deployment::MultiTarget do
             targets [{one: 'two'}]
           end
           target   = instance_double("Statistrano::Remote")
-          releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+          releaser = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Releaser")
           allow( Statistrano::Remote ).to receive(:new)
                                                                .and_return(target)
-          allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+          allow( Statistrano::Deployment::Strategy::MultiTarget::Releaser ).to receive(:new)
                                                                  .and_return(releaser)
 
           expect{
@@ -210,10 +210,10 @@ describe Statistrano::Deployment::MultiTarget do
                          .and_return(task_double)
 
       target   = instance_double("Statistrano::Remote")
-      releaser = instance_double("Statistrano::Deployment::MultiTarget::Releaser")
+      releaser = instance_double("Statistrano::Deployment::Strategy::MultiTarget::Releaser")
       allow( Statistrano::Remote ).to receive(:new)
                                                            .and_return(target)
-      allow( Statistrano::Deployment::MultiTarget::Releaser ).to receive(:new)
+      allow( Statistrano::Deployment::Strategy::MultiTarget::Releaser ).to receive(:new)
                                                            .and_return(releaser)
 
       expect( releaser ).to receive(:create_release)

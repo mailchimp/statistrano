@@ -37,7 +37,7 @@ module Statistrano::DSL
   # @param [Symbol] type of deployment
   # @return [Statistrano::Deployment::Base]
   def define_deployment name, type=:base, &block
-    deployment = ::Statistrano::Deployment.find(type).new( name )
+    deployment = ::Statistrano::Deployment::Strategy.find(type).new( name )
 
     if block_given?
       if block.arity == 1
