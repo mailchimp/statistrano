@@ -108,19 +108,6 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
     end
 
     context "when build task is defined as a Proc" do
-      it "calls the build task" do
-        subject = define_deployment "multi", :multi_target
-        task_target = double( call: 'foo' )
-        config  = double("Statistrano::Config", build_task: task_target,
-                                                check_git: false,
-                                                options: { targets: [] },
-                                                post_deploy_task: nil)
-        allow( subject ).to receive(:config).and_return(config)
-
-        expect( task_target ).to receive(:call)
-        subject.deploy
-      end
-
       context "when build task returns hash" do
         it "passes hash to build" do
           subject = define_deployment "multi", :multi_target do
@@ -142,6 +129,7 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
           subject.deploy
         end
       end
+
       context "when build task returns foo" do
         it "passes a blank hash to create_release" do
           subject = define_deployment "multi", :multi_target do
@@ -162,40 +150,6 @@ describe Statistrano::Deployment::Strategy::MultiTarget do
 
           subject.deploy
         end
-      end
-      context "when build task raises error" do
-        it "exits" do
-          subject = define_deployment "multi", :multi_target do
-            build_task do
-              raise "hell"
-            end
-            targets [{one: 'two'}]
-          end
-          target   = instance_double("Statistrano::Remote")
-          releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
-          allow( Statistrano::Remote ).to receive(:new)
-                                                               .and_return(target)
-          allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
-                                                                 .and_return(releaser)
-
-          expect{
-            subject.deploy
-            }.to raise_error(SystemExit)
-        end
-      end
-    end
-    context "when build task is defined as a string" do
-      it "invokes the build task once" do
-        @subject = define_deployment "multi", :multi_target do
-          build_task 'foo:bar'
-        end
-
-        task_double = double
-        expect( Rake::Task ).to receive(:[]).with('foo:bar')
-                            .and_return(task_double)
-        expect( task_double ).to receive(:invoke).once
-
-        @subject.deploy
       end
     end
 

@@ -27,6 +27,10 @@ module Statistrano
   end
 end
 
+# strategy utils
+require_relative 'strategy/invoke_tasks'
+
+# strategies
 require_relative 'strategy/base'
 require_relative 'strategy/branches'
 require_relative 'strategy/multi_target'
