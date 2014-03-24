@@ -32,7 +32,7 @@ module Statistrano
             def register_task deployment, name, attrs={}
               desc attrs[:desc]
               task name do
-                deployment.run_action attrs[:method]
+                deployment.public_send attrs[:method]
               end
             end
 
