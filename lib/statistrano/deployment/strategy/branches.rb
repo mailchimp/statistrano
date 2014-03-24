@@ -60,6 +60,10 @@ module Statistrano
 
         private
 
+          def remote
+            remotes.first
+          end
+
           def manifest
             @_manifest ||= Manifest.new( config, remote )
           end

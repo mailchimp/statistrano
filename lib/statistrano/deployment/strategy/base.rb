@@ -20,6 +20,8 @@ module Statistrano
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url
 
+        option  :remotes, []
+
         task :deploy, :deploy, "Deploy to remote"
 
         # create a new deployment instance
@@ -38,7 +40,11 @@ module Statistrano
           end
 
           invoke_build_task
-          releaser.create_release remote
+
+          remotes.each do |r|
+            releaser.create_release r
+          end
+
           invoke_post_deploy_task
         end
 
@@ -46,14 +52,21 @@ module Statistrano
           RakeTasks.register self
         end
 
+        def remotes
+          return @_remotes if @_remotes
+
+          options = config.options.dup
+          remotes = options.delete(:remotes).map do |t|
+                      options.merge(t)
+                    end
+          remotes.push options if remotes.empty?
+
+          @_remotes = remotes.map do |t|
+                        Remote.new(t)
+                      end
+        end
+
         private
-
-          def remote
-            return @_remote if @_remote
-
-            options  = config.options.dup
-            @_remote = Remote.new options
-          end
 
           def releaser
             Releaser::Single.new config.options

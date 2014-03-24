@@ -25,18 +25,8 @@ module Statistrano
       #     #
       #   end
       #
-      class Releases
-        extend Deployment::Registerable
-        extend Config::Configurable
-        include InvokeTasks
-        include CheckGit
-
+      class Releases < Base
         register_strategy :releases
-
-        options :remote_dir, :local_dir,
-                :hostname, :user, :password, :keys, :forward_agent,
-                :build_task, :post_deploy_task,
-                :check_git, :git_branch, :repo_url
 
         option :release_count, 5
         option :release_dir, "releases"
@@ -51,19 +41,6 @@ module Statistrano
 
         def initialize name
           @name = name
-        end
-
-        def remotes
-          return @_remotes if @_remotes
-
-          options = config.options.dup
-          remotes = options.delete(:remotes).map do |t|
-                      options.merge(t)
-                    end
-
-          @_remotes = remotes.map do |t|
-                        Remote.new(t)
-                      end
         end
 
         def deploy
@@ -108,7 +85,7 @@ module Statistrano
         private
 
           def releaser
-            ::Statistrano::Deployment::Releaser::Revisions.new config.options
+            Releaser::Revisions.new config.options
           end
 
       end

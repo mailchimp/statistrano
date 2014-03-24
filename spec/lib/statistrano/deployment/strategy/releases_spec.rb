@@ -36,6 +36,7 @@ describe Statistrano::Deployment::Strategy::Releases do
     end
 
     it "sets remote cache with results" do
+      allow( Statistrano::Remote ).to receive(:new)
       subject = described_class.new 'multi'
       remotes = subject.remotes
 
@@ -156,6 +157,9 @@ describe Statistrano::Deployment::Strategy::Releases do
 
     context "when post_deploy_task is a proc" do
       it "calls the post_deploy_task task" do
+        allow( Statistrano::Remote ).to receive(:new)
+        allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
+          .and_return( double("Statistrano::Deployment::Releaser::Revisions").as_null_object )
         subject     = define_deployment "multi", :releases
         task_double = -> {}
         config      = double("Statistrano::Config", build_task: -> {},
@@ -170,6 +174,9 @@ describe Statistrano::Deployment::Strategy::Releases do
     end
     context "when post_deploy_task is a string" do
       it "invokes the post_deploy_task once" do
+        allow( Statistrano::Remote ).to receive(:new)
+        allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
+          .and_return( double("Statistrano::Deployment::Releaser::Revisions").as_null_object )
         @subject = define_deployment "multi", :releases do
           build_task 'nil:bar'
           post_deploy_task 'foo:bar'
