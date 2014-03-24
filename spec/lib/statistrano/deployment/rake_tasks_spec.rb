@@ -4,7 +4,7 @@ describe Statistrano::Deployment::RakeTasks do
 
   describe "::register" do
     before :each do
-      class Subject
+      class RakeTasksSubject
         extend Statistrano::Config::Configurable
         include Statistrano::Deployment::Strategy::InvokeTasks
 
@@ -27,12 +27,12 @@ describe Statistrano::Deployment::RakeTasks do
     end
 
     it "registers tasks using deployment's name as namespace" do
-      described_class.register Subject.new "woo"
+      described_class.register RakeTasksSubject.new "woo"
       expect( Rake::Task.tasks.map(&:to_s) ).to include 'woo:foo'
     end
 
     it "calls the tasks matching method on the deployment" do
-      subject = Subject.new "woo"
+      subject = RakeTasksSubject.new "woo"
       described_class.register subject
 
       expect( subject ).to receive(:bar)

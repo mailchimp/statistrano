@@ -13,7 +13,6 @@ describe Statistrano::Deployment::Strategy::Branches do
       deployment = described_class.new("name")
 
       expect( deployment.config.public_dir ).to eq "first_branch"
-      expect( deployment.config.post_deploy_task ).to eq "name:generate_index"
     end
   end
 

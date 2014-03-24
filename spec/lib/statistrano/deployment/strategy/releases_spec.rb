@@ -98,12 +98,12 @@ describe Statistrano::Deployment::Strategy::Releases do
           remote   = instance_double("Statistrano::Remote")
           releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
           allow( Statistrano::Remote ).to receive(:new)
-                                                               .and_return(remote)
+                                      .and_return(remote)
           allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
-                                                                 .and_return(releaser)
+                                                               .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
-                            .with( remote, {foo: 'bar'})
+                            .with( remote, {foo: 'bar'} )
 
           subject.deploy
         end
@@ -120,12 +120,12 @@ describe Statistrano::Deployment::Strategy::Releases do
           remote   = instance_double("Statistrano::Remote")
           releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
           allow( Statistrano::Remote ).to receive(:new)
-                                                               .and_return(remote)
+                                      .and_return(remote)
           allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
-                                                                 .and_return(releaser)
+                                                               .and_return(releaser)
 
           expect( releaser ).to receive(:create_release)
-                            .with( remote, {})
+                            .with( remote, {} )
 
           subject.deploy
         end
@@ -145,7 +145,7 @@ describe Statistrano::Deployment::Strategy::Releases do
       remote   = instance_double("Statistrano::Remote")
       releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
       allow( Statistrano::Remote ).to receive(:new)
-                                                           .and_return(remote)
+                                  .and_return(remote)
       allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
                                                            .and_return(releaser)
 
@@ -157,7 +157,7 @@ describe Statistrano::Deployment::Strategy::Releases do
     context "when post_deploy_task is a proc" do
       it "calls the post_deploy_task task" do
         subject     = define_deployment "multi", :releases
-        task_double = double( call: 'foo' )
+        task_double = -> {}
         config      = double("Statistrano::Config", build_task: -> {},
                                                     check_git: false,
                                                     options: { remotes: [] },

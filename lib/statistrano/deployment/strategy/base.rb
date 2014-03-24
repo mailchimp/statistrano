@@ -27,13 +27,6 @@ module Statistrano
         # @return [Void]
         def initialize name
           @name = name
-          RakeTasks.register(self)
-        end
-
-        def run_action method_name
-          prepare_for_action
-          self.send(method_name)
-          done_with_action
         end
 
         # Standard deployment flow
@@ -47,6 +40,10 @@ module Statistrano
           invoke_build_task
           releaser.create_release remote
           invoke_post_deploy_task
+        end
+
+        def register_tasks
+          RakeTasks.register self
         end
 
         private

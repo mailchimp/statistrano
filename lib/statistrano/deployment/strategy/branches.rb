@@ -9,24 +9,14 @@ module Statistrano
       class Branches < Base
         register_strategy :branches
 
-        options :base_domain, :post_deploy_task
-        option  :public_dir,  :call, -> {
-          Asgit.current_branch.to_slug
-        }
+        option :base_domain
+        option :public_dir, :call, Proc.new { Asgit.current_branch.to_slug }
+        option :post_deploy_task,  Proc.new { |d| d.generate_index }
 
         task :list,           :list_releases,  "List branches"
         task :prune,          :prune_releases, "Prune a branch"
         task :generate_index, :generate_index, "Generate a branch index"
         task :open,           :open_url,       "Open the current branch URL"
-
-        def initialize name
-          super name
-
-          # these are set on initialization due to
-          # requiring access to instance information
-          #
-          config.post_deploy_task = "#{@name}:generate_index"
-        end
 
         def deploy
           unless safe_to_deploy?

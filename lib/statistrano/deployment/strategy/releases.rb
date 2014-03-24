@@ -44,6 +44,11 @@ module Statistrano
 
         option :remotes, []
 
+        task :deploy,   :deploy,           "Deploy to all remotes"
+        task :rollback, :rollback_release, "Rollback to the previous release"
+        task :prune,    :prune_releases,   "Prune releases to release count"
+        task :list,     :list_releases,    "List releases"
+
         def initialize name
           @name = name
         end

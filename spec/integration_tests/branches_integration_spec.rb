@@ -6,10 +6,7 @@ describe "Statistrano::Deployment::Branches integration", :integration do
     Given.fixture "base"
 
     RSpec::Mocks.with_temporary_scope do
-      allow( Asgit ).to receive(:current_branch)
-                    .and_return('first_branch')
-
-      deployment = define_deployment "branches1", :branches do |c|
+      @deployment = define_deployment "branches", :branches do |c|
         c.build_task  = 'remote:copy'
         c.hostname    = 'localhost'
         c.local_dir   = 'build'
@@ -17,20 +14,22 @@ describe "Statistrano::Deployment::Branches integration", :integration do
         c.base_domain = "example.com"
       end
 
-      reenable_rake_tasks
+      allow( Asgit ).to receive(:current_branch)
+                    .and_return('first_branch')
       allow( Time ).to receive(:now)
                    .and_return(1372020000)
-      Rake::Task["branches1:deploy"].invoke
+      @deployment.deploy
 
       allow( Asgit ).to receive(:current_branch)
                     .and_return('second_branch')
-      deployment.config.public_dir = Asgit.current_branch
-
-      reenable_rake_tasks
       allow( Time ).to receive(:now)
                    .and_return(1372030000)
-      Rake::Task["branches1:deploy"].invoke
+      @deployment.deploy
     end
+  end
+
+  after :each do
+    reenable_rake_tasks
   end
 
   after :all do
@@ -45,7 +44,7 @@ describe "Statistrano::Deployment::Branches integration", :integration do
 
   it "lists the deployed branches" do
     output = catch_stdout {
-      Rake::Task["branches1:list"].invoke
+      @deployment.list_releases
     }
     expect( output ).to include "first_branch"
     expect( output ).to include "second_branch"
@@ -58,7 +57,7 @@ describe "Statistrano::Deployment::Branches integration", :integration do
 
   it "removes the selected branch to prune" do
     release_stdin 1 do
-      Rake::Task["branches1:prune"].invoke
+      @deployment.prune_releases
       expect( Dir[ "deployment/**" ] ).not_to include "deployment/first_branch"
     end
   end

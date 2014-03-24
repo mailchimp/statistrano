@@ -3,18 +3,20 @@ require 'spec_helper'
 describe "Statistrano::Deployment::Base integration", :integration do
 
   after :each do
+    reenable_rake_tasks
     Given.cleanup!
   end
 
   it "deploys the contents of source to the 'deploy' folder" do
     Given.fixture "base"
-    define_deployment "base" do |c|
+    base = define_deployment "base" do |c|
       c.build_task = 'remote:copy'
       c.hostname   = 'localhost'
       c.local_dir  = 'build'
       c.remote_dir = File.join( Dir.pwd, 'deployment' )
     end
-    Rake::Task["base:deploy"].invoke
+
+    base.deploy
     result_a = Statistrano::Shell.run_local("ls source")
     result_b = Statistrano::Shell.run_local("ls deployment")
 

@@ -2,14 +2,16 @@ require 'spec_helper'
 
 describe Statistrano::Config::Configurable do
 
-  class Subject
-    extend ::Statistrano::Config::Configurable
+  before :each do
+    class Subject
+      extend ::Statistrano::Config::Configurable
 
-    option :foo, "bar"
-    option :wu
-    option :proc, -> { "hello" }
+      option :foo, "bar"
+      option :wu
+      option :proc, -> { "hello" }
 
-    options :one, :two
+      options :one, :two
+    end
   end
 
   let(:subject) { Subject.new }
