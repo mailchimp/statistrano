@@ -6,8 +6,12 @@ module Statistrano
         @_configuration ||= Config.new()
       end
 
-      def option key, value=nil
-        configuration.options[key] = value
+      def option key, value=nil, proc=nil
+        if proc
+          configuration.options[key] = { call: proc }
+        else
+          configuration.options[key] = value
+        end
       end
 
       def options *args
@@ -26,7 +30,11 @@ module Statistrano
       #
       def self.extended extending_obj
         extending_obj.send :define_method,
-          :config, lambda { @_config ||= Config.new( self.class.configuration.options, self.class.configuration.tasks ) }
+                           :config,
+                           -> {
+                              @_config ||= Config.new( self.class.configuration.options,
+                                                       self.class.configuration.tasks )
+                           }
       end
 
       # make sure that classes that inherit from

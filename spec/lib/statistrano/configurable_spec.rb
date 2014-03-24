@@ -7,6 +7,7 @@ describe Statistrano::Config::Configurable do
 
     option :foo, "bar"
     option :wu
+    option :proc, -> { "hello" }
 
     options :one, :two
   end
@@ -61,11 +62,18 @@ describe Statistrano::Config::Configurable do
       expect( config.foo ).to eq("badazz")
     end
 
-    it "sets the value do a block if given one" do
+    it "sets the value to a block if given one" do
       config.foo do
         "badazz"
       end
       expect( config.foo.call ).to eq "badazz"
+    end
+
+    it "calls a block if `:call` is passed" do
+      config.foo :call do
+        "badazz"
+      end
+      expect( config.foo ).to eq "badazz"
     end
 
     it "raises and ArgumentError if given more than 1 argument" do

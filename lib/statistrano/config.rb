@@ -24,14 +24,22 @@ module Statistrano
       def define_option_accessor name
         define_singleton_method(name) do |*args, &block|
           if block
-            @options[name] = block
+            if args.first == :call
+              @options[name] = { call: block }
+            else
+              @options[name] = block
+            end
             return
           end
 
           if args.length == 1
             @options[name] = args[0]
           elsif args.empty?
-            @options[name]
+            if @options[name].respond_to? :fetch
+              @options[name].fetch( :call, -> { @options[name] } ).call
+            else
+              @options[name]
+            end
           else
             raise ArgumentError, "wrong number of arguments (#{args.length} for 0..1)"
           end
