@@ -3,12 +3,14 @@ require 'spec_helper'
 describe Statistrano::Deployment::Strategy::InvokeTasks do
 
   before :each do
-    class Subject
+    class InvokeTasksSubject
       include Statistrano::Deployment::Strategy::InvokeTasks
+
+      def config; end
     end
   end
 
-  let(:subject) { Subject.new }
+  let(:subject) { InvokeTasksSubject.new }
 
   describe "#invoke_post_deploy_task" do
     it "calls_or_invokes the post_deploy_task" do
@@ -31,6 +33,11 @@ describe Statistrano::Deployment::Strategy::InvokeTasks do
   describe "#call_or_invoke_task" do
     it "calls the task if it is a proc" do
       expect( subject.call_or_invoke_task( -> { "hello" } ) ).to eq "hello"
+    end
+
+    it "passes self as the arg if proc has arity of 1" do
+      task = Proc.new { |s| expect(s).to(eq(subject)) }
+      subject.call_or_invoke_task(task)
     end
 
     it "invokes a rake task if it is a string" do

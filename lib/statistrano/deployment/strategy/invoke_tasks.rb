@@ -22,7 +22,11 @@ module Statistrano
 
         def call_or_invoke_task task
           if task.respond_to? :call
-            task.call
+            if task.arity == 1
+              task.call self
+            else
+              task.call
+            end
           else
             Rake::Task[task].invoke
           end
