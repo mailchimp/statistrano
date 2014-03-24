@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration do
+describe "Statistrano::Deployment::Strategy::Releases#deploy integration", :integration do
 
   context "with a single target" do
     before :each do
       reenable_rake_tasks
       Given.fixture "base"
-      subject = define_deployment "single_target", :multi_target do
+      subject = define_deployment "single_target", :releases do
         build_task "remote:copy"
         local_dir  "build"
         remote_dir File.join( Dir.pwd, "deployment" )
@@ -45,7 +45,7 @@ describe "Statistrano::Deployment::MultiTarget#deploy integration", :integration
     before :each do
       reenable_rake_tasks
       Given.fixture "base"
-      subject = define_deployment "multi_target", :multi_target do
+      subject = define_deployment "multi_target", :releases do
         build_task "remote:copy"
         local_dir  "build"
         hostname   "localhost"

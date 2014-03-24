@@ -88,7 +88,7 @@ module Statistrano
         private
 
           def new_manifest target
-            Strategy::MultiTarget::Manifest.new target_overridable_config(:remote_dir, target), target
+            Strategy::Releases::Manifest.new target_overridable_config(:remote_dir, target), target
           end
 
           def target_overridable_config option, target

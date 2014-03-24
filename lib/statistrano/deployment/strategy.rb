@@ -34,5 +34,4 @@ require_relative 'strategy/check_git'
 # strategies
 require_relative 'strategy/base'
 require_relative 'strategy/branches'
-require_relative 'strategy/multi_target'
 require_relative 'strategy/releases'

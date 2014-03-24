@@ -1,12 +1,12 @@
 require 'spec_helper'
 
-describe "Statistrano::Deployment::MultiTarget#prune_releases integration", :integration do
+describe "Statistrano::Deployment::Strategy::Releases#prune_releases integration", :integration do
 
   context "with multiple_targets target" do
 
     before :each do
-      Given.fixture "multi_target-deployed"
-      @subject = define_deployment "multi_target", :multi_target do
+      Given.fixture "releases-deployed"
+      @subject = define_deployment "releases", :releases do
         build_task "remote:copy"
         local_dir  "build"
         hostname   "localhost"

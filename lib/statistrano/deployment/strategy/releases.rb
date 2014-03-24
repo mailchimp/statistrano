@@ -2,193 +2,108 @@ module Statistrano
   module Deployment
     module Strategy
 
+      # deployment type for running a releases deployment
+      # accross multiple remotes
       #
-      # Releases handles deployments where you want the option
-      # to rollback to previous deploys.
+      # @example:
       #
-      class Releases < Base
+      #   define_deployment "multi", :releases do
+      #     build_task 'deploy:build'
+      #     local_dir  'build'
+      #     remote_dir '/var/www/proj'
+      #
+      #     check_git  true
+      #     git_branch 'master'
+      #
+      #     remotes [
+      #       { hostname: 'web01' },
+      #       { hostname: 'web02' }
+      #     ]
+      #
+      #     # each remote gets merged with the global
+      #     # configs and deployed to individually
+      #     #
+      #   end
+      #
+      class Releases
+        extend Deployment::Registerable
+        extend Config::Configurable
+        include InvokeTasks
+        include CheckGit
+
         register_strategy :releases
+
+        options :remote_dir, :local_dir,
+                :hostname, :user, :password, :keys, :forward_agent,
+                :build_task, :post_deploy_task,
+                :check_git, :git_branch, :repo_url
 
         option :release_count, 5
         option :release_dir, "releases"
-        option :public_dir , "current"
+        option :public_dir,  "current"
 
-        task :rollback, :rollback_release, "Rollback to the previous release"
-        task :prune, :prune_releases, "Prune releases to release count"
-        task :list, :list_releases, "List releases"
+        option :remotes, []
 
-        # prune releases after the deploy has run
-        # @return [Void]
-        def deploy
-          super
-          prune_releases
+        def initialize name
+          @name = name
         end
 
-        # Rollback to the previous release
-        # @return [Void]
-        def rollback_release
-          releases = get_releases
-          unless releases.length > 1
-            Log.error "Whoa there, there's only one release -- you definetly shouldn't remove it"
+        def remotes
+          return @_remotes if @_remotes
+
+          options = config.options.dup
+          remotes = options.delete(:remotes).map do |t|
+                      options.merge(t)
+                    end
+
+          @_remotes = remotes.map do |t|
+                        Remote.new(t)
+                      end
+        end
+
+        def deploy
+          unless safe_to_deploy?
+            Log.error "exiting due to git check failing"
             abort()
           end
 
-          symlink_release( releases[1] ) # previous release
-          remove_release( releases[0] ) # current release
+          build_data = invoke_build_task
+          if build_data.respond_to? :to_hash
+            build_data = build_data.to_hash
+          else
+            build_data = {}
+          end
+
+          remotes.each do |t|
+            releaser.create_release t, build_data
+          end
+
+          invoke_post_deploy_task
         end
 
-        # Remove old releases
-        # @return [Void]
+        def rollback_release
+          remotes.each do |t|
+            releaser.rollback_release t
+          end
+        end
+
         def prune_releases
-          remove_untracked_releases
-          remove_releases_beyond_release_count
+          remotes.each do |t|
+            releaser.prune_releases t
+          end
         end
 
-        # Output a list of releases & their date
-        # @return [Void]
         def list_releases
-          get_releases.each_with_index do |release, idx|
-            current = ( idx == 0 ) ? "current" : nil
-            Log.info :"#{current}", Time.at(release.to_i).strftime('%a %b %d, %Y at %l:%M %P')
+          remotes.each do |t,out|
+            releases = releaser.list_releases(t).map { |rel| rel[:release] }
+            Log.info :"#{t.config.hostname}", releases
           end
         end
 
         private
 
-          def remove_releases_beyond_release_count
-            if releases_beyond_release_count
-              releases_beyond_release_count.each do |release|
-                remove_release(release)
-              end
-            else
-              Log.info "No releases to prune"
-            end
-          end
-
-          def releases_beyond_release_count
-            get_releases[config.release_count..-1]
-          end
-
-          def remove_untracked_releases
-            tracked_releases = get_releases
-            get_actual_releases.each do |release|
-              remove_release(release) unless tracked_releases.include? release
-            end
-          end
-
-          def manifest
-            @_manifest ||= Manifest.new( config, remote )
-          end
-
-          # Return array of releases from manifest
-          # @return [Array]
-          def get_releases
-            setup
-            manifest.list
-          end
-
-          # Return array of releases on the remote
-          # @return [Array]
-          def get_actual_releases
-            ActualReleases.new( remote, release_dir_path ).as_array
-          end
-
-          # service class to get actual releases
-          class ActualReleases
-
-            attr_reader :remote, :dir_path
-
-            def initialize remote, dir_path
-              @remote = remote
-              @dir_path = dir_path
-            end
-
-            def as_array
-              ls_release_dir.strip.split(',').map { |release| release.strip }.reverse
-            end
-
-            private
-
-              def ls_release_dir
-                remote.run("ls -m #{dir_path}").stdout
-              end
-          end
-
-          # send code to remote server
-          # @return [Void]
-          def create_release
-            current_release = release_name
-
-            create_release_on_remote(current_release)
-            add_release_to_manifest(current_release)
-
-            Log.info "Created release at #{public_path}"
-          end
-
-          def add_release_to_manifest name
-            manifest.add_release( Manifest::Release.new( name, config ))
-          end
-
-          def create_release_on_remote name
-            setup_release_path release_path(name)
-            rsync_to_remote release_path(name)
-            symlink_release name
-          end
-
-          # create the release dir on the remote by copying the current release
-          # @param release_path [String] path of release on remote
-          # @return [Void]
-          def setup_release_path release_path
-            previous_release = get_releases[0] # the current release is the previous in this case
-
-            if previous_release && previous_release != release_name
-              Log.info "Setting up the remote by copying previous release"
-              remote.run "cp -a #{release_path(previous_release)} #{release_path}"
-            else
-              super
-            end
-          end
-
-          # remove a release
-          # @param name [String]
-          # @return [Void]
-          def remove_release name
-            Log.info "Removing release '#{name}'"
-            remote.run "rm -rf #{release_dir_path}/#{name}"
-
-            manifest.remove_release(name)
-          end
-
-          # Symlink a release to the public path
-          # @param name [String]
-          # @return [Void]
-          def symlink_release name
-            remote.run "ln -nfs #{release_path(name)} #{public_path}"
-          end
-
-          # Return a release name based on current time
-          # @return [String]
-          def release_name
-            Time.now.to_i.to_s
-          end
-
-          # Full public_path
-          # @return [String]
-          def public_path
-            File.join( config.remote_dir, config.public_dir )
-          end
-
-          # Full path to a release
-          # @param name [String] name of the release
-          # @return [String] full path to the release
-          def release_path name
-            File.join( release_dir_path, name )
-          end
-
-          # Full path to release directory
-          # @return [String]
-          def release_dir_path
-            File.join( config.remote_dir, config.release_dir )
+          def releaser
+            ::Statistrano::Deployment::Releaser::Revisions.new config.options
           end
 
       end
@@ -196,3 +111,5 @@ module Statistrano
     end
   end
 end
+
+require_relative 'releases/manifest'

@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Statistrano::Deployment::Strategy::MultiTarget::Manifest do
+describe Statistrano::Deployment::Strategy::Releases::Manifest do
 
   describe "#initialize" do
     it "stores the provided remote_dir & remote" do

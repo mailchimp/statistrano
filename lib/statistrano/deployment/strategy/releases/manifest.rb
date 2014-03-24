@@ -1,7 +1,7 @@
 module Statistrano
   module Deployment
     module Strategy
-      class MultiTarget
+      class Releases
 
         class Manifest
 
