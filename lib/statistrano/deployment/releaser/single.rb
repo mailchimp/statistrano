@@ -5,7 +5,9 @@ module Statistrano
       class Single
         extend ::Statistrano::Config::Configurable
 
-        options :remote_dir, :local_dir
+        options :remote_dir, :local_dir,
+                # optional options
+                :public_dir
 
         def initialize options={}
           config.options.each do |opt,val|
@@ -45,11 +47,17 @@ module Statistrano
           end
 
           def remote_path remote=nil
-            File.join( remote_overridable_config(:remote_dir, remote) )
+            path = File.join( remote_overridable_config(:remote_dir, remote) )
+            if config.respond_to?(:public_dir)
+              path_with_public_dir = remote_overridable_config(:public_dir, remote)
+              path = File.join( path, path_with_public_dir ) if path_with_public_dir
+            end
+
+            return path
           end
 
           def remote_overridable_config option, remote
-            (remote && remote.config.public_send(option)) || config.public_send(option)
+            (remote && remote.config.respond_to?(option) && remote.config.public_send(option)) || config.public_send(option)
           end
 
       end

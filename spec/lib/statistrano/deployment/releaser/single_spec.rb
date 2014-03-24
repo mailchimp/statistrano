@@ -67,14 +67,14 @@ describe Statistrano::Deployment::Releaser::Single do
   describe "#rsync_to_remote" do
     it "calls rsync_to_remote on the remote with the local_dir & remote_dir" do
       config  = double("Statistrano::Config", default_remote_config_responses )
-      target  = instance_double("Statistrano::Remote", config: config )
+      remote  = instance_double("Statistrano::Remote", config: config )
       subject = described_class.new default_arguments
 
       allow( Dir ).to receive(:pwd).and_return('/local')
-      expect( target ).to receive(:rsync_to_remote)
+      expect( remote ).to receive(:rsync_to_remote)
                       .with( '/local/build', '/var/www/proj' )
                       .and_return( HereOrThere::Response.new("","",true) )
-      subject.rsync_to_remote target
+      subject.rsync_to_remote remote
     end
   end
 
