@@ -1,3 +1,5 @@
+require_relative 'util/file_permissions'
+
 module Statistrano
   module Util
 
