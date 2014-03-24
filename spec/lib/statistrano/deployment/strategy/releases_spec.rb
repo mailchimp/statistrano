@@ -70,40 +70,19 @@ describe Statistrano::Deployment::Strategy::Releases do
   end
 
   describe "#deploy" do
-    context "when check_git set to true" do
-      before :each do
-        @subject = define_deployment "multi", :releases do
+    context "when check_git is set to true" do
+      it "runs `safe_to_deploy? (and exits if false)" do
+        subject = define_deployment "multi", :releases do
           check_git  true
           git_branch 'master'
         end
 
-        allow( Asgit ).to receive(:working_tree_clean?).and_return(true)
-        allow( Asgit ).to receive(:current_branch).and_return('master')
-        allow( Asgit ).to receive(:remote_up_to_date?).and_return(true)
-      end
-
-      it "exits if the working_tree is dirty" do
-        allow( Asgit ).to receive(:working_tree_clean?).and_return(false)
+        expect( subject ).to receive(:safe_to_deploy?)
+                         .and_return( false )
 
         expect{
-          @subject.deploy
-        }.to raise_error(SystemExit)
-      end
-
-      it "exits if current_branch is not set to branch" do
-        allow( Asgit ).to receive(:current_branch).and_return('something_else')
-
-        expect{
-          @subject.deploy
-        }.to raise_error(SystemExit)
-      end
-
-      it "exits if out of sync with remote" do
-        allow( Asgit ).to receive(:remote_up_to_date?).and_return(false)
-
-        expect{
-          @subject.deploy
-        }.to raise_error(SystemExit)
+          subject.deploy
+        }.to raise_error SystemExit
       end
     end
 
