@@ -9,12 +9,15 @@ module Statistrano
       class Branches < Base
         register_strategy :branches
 
-        options :public_dir, :post_deploy_task, :base_domain
+        options :base_domain, :post_deploy_task
+        option  :public_dir,  :call, -> {
+          Asgit.current_branch.to_slug
+        }
 
-        task :list, :list_releases, "List branches"
-        task :prune, :prune_releases, "Prune a branch"
+        task :list,           :list_releases,  "List branches"
+        task :prune,          :prune_releases, "Prune a branch"
         task :generate_index, :generate_index, "Generate a branch index"
-        task :open, :open_url, "Open the current branch URL"
+        task :open,           :open_url,       "Open the current branch URL"
 
         def initialize name
           super name
@@ -22,8 +25,19 @@ module Statistrano
           # these are set on initialization due to
           # requiring access to instance information
           #
-          config.public_dir = Asgit.current_branch.to_slug
           config.post_deploy_task = "#{@name}:generate_index"
+        end
+
+        def deploy
+          unless safe_to_deploy?
+            Log.error "exiting due to git check failing"
+            abort()
+          end
+
+          invoke_build_task
+          releaser.create_release remote
+          manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
+          invoke_post_deploy_task
         end
 
         # output a list of the releases in manifest
@@ -50,7 +64,7 @@ module Statistrano
         def generate_index
           index_dir  = File.join( config.remote_dir, "index" )
           index_path = File.join( index_dir, "index.html" )
-          setup_release_path( index_dir )
+          remote.create_remote_dir index_dir
           remote.run "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
         end
 
@@ -100,17 +114,6 @@ module Statistrano
             release_list = manifest.releases_desc.map { |release| release.as_li }.join('')
             template = IO.read( File.expand_path( '../../../../../templates/index.html', __FILE__) )
             template.gsub( '{{release_list}}', release_list )
-          end
-
-          # send code to remote server
-          # @return [Void]
-          def create_release
-            setup_release_path(current_release_path)
-            rsync_to_remote(current_release_path)
-
-            manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
-
-            Log.info "Created release at #{config.public_dir}"
           end
 
           # remove a release
