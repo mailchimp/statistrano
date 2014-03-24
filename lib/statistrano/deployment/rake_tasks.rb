@@ -10,28 +10,25 @@ module Statistrano
           # Register the rake tasks for the deployment
           # @return [Void]
           def register deployment
-            register_namespace deployment.name.to_sym do
-              register_tasks deployment
+            rake_namespace = deployment.name.to_sym
+            deployment.config.tasks.each do |task_name, task_attrs|
+              in_namespace rake_namespace do
+                register_task deployment, task_name, task_attrs
+              end
             end
           end
 
           private
 
-            def register_namespace name, &block
-              namespace(name) do
+            def in_namespace namespace, &block
+              namespace namespace do
                 yield
               end
             end
 
-            def register_tasks deployment
-              deployment.config.tasks.each do |task_name,task_attrs|
-                register_task deployment, task_name, task_attrs
-              end
-            end
-
-            def register_task deployment, name, attrs={}
+            def register_task deployment, task_name, attrs={}
               desc attrs[:desc]
-              task name do
+              task task_name do
                 deployment.public_send attrs[:method]
               end
             end
