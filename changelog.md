@@ -1,3 +1,10 @@
+# 1.0.0.beta1 (breaking changes from 0.10.0)
+- reorganize deployment types & releasers. now use a single remote object, and different "strategies" for base, releases, & branches and different "releasers" for single or revisions
+- remote multi_target in favor of merging code paths w/ strategies & releasers
+- can now access deployment info directly in build_tasks & post_deploy_tasks by giving arity [de05bb3a7d760fc51571b0f93f457065758fa772]
+- rake tasks no manually registered (instead of on initialization) [ac72eb0a65681e472b21c486fa67f7f0dd635c02]
+- add explicit setting for file & directory permissions on deploy [25ed930235e348fd6068cedbdc09b33e788fc3d5]
+
 # 0.10.0
 - tag release
 
