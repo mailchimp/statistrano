@@ -24,6 +24,7 @@ describe Statistrano::Deployment::Strategy::Releases do
         post_deploy_task: nil,
         dir_permissions:  nil,
         file_permissions: nil,
+        rsync_flags:      nil,
         release_count:    5,
         release_dir:      "releases",
         public_dir:       "current"

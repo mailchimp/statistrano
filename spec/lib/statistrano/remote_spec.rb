@@ -179,6 +179,19 @@ describe Statistrano::Remote do
       subject.rsync_to_remote 'local_path/', 'remote_path/'
     end
 
+    it "uses the set rsync_flags" do
+      subject = described_class.new default_options.merge rsync_flags: "-aqz"
+
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .with("rsync -aqz " +
+                                        "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r " +
+                                        "-e ssh local_path/ " +
+                                        "web01:remote_path/")
+                                 .and_return( HereOrThere::Response.new("","",true) )
+
+      subject.rsync_to_remote 'local_path/', 'remote_path/'
+    end
+
     it "logs error if rsync command fails" do
       subject = described_class.new default_options
       expect( Statistrano::Shell ).to receive(:run_local)

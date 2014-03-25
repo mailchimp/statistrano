@@ -39,6 +39,7 @@ deployment = define_deployment "basic" do
 
   dir_permissions  755 # optional, the perms set on rsync & setup for directories
   file_permissions 644 # optional, the perms set on rsync & setup for files
+  rsync_flags      '-aqz --delete-after' # optional, flags for rsync
 
   check_git  true # optional, set to false if git shouldn't be checked
   git_branch 'master' # which branch to check against

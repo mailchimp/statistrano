@@ -12,10 +12,11 @@ module Statistrano
     options :remote_dir, :local_dir,
             :release_count, :release_dir, :public_dir
 
-    # the permissions set on for synced files
-    # and directories
-    option  :dir_permissions,  755
-    option  :file_permissions, 644
+    # configure rsync & setup operations
+    option :dir_permissions,  755
+    option :file_permissions, 644
+    option :rsync_flags,      '-aqz --delete-after'
+
 
     option  :verbose, false
 
@@ -115,7 +116,7 @@ module Statistrano
         dir_perms  = Util::FilePermissions.new( config.dir_permissions ).to_chmod
         file_perms = Util::FilePermissions.new( config.file_permissions ).to_chmod
 
-        "-aqz --delete-after --chmod=" +
+        "#{config.rsync_flags} --chmod=" +
             "Du=#{dir_perms.user},Dg=#{dir_perms.group},Do=#{dir_perms.others}," +
             "Fu=#{file_perms.user},Fg=#{file_perms.group},Fo=#{file_perms.others}"
       end
