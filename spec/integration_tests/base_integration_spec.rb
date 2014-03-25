@@ -55,4 +55,28 @@ describe "Statistrano::Deployment::Base integration", :integration do
     end
   end
 
+  context "with specific file permissions" do
+    it "deploys with those permissions" do
+      Given.fixture "base"
+      base = define_deployment "base" do
+        build_task "remote:copy"
+        hostname   "localhost"
+        local_dir  "build"
+        remote_dir File.join( Dir.pwd, 'deployment' )
+
+        # these are really bad perms on purpose
+        dir_permissions 777
+        file_permissions 666
+      end
+
+      base.deploy
+
+      deployment_dir_perms  = sprintf( "%o", File.stat("deployment").mode ).chars.last(3).join
+      deployment_file_perms = sprintf( "%o", File.stat("deployment/index.html").mode ).chars.last(3).join
+
+      expect( deployment_dir_perms ).to eq "777"
+      expect( deployment_file_perms ).to eq "666"
+    end
+  end
+
 end

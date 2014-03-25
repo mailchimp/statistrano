@@ -22,6 +22,8 @@ describe Statistrano::Deployment::Strategy::Releases do
         git_branch:       nil,
         repo_url:         nil,
         post_deploy_task: nil,
+        dir_permissions:  nil,
+        file_permissions: nil,
         release_count:    5,
         release_dir:      "releases",
         public_dir:       "current"

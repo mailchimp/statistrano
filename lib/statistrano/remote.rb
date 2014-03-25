@@ -21,7 +21,7 @@ module Statistrano
 
     def initialize options={}
       config.options.each do |opt,val|
-        config.send opt, options.fetch(opt,val)
+        config.send opt, (options.fetch(opt,val) || val)
       end
 
       raise ArgumentError, "a hostname is required" unless config.hostname
