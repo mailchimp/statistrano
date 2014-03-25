@@ -10,7 +10,8 @@ Installation
 
 With Bundler
 ```ruby
-gem "statistrano", git: "git@github.com:mailchimp/statistrano.git"
+gem "statistrano", git: "git@github.com:mailchimp/statistrano.git",
+                   tag: "1.0.0"
 ```
 
 
@@ -18,74 +19,88 @@ Examples
 ========
 
 ### Base deployment
+
 The base setup simply copies a local directory to a remote directory
 
 ```ruby
 # deploy.rake
 require 'statistrano'
 
-define_deployment "basic" do
+deployment = define_deployment "basic" do
 
-  remote     'remote_name'
+  hostname   'remote_name'
   user       'freddie' # optional if remote is setup in .ssh/config
   password   'something long and stuff' # optional if remote is setup in .ssh/config
 
   remote_dir '/var/www/mailchimp.com'
   local_dir  'build'
   build_task 'middleman:build' # optional if nothing needs to be built
+  post_deploy_task 'base:post_deploy' # optional if no task should be run after deploy
+
+  dir_permissions  755 # optional, the perms set on rsync & setup for directories
+  file_permissions 644 # optional, the perms set on rsync & setup for files
 
   check_git  true # optional, set to false if git shouldn't be checked
   git_branch 'master' # which branch to check against
 
+  # optional, you can define multiple remotes to deploy to
+  # any config option can be overriden in the remote's data hash
+  remotes [
+    { hostname: 'remote01', remote_dir: '/var/www/mailchimp01' },
+    { hostname: 'remote02', remote_dir: '/var/www/mailchimp02' }
+  ]
+
 end
 ```
 
-**Tasks**
+**Rake Tasks**
 
-`rake basic:deploy`  
-deploys the local_dir to the remote_dir
-
-**Environment**
-
-The deployment environment is available to tasks called by Statistrano under the env variable `DEPLOYMENT_ENVIRONMENT`.
+Once a deployment is defined, you can register it's tasks -- or call the methods directly.
 
 ```ruby
-# ruby
-ENV["DEPLOYMENT_ENVIRONMENT"]
-# => "basic"
+# deploy.rake
+deployment.register_tasks
+# => rake tasks are registered
 ```
 
-```bash
-# bash
-echo $DEPLOYMENT_ENVIRONMENT
-# => basic
-```
+`rake basic:deploy`  
+deploys the local_dir to the remote_dir. optionally call `deployment.deploy`
 
 
 ### Releases deployment
+
 Out of the box Statistrano allows you to pick from a release based deployment, or branch based. Releases act as a series of snapshots of your project with the most recent linked to the `public_dir`. You can quickly rollback in case of errors.
 
 ```ruby
 # deploy.rake
 require 'statistrano'
 
-define_deployment "production", :releases do
+deployment = define_deployment "production", :releases do
 
-  remote      'remote_name'
-  build_task  'middleman:build'
-  local_dir   'build'
-  remote_dir  '/var/www/mailchimp.com'
+  # in addition to the "base" config options, there
+  # are some (all defaulted) options specific for releases
+  release_count 5
+  release_dir  "releases"
+  public_dir   "current"
 
 end
 ```
 
-**Tasks**
+**Rake Tasks**
+
+Once a deployment is defined, you can register it's tasks -- or call the methods directly.
+
+```ruby
+# deploy.rake
+deployment.register_tasks
+# => rake tasks are registered
+```
 
 `rake production:deploy`  
-deploys local_dir to the remote, and symlinks remote_dir/current to the release
+deploys local_dir to the remote, and symlinks remote_dir/current to the release.
 
 `rake production:rollback`  
-rolls back to the previous release
+rolls back to the previous release.
 
 `rake production:prune`  
 manually removes old releases beyond the release count
@@ -95,22 +110,30 @@ lists all the currently deployed releases
 
 
 ### Branch deployment
+
 The branch deployment type adds some nice defaults to use the current branch as your release name. So with the correct nginx/apache config you can have your branches mounted as subdomains (eg: `http://my_awesome_branch.example.com`). Aditionally it is set up to create an `index` release that shows a list of your currently deployed branches.
 
 
 ```ruby
-define_deployment "branches", :branches do
+deployment = define_deployment "branches", :branches do
 
-  remote      'remote_name'
-  build_task  'middleman:build'
-  local_dir   'build'
-  remote_dir  '/var/www/mailchimp.com'
-  base_domain "mailchimp.com"
+  # in addition to the "base" options
+  base_domain "mailchimp.com" # used to generate the subdomain links in the index file
+  public_dir  "current_branch" # defaults to a slugged version of the current branch
+  post_deploy_task "name:generate_index" # defaults to create the index file
 
 end
 ```
 
-**Tasks**
+**Rake Tasks**
+
+Once a deployment is defined, you can register it's tasks -- or call the methods directly.
+
+```ruby
+# deploy.rake
+deployment.register_tasks
+# => rake tasks are registered
+```
 
 `rake branches:deploy`  
 deploys local_dir to the remote named for the current git branch, and generates an index page
@@ -128,57 +151,12 @@ shows list of currently deployed branches to pick from and remove
 manually kicks of index generation, typically you shouldn't need to do this
 
 
-### MultiTarget Deployment
+## Build & Post Deploy Tasks
 
-MultiTarget deployments are a test run of a new impelementation architecture for deployments, when you need to release accross multiple remotes, you'll use one of these.
-
-MultiTarget *does not* register it's own rake tasks, so you'll need to create your own and call methods on the deployment directly.
+Of note, the `build_task` & `post_deploy_task` can be defined as a block. Some release types (like "releases") will use a hash if it is returned by the block.
 
 ```ruby
-# setup our deployment
-deployment = define_deployment "multi", :multi_target do
-
-  build_task 'build'
-  local_dir  'build'
-
-  check_git  true
-  git_branch 'master'
-
-  remote_dir '/var/www/project'
-
-  targets [
-    { remote: 'web01' },
-    { remote: 'web02' }
-  ]
-
-  post_deploy_task 'after'
-
-end
-```
-
-Each remote is defined with the config option `targets` as hashes. Any option assigned here will override the option set as a global on the deployment. So, if we'd like `web02` to be deployed to a different remote_directory would could define it as `{ remote: 'web02', remote_dir: '/var/www/web02.project' }`.
-
-**Methods**
-
-`#targets`  
-Returns an array of initialized `Target` objects, these represent each remote and handle their own ssh connections and running tasks on that machine.
-
-`#deploy`  
-Creates a release on each target running the `build_task` and `post_deploy_task` once.
-
-`#rollback_release`  
-Rolls back to the previous release, note that you can't roll back with only one release on a remote.
-
-`#prune_releases`  
-Cleans up your release directories to contain only tracked releases. It also removes releases beyond the release count, so you may run this if you've reduced that count.
-
-`#list_releases`  
-puts an array of release names for each remote.
-
-Of note, the `build_task` can be defined as a block, if that block returns a hash that data will be merged into the release data in the manifest.
-
-```ruby
-deployment = define_deployment 'multi', :multi_target do
+deployment = define_deployment 'multi', :releases do
   build_task do
     Rake::Task['build'].invoke
     { commit: Asgit.current_commit }
@@ -189,6 +167,18 @@ deployment.deploy
 # => remote/manifest.manifest will end up with [{release: 'timestamp', commit: 'commit_sha'}]
 ```
 
+You can also access the current deployment info by giving the block arity.
+
+```ruby
+deployment = define_deployment 'multi', :releases do
+  build_task do |dep|
+    puts dep.name
+  end
+end
+
+deployment.invoke_build_task
+# => will output the deployment name 'multi'
+```
 
 ### Config Syntax
 
