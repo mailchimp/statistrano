@@ -73,14 +73,6 @@ module Statistrano
             Releaser::Single.new config.options
           end
 
-          def prepare_for_action
-            ENV["DEPLOYMENT_ENVIRONMENT"] = @name
-          end
-
-          def done_with_action
-            remote.done
-          end
-
       end
 
     end
