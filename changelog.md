@@ -1,3 +1,6 @@
+# 1.0.0.beta2
+- loosen rainbows dependency to work with old & new bananabin
+
 # 1.0.0.beta1 (breaking changes from 0.10.0)
 - reorganize deployment types & releasers. now use a single remote object, and different "strategies" for base, releases, & branches and different "releasers" for single or revisions
 - remote multi_target in favor of merging code paths w/ strategies & releasers
