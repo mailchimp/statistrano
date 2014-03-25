@@ -12,6 +12,11 @@ module Statistrano
     options :remote_dir, :local_dir,
             :release_count, :release_dir, :public_dir
 
+    # the permissions set on for synced files
+    # and directories
+    option  :dir_permissions,  755
+    option  :file_permissions, 644
+
     option  :verbose, false
 
     def initialize options={}
@@ -56,7 +61,7 @@ module Statistrano
       end
 
       Log.info "Setting up directory at '#{path}' on #{config.hostname}"
-      resp = run "mkdir -p -m 775 #{path}"
+      resp = run "mkdir -p -m #{config.dir_permissions} #{path}"
       unless resp.success?
         Log.error "Unable to create directory '#{path}' on #{config.hostname}",
                   resp.stderr
@@ -107,7 +112,12 @@ module Statistrano
       end
 
       def rsync_options
-        "-aqz --delete-after --chmod g=rwx"
+        dir_perms  = Util::FilePermissions.new( config.dir_permissions ).to_chmod
+        file_perms = Util::FilePermissions.new( config.file_permissions ).to_chmod
+
+        "-aqz --delete-after --chmod=" +
+            "Du=#{dir_perms.user},Dg=#{dir_perms.group},Do=#{dir_perms.others}," +
+            "Fu=#{file_perms.user},Fg=#{file_perms.group},Fo=#{file_perms.others}"
       end
 
   end

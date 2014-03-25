@@ -97,7 +97,7 @@ describe Statistrano::Remote do
       subject = described_class.new default_options
 
       expect( ssh_double ).to receive(:run)
-                          .with("mkdir -p -m 775 /var/www/proj")
+                          .with("mkdir -p -m 755 /var/www/proj")
                           .and_return( HereOrThere::Response.new("","",true) )
       subject.create_remote_dir "/var/www/proj"
     end
@@ -111,12 +111,22 @@ describe Statistrano::Remote do
       }.to raise_error ArgumentError, "path must be absolute"
     end
 
+    it "uses the set dir_permissions" do
+      ssh_double = create_ssh_double
+      subject = described_class.new default_options.merge dir_permissions: 644
+
+      expect( ssh_double ).to receive(:run)
+                          .with("mkdir -p -m 644 /var/www/proj")
+                          .and_return( HereOrThere::Response.new("","",true) )
+      subject.create_remote_dir "/var/www/proj"
+    end
+
     context "when remote dir creation fails" do
       it "logs error & exits" do
         ssh_double = create_ssh_double
         subject = described_class.new default_options
         allow( ssh_double ).to receive(:run)
-                            .with("mkdir -p -m 775 /var/www/proj")
+                            .with("mkdir -p -m 755 /var/www/proj")
                             .and_return( HereOrThere::Response.new("","oh noes",false) )
 
         expect( Statistrano::Log ).to receive(:error)
@@ -134,9 +144,10 @@ describe Statistrano::Remote do
       subject = described_class.new default_options
 
       expect( Statistrano::Shell ).to receive(:run_local)
-                                 .with("rsync -aqz --delete-after --chmod g=rwx " +
-                                       "-e ssh local_path/ " +
-                                       "web01:remote_path/")
+                                  .with("rsync -aqz --delete-after " +
+                                        "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r " +
+                                        "-e ssh local_path/ " +
+                                        "web01:remote_path/")
                                  .and_return( HereOrThere::Response.new("","",true) )
 
       subject.rsync_to_remote 'local_path', 'remote_path'
@@ -146,9 +157,23 @@ describe Statistrano::Remote do
       subject = described_class.new default_options
 
       expect( Statistrano::Shell ).to receive(:run_local)
-                                 .with("rsync -aqz --delete-after --chmod g=rwx " +
-                                       "-e ssh local_path/ " +
-                                       "web01:remote_path/")
+                                 .with("rsync -aqz --delete-after " +
+                                        "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r " +
+                                        "-e ssh local_path/ " +
+                                        "web01:remote_path/")
+                                 .and_return( HereOrThere::Response.new("","",true) )
+
+      subject.rsync_to_remote 'local_path/', 'remote_path/'
+    end
+
+    it "uses the set dir_permissions & file_permissions" do
+      subject = described_class.new default_options.merge dir_permissions: 644, file_permissions: 755
+
+      expect( Statistrano::Shell ).to receive(:run_local)
+                                 .with("rsync -aqz --delete-after " +
+                                        "--chmod=Du=rw,Dg=r,Do=r,Fu=rwx,Fg=rx,Fo=rx " +
+                                        "-e ssh local_path/ " +
+                                        "web01:remote_path/")
                                  .and_return( HereOrThere::Response.new("","",true) )
 
       subject.rsync_to_remote 'local_path/', 'remote_path/'
