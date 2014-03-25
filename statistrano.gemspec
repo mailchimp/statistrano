@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email         = "marketing-dev@mailchimp.com"
   s.homepage      = "http://github.com/stevenosloan/statistrano"
 
-  s.files         = Dir["{lib}/**/*.rb"]
+  s.files         = Dir[ "{doc,lib}/**/*", "readme.md", "changelog.md" ]
   s.test_files    = Dir["spec/**/*.rb"]
   s.require_path  = "lib"
 
