@@ -1,3 +1,4 @@
+- add Deployment::Manifest#put method to update manifest data for matching records
 - remove Statistrano::Deployment::Manifest & Statistrano::Deployment::Manifest::RemoteStore in favor of using the same manifest as the Revisions releaser
 
 # 1.0.0.beta3
