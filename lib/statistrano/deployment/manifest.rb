@@ -18,6 +18,11 @@ module Statistrano
                   e.message
       end
 
+      def put data, match_key
+        remove_if { |i| i[match_key] == data[match_key] }
+        push data
+      end
+
       def push new_data
         unless new_data.respond_to? :to_json
           raise ArgumentError, "data must be serializable as JSON"

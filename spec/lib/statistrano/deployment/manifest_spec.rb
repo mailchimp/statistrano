@@ -99,6 +99,34 @@ describe Statistrano::Deployment::Manifest do
     end
   end
 
+  describe "#put" do
+    # a "safer" version of `push`, will update a
+    # data_glob in place matched on key
+    let(:remote) { instance_double("Statistrano::Remote") }
+
+    context "when item doesn't exist" do
+      it "adds the item w/o disturbing existing data" do
+        subject = described_class.new "remote_dir", remote
+        allow( remote ).to receive(:run)
+                       .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
+
+        subject.put( { foo: "bar" }, :foo )
+        expect( subject.data ).to match_array [{key: "val"},{foo: "bar"}]
+      end
+    end
+
+    context "when item does exist" do
+      it "updates the item w/o distrubing existing data" do
+        subject = described_class.new "remote_dir", remote
+        allow( remote ).to receive(:run)
+                       .and_return( HereOrThere::Response.new('[{"key":"val"},{"key":"foo","marker":"orig"}]','',true) )
+
+        subject.put( {key:"foo",marker:"new"}, :key )
+        expect( subject.data ).to match_array [{key: "val"},{key:"foo",marker:"new"}]
+      end
+    end
+  end
+
   describe "#remove_if" do
     it "removes data that matches the condition" do
       remote  = instance_double("Statistrano::Remote")

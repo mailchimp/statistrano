@@ -27,7 +27,7 @@ module Statistrano
           invoke_build_task
           releaser.create_release remote
 
-          manifest.push Deployment::Manifest::Release.new( config.public_dir, config ).to_hash
+          manifest.put Deployment::Manifest::Release.new( config.public_dir, config ).to_hash, :name
           manifest.save!
 
           invoke_post_deploy_task
