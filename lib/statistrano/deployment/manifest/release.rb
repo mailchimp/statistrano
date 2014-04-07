@@ -44,9 +44,7 @@ module Statistrano
           "</li>"
         end
 
-        # convert the release to a json object
-        # @return [String]
-        def to_json
+        def to_hash
           hash = {
             name: name,
             time: time,
@@ -54,7 +52,13 @@ module Statistrano
           }
           hash.merge({ link: link }) if link
 
-          return hash.to_json
+          return hash
+        end
+
+        # convert the release to a json object
+        # @return [String]
+        def to_json
+          return to_hash.to_json
         end
 
         private

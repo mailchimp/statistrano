@@ -26,15 +26,22 @@ module Statistrano
 
           invoke_build_task
           releaser.create_release remote
-          manifest.add_release( Manifest::Release.new( config.public_dir, config ) )
+
+          manifest.push Manifest::Release.new( config.public_dir, config ).to_hash
+          manifest.save!
+
           invoke_post_deploy_task
         end
 
         # output a list of the releases in manifest
         # @return [Void]
         def list_releases
-          manifest.releases_desc.each { |release| release.log_info }
+          sorted_release_data.each do |release|
+            Log.info "#{release[:name]} created at #{Time.at(release[:time]).strftime('%a %b %d, %Y at %l:%M %P')}"
+          end
         end
+
+
 
         # trim releases not in the manifest,
         # get user input for removal of other releases
@@ -65,7 +72,11 @@ module Statistrano
           end
 
           def manifest
-            @_manifest ||= Manifest.new( config, remote )
+            @_manifest ||= Strategy::Releases::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+          end
+
+          def remote_overridable_config option, remote
+            (remote && remote.config.public_send(option)) || config.public_send(option)
           end
 
           def pick_and_remove_release
@@ -105,9 +116,19 @@ module Statistrano
           end
 
           def release_list_html
-            release_list = manifest.releases_desc.map { |release| release.as_li }.join('')
+            release_list = sorted_release_data.map do |r|
+              name = r.fetch(:name)
+              r.merge({ repo_url: config.repo_url }) if config.repo_url
+              Statistrano::Deployment::Manifest::Release.new( name, config, r ).as_li
+            end.join('')
             template = IO.read( File.expand_path( '../../../../../templates/index.html', __FILE__) )
             template.gsub( '{{release_list}}', release_list )
+          end
+
+          def sorted_release_data
+            manifest.data.sort_by do |r|
+              r[:time]
+            end.reverse
           end
 
           # remove a release
@@ -116,13 +137,16 @@ module Statistrano
           def remove_release name
             Log.info "Removing release '#{name}'"
             remote.run "rm -rf #{release_path(name)}"
-            manifest.remove_release(name)
+            manifest.remove_if do |r|
+              r[:name] == name
+            end
+            manifest.save!
           end
 
           # return array of releases from the manifest
           # @return [Array]
           def get_releases
-            manifest.list
+           sorted_release_data.map { |r| r[:name] }
           end
 
           # return array of releases on the remote
