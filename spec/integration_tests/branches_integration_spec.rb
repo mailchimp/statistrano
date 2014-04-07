@@ -52,7 +52,17 @@ describe "Statistrano::Deployment::Branches integration", :integration do
 
   it "generates an index page with the correct order of branches" do
     index_html = IO.read("deployment/index/index.html")
-    expect( index_html ).to match /<li><a href="http:\/\/second_branch\.example\.com">second_branch<\/a><small>updated: Sunday Jun 23, 2013 at  7:26 pm<\/small><\/li><li><a href="http:\/\/first_branch\.example\.com">first_branch<\/a><small>updated: Sunday Jun 23, 2013 at  4:40 pm<\/small><\/li>/
+    expect( index_html ).to include <<-eof
+        <li>
+          <a href="http://second_branch.example.com">second_branch</a>
+          <small>updated: Sunday Jun 23, 2013 at  7:26 pm</small>
+        </li>
+      
+        <li>
+          <a href="http://first_branch.example.com">first_branch</a>
+          <small>updated: Sunday Jun 23, 2013 at  4:40 pm</small>
+        </li>
+eof
   end
 
   it "removes the selected branch to prune" do

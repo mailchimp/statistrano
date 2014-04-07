@@ -27,7 +27,7 @@ module Statistrano
           invoke_build_task
           releaser.create_release remote
 
-          manifest.put Deployment::Manifest::Release.new( config.public_dir, config ).to_hash, :name
+          manifest.put Release.new( config.public_dir, config ).to_hash, :name
           manifest.save!
 
           invoke_post_deploy_task
@@ -40,8 +40,6 @@ module Statistrano
             Log.info "#{release[:name]} created at #{Time.at(release[:time]).strftime('%a %b %d, %Y at %l:%M %P')}"
           end
         end
-
-
 
         # trim releases not in the manifest,
         # get user input for removal of other releases
@@ -116,13 +114,13 @@ module Statistrano
           end
 
           def release_list_html
-            release_list = sorted_release_data.map do |r|
+            releases = sorted_release_data.map do |r|
               name = r.fetch(:name)
               r.merge({ repo_url: config.repo_url }) if config.repo_url
-              Deployment::Manifest::Release.new( name, config, r ).as_li
-            end.join('')
-            template = IO.read( File.expand_path( '../../../../../templates/index.html', __FILE__) )
-            template.gsub( '{{release_list}}', release_list )
+              Release.new( name, config, r )
+            end
+
+            Index.new( releases ).to_html
           end
 
           def sorted_release_data
@@ -186,3 +184,6 @@ module Statistrano
     end
   end
 end
+
+require_relative 'branches/index'
+require_relative 'branches/release'

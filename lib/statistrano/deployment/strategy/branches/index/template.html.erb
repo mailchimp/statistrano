@@ -67,9 +67,12 @@
   <body>
     <section class="content">
       <h1>Branch Index</h1>
-      <ul>
-        {{release_list}}
-      </u>
+      <ul><% releases.each do |release| %>
+        <li>
+          <a href="<%= release.href %>"><%= release.name %></a>
+          <small>updated: <%= Time.at(release.time).strftime('%A %b %d, %Y at %l:%M %P') %></small>
+        </li>
+      <% end %></ul>
     </section>
   </body>
 </html>

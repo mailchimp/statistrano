@@ -1,5 +1,3 @@
-require_relative 'manifest/release'
-
 module Statistrano
   module Deployment
     class Manifest

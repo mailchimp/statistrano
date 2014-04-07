@@ -1,3 +1,5 @@
+- create Branches::Index and render erb for the template
+- move Branches specific ideas into the Branches namespace
 - add Deployment::Manifest#put method to update manifest data for matching records
 - remove Statistrano::Deployment::Manifest & Statistrano::Deployment::Manifest::RemoteStore in favor of using the same manifest as the Revisions releaser
 
