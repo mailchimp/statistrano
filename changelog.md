@@ -1,3 +1,5 @@
+- remove Statistrano::Deployment::Manifest & Statistrano::Deployment::Manifest::RemoteStore in favor of using the same manifest as the Revisions releaser
+
 # 1.0.0.beta3
 - add option for rsync flags [b5a248be8d96d142ca94c076d80ad6deaa0fa69e]
 

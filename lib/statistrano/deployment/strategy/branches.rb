@@ -27,7 +27,7 @@ module Statistrano
           invoke_build_task
           releaser.create_release remote
 
-          manifest.push Manifest::Release.new( config.public_dir, config ).to_hash
+          manifest.push Deployment::Manifest::Release.new( config.public_dir, config ).to_hash
           manifest.save!
 
           invoke_post_deploy_task
@@ -72,7 +72,7 @@ module Statistrano
           end
 
           def manifest
-            @_manifest ||= Strategy::Releases::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+            @_manifest ||= Deployment::Manifest.new remote_overridable_config(:remote_dir, remote), remote
           end
 
           def remote_overridable_config option, remote
@@ -119,7 +119,7 @@ module Statistrano
             release_list = sorted_release_data.map do |r|
               name = r.fetch(:name)
               r.merge({ repo_url: config.repo_url }) if config.repo_url
-              Statistrano::Deployment::Manifest::Release.new( name, config, r ).as_li
+              Deployment::Manifest::Release.new( name, config, r ).as_li
             end.join('')
             template = IO.read( File.expand_path( '../../../../../templates/index.html', __FILE__) )
             template.gsub( '{{release_list}}', release_list )

@@ -127,7 +127,7 @@ describe Statistrano::Deployment::Releaser::Revisions do
     it "removes releases not tracked in manifest" do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
+      manifest = instance_double("Statistrano::Deployment::Manifest")
       subject  = described_class.new default_arguments
       releases = [ Time.now.to_i.to_s,
                   (Time.now.to_i + 1 ).to_s,
@@ -140,7 +140,7 @@ describe Statistrano::Deployment::Releaser::Revisions do
       allow(target).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
       allow(manifest).to receive(:data)
                       .and_return(releases.map { |r| {release: r} })
@@ -156,8 +156,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments.merge( release_count: 2 )
-      manifest = Statistrano::Deployment::Strategy::Releases::Manifest.new '/var/www/proj', target
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .with( '/var/www/proj', target )
                                                              .and_return(manifest)
       releases = [ Time.now.to_i.to_s,
@@ -192,8 +192,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments.merge( release_count: 2 )
-      manifest = Statistrano::Deployment::Strategy::Releases::Manifest.new '/var/www/proj', target
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .with( '/var/www/proj', target )
                                                              .and_return(manifest)
       releases = [ Time.now.to_i.to_s,
@@ -226,8 +226,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
     it "adds release to manifest & saves" do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
       subject = described_class.new default_arguments
 
@@ -240,8 +240,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
     it "merges build_data to release in manifest" do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
       subject = described_class.new default_arguments
 
@@ -274,8 +274,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
 
       release_data = [{release:"one"},{release:"two"}]
@@ -288,8 +288,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
 
       release_one   = ( Time.now.to_i + 0 ).to_s
@@ -309,8 +309,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .with( '/var/www/proj', target )
                                                              .and_return(manifest)
 
@@ -342,8 +342,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .with( '/var/www/proj', target )
                                                              .and_return(manifest)
 
@@ -377,8 +377,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = Statistrano::Deployment::Strategy::Releases::Manifest.new '/var/www/proj', target
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .with( '/var/www/proj', target )
                                                              .and_return(manifest)
 
@@ -412,8 +412,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       config   = double("Statistrano::Config", default_target_config_responses )
       target   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
-      manifest = instance_double("Statistrano::Deployment::Strategy::Releases::Manifest")
-      allow( Statistrano::Deployment::Strategy::Releases::Manifest ).to receive(:new)
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
 
       release_one   = ( Time.now.to_i + 0 ).to_s

@@ -88,7 +88,7 @@ module Statistrano
         private
 
           def new_manifest remote
-            Strategy::Releases::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+            Deployment::Manifest.new remote_overridable_config(:remote_dir, remote), remote
           end
 
           def remote_overridable_config option, remote

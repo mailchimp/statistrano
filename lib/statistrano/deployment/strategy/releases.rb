@@ -93,5 +93,3 @@ module Statistrano
     end
   end
 end
-
-require_relative 'releases/manifest'
