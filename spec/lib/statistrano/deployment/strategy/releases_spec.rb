@@ -175,6 +175,7 @@ describe Statistrano::Deployment::Strategy::Releases do
         subject.deploy
       end
     end
+
     context "when post_deploy_task is a string" do
       it "invokes the post_deploy_task once" do
         allow( Statistrano::Remote ).to receive(:new)
@@ -196,6 +197,51 @@ describe Statistrano::Deployment::Strategy::Releases do
         @subject.deploy
       end
     end
+  end
+
+  describe "#rollback_release" do
+    it "calls rollback_release on each remote" do
+      subject = define_deployment "multi", :releases do
+        build_task 'nil:bar'
+        post_deploy_task 'foo:bar'
+        remotes [{remote: 'one'},{remote: 'two'}]
+      end
+
+      remote   = instance_double("Statistrano::Remote")
+      releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
+      allow( Statistrano::Remote ).to receive(:new)
+                                  .and_return(remote)
+      allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
+                                                           .and_return(releaser)
+
+      expect( releaser ).to receive(:rollback_release)
+                        .with(remote).twice
+      subject.rollback_release
+    end
+  end
+
+  describe "#prune_releases" do
+    it "calls prune_releases on each remote" do
+      subject = define_deployment "multi", :releases do
+        build_task 'nil:bar'
+        post_deploy_task 'foo:bar'
+        remotes [{remote: 'one'},{remote: 'two'}]
+      end
+
+      remote   = instance_double("Statistrano::Remote")
+      releaser = instance_double("Statistrano::Deployment::Releaser::Revisions")
+      allow( Statistrano::Remote ).to receive(:new)
+                                  .and_return(remote)
+      allow( Statistrano::Deployment::Releaser::Revisions ).to receive(:new)
+                                                           .and_return(releaser)
+
+      expect( releaser ).to receive(:prune_releases)
+                        .with(remote).twice
+      subject.prune_releases
+    end
+  end
+
+  describe "#list_releases" do
   end
 
 end
