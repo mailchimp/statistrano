@@ -211,4 +211,94 @@ describe Statistrano::Remote do
     end
   end
 
+  describe "tracking deployment status" do
+
+    before :each do
+      @subject = described_class.new default_options
+      @file    = instance_double("Statistrano::Remote::File")
+      allow( Statistrano::Remote::File ).to receive(:new)
+                                        .and_return(@file)
+    end
+
+    describe "#deployment_active?" do
+      it "returns truthy if a deployment is active" do
+        allow( @file ).to receive(:content)
+                      .and_return("whoami")
+
+        expect( @subject.deployment_active?('/remote/dir') ).to be_truthy
+      end
+
+      it "logs a message of who is deploying" do
+        allow( @file ).to receive(:content)
+                      .and_return("whoami")
+
+        expect( Statistrano::Log ).to receive(:info)
+                                  .with("whoami is currently deploying")
+
+        @subject.deployment_active?('/remote/dir')
+      end
+
+      it "returns false if no deployment is active" do
+        allow( @file ).to receive(:content)
+                      .and_return("")
+
+        expect( @subject.deployment_active?('/remote/dir') ).to be_falsy
+      end
+    end
+
+    describe "#set_deployment_active" do
+      it "creates a deployment marker file" do
+        allow( Statistrano::Shell ).to receive(:run_local).with("whoami")
+                                   .and_return("current_user")
+        allow( @file ).to receive(:content).and_return("")
+
+        expect( @file ).to receive(:update_content!).with("current_user")
+        @subject.set_deployment_active('/remote/dir')
+      end
+
+      it "stops if a deployment is currently active" do
+        allow( Statistrano::Shell ).to receive(:run_local).with("whoami")
+                                   .and_return("current_user")
+        allow( @file ).to receive(:content)
+                      .and_return("whoami")
+
+        expect( @file ).not_to receive(:update_content!)
+        expect( Statistrano::Log ).to receive(:error)
+
+        expect{
+          @subject.set_deployment_active('/remote/dir')
+          }.to raise_error SystemExit
+      end
+    end
+
+    describe "#set_deployment_inactive" do
+      context "when deployment is controlled by current user" do
+        it "removes the deployment file" do
+          allow( Statistrano::Shell ).to receive(:run_local).with("whoami")
+                                     .and_return("current_user")
+          allow( @file ).to receive(:content).and_return("current_user")
+
+          expect( @file ).to receive(:destroy!)
+          @subject.set_deployment_inactive('/remote/dir')
+        end
+      end
+
+      context "when deployment is controlled by another user" do
+        it "stops and logs error" do
+          allow( Statistrano::Shell ).to receive(:run_local).with("whoami")
+                                     .and_return("current_user")
+          allow( @file ).to receive(:content).and_return("whoami")
+
+          expect( @file ).not_to receive(:destroy!)
+          expect( Statistrano::Log ).to receive(:error)
+
+          expect{
+            @subject.set_deployment_inactive('/remote/dir')
+          }.to raise_error SystemExit
+        end
+      end
+    end
+
+  end
+
 end

@@ -1,3 +1,5 @@
+require_relative "remote/file"
+
 module Statistrano
 
   # a remote is a databag of config specific for an
@@ -93,7 +95,49 @@ module Statistrano
       resp
     end
 
+    def deployment_active? remote_dir
+      status = deployment_status_file(remote_dir).content
+      unless status.empty?
+        Log.info "#{status} is currently deploying"
+        return status
+      else
+        return false
+      end
+    end
+    # false || `whoami`
+
+    def set_deployment_active remote_dir
+      current_user = Shell.run_local "whoami"
+      active_dep   = deployment_active?(remote_dir)
+
+      if active_dep && active_dep != current_user
+        Log.error "can't set deployment to active"
+        abort()
+      else
+        deployment_status_file(remote_dir).update_content! current_user
+      end
+    end
+
+    def set_deployment_inactive remote_dir
+      current_user = Shell.run_local "whoami"
+      active_dep   = deployment_active?(remote_dir)
+
+      if active_dep && active_dep != current_user
+        Log.error "can't set deployment to inactive",
+                  "#{active_dep} is currently deploying"
+        abort()
+      else
+        deployment_status_file(remote_dir).destroy!
+      end
+    end
+
     private
+
+      def deployment_status_file remote_dir
+        Remote::File.new( ::File.join(remote_dir, '.deployment_status'),
+                          self,
+                          config.file_permissions )
+      end
 
       def session
         @_ssh_session ||= HereOrThere::Remote.session ssh_options
