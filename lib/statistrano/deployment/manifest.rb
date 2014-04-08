@@ -2,11 +2,12 @@ module Statistrano
   module Deployment
     class Manifest
 
-      attr_reader :remote_dir, :remote
+      attr_reader :remote_dir, :remote, :file
 
       def initialize remote_dir, remote
         @remote_dir = remote_dir
         @remote     = remote
+        @file       = Remote::File.new remote_path, remote
       end
 
       # return an array of records from the manifest
@@ -60,42 +61,17 @@ module Statistrano
       # currently stored on the object
       #
       def save!
-        create_remote_file unless remote_file_exists?
-        resp = remote.run "echo '#{serialize}' > #{remote_path}"
-
-        if resp.success?
-          Log.info :success, "manifest on #{remote.config.hostname} saved"
-        else
-          Log.error "problem saving the manifest for #{remote.config.hostname}",
-                    resp.stderr
-        end
+        file.update_content! serialize
       end
 
       private
 
-        def remote_file_exists?
-          resp = remote.run "[ -f #{remote_path} ] && echo \"exists\""
-          resp.success? && resp.stdout.strip == "exists"
-        end
-
-        def create_remote_file
-          resp = remote.run "touch #{remote_path} " +
-                            "&& chmod 770 #{remote_path}"
-
-          if resp.success?
-            Log.info :success, "created manifest file on #{remote.config.hostname}"
-          else
-            Log.error "problem saving the manifest for #{remote.config.hostname}",
-                      resp.stderr
-          end
-        end
-
         def raw
-          resp = remote.run "cat #{remote_path}"
-          if resp.success?
-            resp.stdout
+          content = file.content
+          if content.empty?
+            return "[]"
           else
-            "[]"
+            return content
           end
         end
 

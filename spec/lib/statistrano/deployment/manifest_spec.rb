@@ -4,32 +4,34 @@ describe Statistrano::Deployment::Manifest do
 
   describe "#initialize" do
     it "stores the provided remote_dir & remote" do
-      remote     = :remote
-      remote_dir = :remote_dir
-      subject = described_class.new( remote_dir, remote )
+      subject = described_class.new( "remote_dir", "remote" )
 
-      expect( subject.remote_dir ).to eq remote_dir
-      expect( subject.remote ).to eq remote
+      expect( subject.remote_dir ).to eq "remote_dir"
+      expect( subject.remote ).to eq "remote"
     end
   end
 
   describe "#data" do
     it "returns serialized data from remote" do
       remote  = instance_double("Statistrano::Remote")
+      file    = instance_double("Statistrano::Remote::File")
+      expect( Statistrano::Remote::File ).to receive(:new)
+                                         .and_return(file)
       subject = described_class.new '/var/www/proj', remote
-      expect( remote ).to receive(:run)
-                      .with('cat /var/www/proj/manifest.json')
-                      .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true))
+      expect( file ).to receive(:content)
+                    .and_return('[{"key":"val"}]')
 
       expect( subject.data ).to match_array [{ key: 'val' }]
     end
 
     it "returns empty array if manifest file is missing" do
       remote  = instance_double("Statistrano::Remote")
+      file    = instance_double("Statistrano::Remote::File")
+      expect( Statistrano::Remote::File ).to receive(:new)
+                                         .and_return(file)
+      expect( file ).to receive(:content)
+                    .and_return('')
       subject = described_class.new '/var/www/proj', remote
-      expect( remote ).to receive(:run)
-                      .with('cat /var/www/proj/manifest.json')
-                      .and_return( HereOrThere::Response.new("","cat: /var/www/proj/manifest.json: No such file or directory\n",false))
 
       expect( subject.data ).to match_array []
     end
@@ -37,10 +39,12 @@ describe Statistrano::Deployment::Manifest do
     it "logs error when manifest contains invalid JSON" do
       config  = double("Statistrano::Config", hostname: 'web01')
       remote  = instance_double("Statistrano::Remote", config: config )
+      file    = instance_double("Statistrano::Remote::File")
+      expect( Statistrano::Remote::File ).to receive(:new)
+                                         .and_return(file)
       subject = described_class.new '/var/www/proj', remote
-      expect( remote ).to receive(:run)
-                      .with('cat /var/www/proj/manifest.json')
-                      .and_return( HereOrThere::Response.new("invalid","",true))
+      expect( file ).to receive(:content)
+                    .and_return('invalid')
       expect( Statistrano::Log ).to receive(:error)
       subject.data
     end
@@ -147,90 +151,19 @@ describe Statistrano::Deployment::Manifest do
   end
 
   describe "#save!" do
-    it "tests if file exists" do
-      config  = double("Statistrano::Config", hostname: 'web01')
-      remote  = instance_double("Statistrano::Remote", config: config )
-      allow( remote ).to receive(:run)
-                     .and_return( HereOrThere::Response.new("",'',true) )
-      subject = described_class.new '/var/www/proj', remote
+    it "calls update_content! for the remote_file" do
+      remote  = instance_double("Statistrano::Remote")
+      file    = instance_double("Statistrano::Remote::File")
 
-      expect( remote ).to receive(:run)
-                      .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
-                      .and_return( HereOrThere::Response.new("exists\n",'',true) )
-      subject.save!
-    end
+      expect( Statistrano::Remote::File ).to receive(:new)
+                                         .with("/path/manifest.json", remote)
+                                         .and_return(file)
+      expect( file ).to receive(:update_content!)
+                    .with('[{"key":"val"}]')
 
-    context "when manifest didn't previously exist" do
-      it "creates manifest" do
-        config  = double("Statistrano::Config", hostname: 'web01')
-        remote  = instance_double("Statistrano::Remote", config: config )
-        allow( remote ).to receive(:run)
-                       .and_return( HereOrThere::Response.new("",'',true) )
-        subject = described_class.new '/var/www/proj', remote
+      subject = described_class.new "/path", remote
+      subject.instance_variable_set(:@_data, [{key: "val"}])
 
-        expect( remote ).to receive(:run)
-                        .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
-                        .and_return( HereOrThere::Response.new('','',true) )
-        expect( remote ).to receive(:run)
-                        .with("touch /var/www/proj/manifest.json " +
-                              "&& chmod 770 /var/www/proj/manifest.json")
-                        .and_return( HereOrThere::Response.new("",'',true) )
-        subject.save!
-      end
-    end
-
-    context "when manifest exists" do
-      it "doesn't touch & chmod file" do
-        config  = double("Statistrano::Config", hostname: 'web01')
-        remote  = instance_double("Statistrano::Remote", config: config )
-        allow( remote ).to receive(:run)
-                       .and_return( HereOrThere::Response.new("",'',true) )
-        subject = described_class.new '/var/www/proj', remote
-
-        expect( remote ).to receive(:run)
-                        .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
-                        .and_return( HereOrThere::Response.new("exists\n",'',true) )
-        expect( remote ).not_to receive(:run)
-                        .with("touch /var/www/proj/manifest.json " +
-                              "&& chmod 770 /var/www/proj/manifest.json")
-        subject.save!
-      end
-    end
-
-    it "writes serialized data to remote_path" do
-      config  = double("Statistrano::Config", hostname: 'web01')
-      remote  = instance_double("Statistrano::Remote", config: config )
-      allow( remote ).to receive(:run)
-                     .with("cat /var/www/proj/manifest.json")
-                     .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
-      allow( remote ).to receive(:run)
-                     .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
-                     .and_return( HereOrThere::Response.new("exists\n",'',true) )
-      subject = described_class.new '/var/www/proj', remote
-
-      expect( remote ).to receive(:run)
-                      .with( "echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
-                      .and_return( HereOrThere::Response.new('','',true) )
-
-      subject.save!
-    end
-
-    it "logs error if fails" do
-      config  = double("Statistrano::Config", hostname: 'web01')
-      remote  = instance_double("Statistrano::Remote", config: config )
-      allow( remote ).to receive(:run)
-                     .with("cat /var/www/proj/manifest.json")
-                     .and_return( HereOrThere::Response.new('[{"key":"val"}]','',true) )
-      allow( remote ).to receive(:run)
-                     .with("[ -f /var/www/proj/manifest.json ] && echo \"exists\"")
-                     .and_return( HereOrThere::Response.new("exists\n",'',true) )
-      subject = described_class.new '/var/www/proj', remote
-
-      expect( remote ).to receive(:run)
-                      .with( "echo '[{\"key\":\"val\"}]' > /var/www/proj/manifest.json" )
-                      .and_return( HereOrThere::Response.new('','couldnt do it',false) )
-
-      expect( Statistrano::Log ).to receive(:error)
       subject.save!
     end
   end
