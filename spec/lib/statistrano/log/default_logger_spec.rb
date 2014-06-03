@@ -140,6 +140,14 @@ describe Statistrano::Log::DefaultLogger::Formatter do
       expect( lines.last  ).to match /\s{14}msg2/
     end
 
+    it "handles 'too long' status by padding message on second line to match first line" do
+      subject = described_class.new( 'onetwothreefourfive', :green, 'msg', 'msg2' )
+      lines   = subject.output.split("\n")
+
+      expect( lines.first ).to match /->\sonetwothreefourfive\smsg/
+      expect( lines.last  ).to match /\s{23}msg2/
+    end
+
     it "colorizes status with given color" do
       Rainbow.enabled = true
 

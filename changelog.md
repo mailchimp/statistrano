@@ -1,3 +1,4 @@
+- fix bug in default logger to adjust for statuses that are too long
 - create Branches::Index and render erb for the template
 - move Branches specific ideas into the Branches namespace
 - add Deployment::Manifest#put method to update manifest data for matching records

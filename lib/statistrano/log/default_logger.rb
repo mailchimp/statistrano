@@ -72,7 +72,14 @@ module Statistrano
           end
 
           def padding
-            spaces(width - status.length)
+            num = (width - status.length)
+
+            if num < 0
+              @width = status.length + 1
+              return spaces(0)
+            else
+              return spaces num
+            end
           end
 
           def spaces num
