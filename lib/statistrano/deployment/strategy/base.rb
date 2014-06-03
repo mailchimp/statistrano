@@ -40,13 +40,19 @@ module Statistrano
             abort()
           end
 
+          exit_if_deployment_active
           invoke_build_task
 
+          make_deployment_active
+          binding.pry
           remotes.each do |r|
             releaser.create_release r
           end
+          binding.pry
 
           invoke_post_deploy_task
+          binding.pry
+          make_deployment_inactive
         end
 
         def register_tasks
@@ -68,6 +74,38 @@ module Statistrano
         end
 
         private
+
+          def deployment_active?
+            remotes.each do |r|
+              return true if r.deployment_active?(config.remote_dir)
+            end
+
+            return false
+          end
+
+          def exit_if_deployment_active
+            if deployment_active?
+              Log.error "exiting due to another deployment being active"
+              abort()
+            end
+          end
+
+          def make_deployment_active
+            exit_if_deployment_active
+
+            remotes.each do |r|
+              releaser.setup r
+              r.set_deployment_active config.remote_dir
+            end
+          end
+
+          def make_deployment_inactive
+            remotes.each do |r|
+              if r.deployment_active? config.remote_dir
+                r.set_deployment_inactive config.remote_dir
+              end
+            end
+          end
 
           def releaser
             Releaser::Single.new config.options

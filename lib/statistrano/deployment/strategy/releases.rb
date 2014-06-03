@@ -49,6 +49,7 @@ module Statistrano
             abort()
           end
 
+          exit_if_deployments_active
           build_data = invoke_build_task
           if build_data.respond_to? :to_hash
             build_data = build_data.to_hash
@@ -56,23 +57,29 @@ module Statistrano
             build_data = {}
           end
 
+          make_deployment_active
           remotes.each do |t|
             releaser.create_release t, build_data
           end
 
           invoke_post_deploy_task
+          make_deployment_inactive
         end
 
         def rollback_release
+          make_deployment_active
           remotes.each do |t|
             releaser.rollback_release t
           end
+          make_deployment_inactive
         end
 
         def prune_releases
+          make_deployment_active
           remotes.each do |t|
             releaser.prune_releases t
           end
+          make_deployment_inactive
         end
 
         def list_releases

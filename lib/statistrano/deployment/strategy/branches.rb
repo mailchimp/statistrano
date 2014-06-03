@@ -24,13 +24,17 @@ module Statistrano
             abort()
           end
 
+          exit_if_deployments_active
           invoke_build_task
+
+          make_deployment_active
           releaser.create_release remote
 
           manifest.put Release.new( config.public_dir, config ).to_hash, :name
           manifest.save!
 
           invoke_post_deploy_task
+          make_deployment_inactive
         end
 
         # output a list of the releases in manifest
@@ -45,6 +49,7 @@ module Statistrano
         # get user input for removal of other releases
         # @return [Void]
         def prune_releases
+          make_deployment_active
           prune_untracked_releases
 
           if get_releases && get_releases.length > 0
@@ -52,6 +57,7 @@ module Statistrano
           else
             Log.warn "no releases to prune"
           end
+          make_deployment_inactive
         end
 
         # generate an index file for releases in the manifest

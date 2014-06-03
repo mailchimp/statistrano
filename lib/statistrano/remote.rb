@@ -107,7 +107,7 @@ module Statistrano
     # false || `whoami`
 
     def set_deployment_active remote_dir
-      current_user = Shell.run_local "whoami"
+      current_user = Shell.run_local("whoami").stdout
       active_dep   = deployment_active?(remote_dir)
 
       if active_dep && active_dep != current_user
