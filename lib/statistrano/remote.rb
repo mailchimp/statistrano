@@ -1,3 +1,5 @@
+require_relative 'remote/file'
+
 module Statistrano
 
   # a remote is a databag of config specific for an
