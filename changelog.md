@@ -1,3 +1,4 @@
+# 1.0.0.rc1
 - add the `verbose` option for deployments
 - fix bug in default logger to adjust for statuses that are too long
 - create Branches::Index and render erb for the template
