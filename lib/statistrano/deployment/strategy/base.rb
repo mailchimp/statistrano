@@ -22,6 +22,7 @@ module Statistrano
                 :dir_permissions, :file_permissions, :rsync_flags
 
         option  :remotes, []
+        option  :verbose, false
 
         task :deploy, :deploy, "Deploy to remote"
 
