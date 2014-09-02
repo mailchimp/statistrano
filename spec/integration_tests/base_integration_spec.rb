@@ -71,8 +71,8 @@ describe "Statistrano::Deployment::Base integration", :integration do
 
       base.deploy
 
-      deployment_dir_perms  = sprintf( "%o", File.stat("deployment").mode ).chars.last(3).join
-      deployment_file_perms = sprintf( "%o", File.stat("deployment/index.html").mode ).chars.last(3).join
+      deployment_dir_perms  = sprintf( "%o", File.stat("deployment").mode ).chars.to_a.last(3).join
+      deployment_file_perms = sprintf( "%o", File.stat("deployment/index.html").mode ).chars.to_a.last(3).join
 
       expect( deployment_dir_perms ).to eq "777"
       expect( deployment_file_perms ).to eq "666"

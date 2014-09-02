@@ -6,7 +6,7 @@ module Statistrano
       attr_reader :user, :group, :others
 
       def initialize int
-        @user, @group, @others = int.to_s.chars
+        @user, @group, @others = int.to_s.chars.to_a
       end
 
       def to_chmod
