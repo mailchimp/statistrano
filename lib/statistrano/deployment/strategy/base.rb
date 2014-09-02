@@ -24,7 +24,9 @@ module Statistrano
         option  :remotes, []
         option  :verbose, false
 
-        task :deploy, :deploy, "Deploy to remote"
+        task :deploy,      :deploy,                  "Deploy to remote"
+        task :build,       :invoke_build_task,       "Run build task"
+        task :post_deploy, :invoke_post_deploy_task, "Run post deploy task"
 
         # create a new deployment instance
         # @param name [String]

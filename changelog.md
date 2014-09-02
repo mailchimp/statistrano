@@ -1,3 +1,5 @@
+- base includes a `deployment:build` and `deployment:post_deploy` task to allow direct triggering of these deployment steps
+
 # 1.0.0.rc1
 - add the `verbose` option for deployments
 - fix bug in default logger to adjust for statuses that are too long
