@@ -1,20 +1,13 @@
+# 1.0.0
 - base includes a `deployment:build` and `deployment:post_deploy` task to allow direct triggering of these deployment steps
-
-# 1.0.0.rc1
 - add the `verbose` option for deployments
 - fix bug in default logger to adjust for statuses that are too long
-- create Branches::Index and render erb for the template
+- create `Branches::Index` and render erb for the template
 - move Branches specific ideas into the Branches namespace
-- add Deployment::Manifest#put method to update manifest data for matching records
-- remove Statistrano::Deployment::Manifest & Statistrano::Deployment::Manifest::RemoteStore in favor of using the same manifest as the Revisions releaser
-
-# 1.0.0.beta3
+- add `Deployment::Manifest#put` method to update manifest data for matching records
+- remove `Statistrano::Deployment::Manifest` & `Statistrano::Deployment::Manifest::RemoteStore` in favor of using the same manifest as the Revisions releaser
 - add option for rsync flags [b5a248be8d96d142ca94c076d80ad6deaa0fa69e]
-
-# 1.0.0.beta2
 - loosen rainbows dependency to work with old & new bananabin
-
-# 1.0.0.beta1 (breaking changes from 0.10.0)
 - reorganize deployment types & releasers. now use a single remote object, and different "strategies" for base, releases, & branches and different "releasers" for single or revisions
 - remote multi_target in favor of merging code paths w/ strategies & releasers
 - can now access deployment info directly in build_tasks & post_deploy_tasks by giving arity [de05bb3a7d760fc51571b0f93f457065758fa772]
