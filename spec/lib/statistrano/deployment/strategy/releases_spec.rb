@@ -17,6 +17,7 @@ describe Statistrano::Deployment::Strategy::Releases do
         password:         nil,
         keys:             nil,
         forward_agent:    nil,
+        verbose:        false,
         build_task:       nil,
         check_git:        nil,
         git_branch:       nil,
