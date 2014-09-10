@@ -45,6 +45,12 @@ module Statistrano
 
           invoke_build_task
 
+          unless safe_to_deploy?
+            Log.error "exiting due to git check failing"
+            Log.error "your build task modified checked in files"
+            abort()
+          end
+
           remotes.each do |r|
             releaser.create_release r
           end

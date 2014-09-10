@@ -1,3 +1,5 @@
+- add a second check to git after the build task to ensure build doesn't affect checked in files
+
 # 1.0.0
 - base includes a `deployment:build` and `deployment:post_deploy` task to allow direct triggering of these deployment steps
 - add the `verbose` option for deployments

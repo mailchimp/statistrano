@@ -44,6 +44,26 @@ describe Statistrano::Deployment::Strategy::Base do
           subject.deploy
         }.to raise_error SystemExit
       end
+
+      it "will exit if build changes checked in files" do
+        subject = define_deployment "base", :base do
+          check_git true
+          git_branch 'master'
+
+          build_task do
+            # no-op
+          end
+        end
+
+        expect( subject ).to receive(:safe_to_deploy?)
+                         .and_return( true, false ) # simulate git being clear
+                                                    # before the build task, but not
+                                                    # after
+
+        expect{
+          subject.deploy
+        }.to raise_error SystemExit
+      end
     end
 
     it "runs `invoke_build_task`" do
