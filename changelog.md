@@ -1,3 +1,4 @@
+# 1.0.1
 - add a second check to git after the build task to ensure build doesn't affect checked in files
 
 # 1.0.0
