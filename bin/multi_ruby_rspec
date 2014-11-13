@@ -10,11 +10,8 @@ function run_spec {
   bundle config --delete without;
 }
 
-rvm use ruby-1.9.3@statistrano_test_193 --create
-run_spec
-
 rvm use ruby-2.0.0@statistrano_test_200 --create
 run_spec
 
-rvm use ruby-2.1.2@statistrano_test_212 --create
+rvm use ruby-2.1.5@statistrano_test_215 --create
 run_spec
