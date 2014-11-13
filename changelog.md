@@ -1,3 +1,6 @@
+# 1.0.2
+- make sure that Revisions#remove_untracked_revisions checks it against the "current" revision before removing it.
+
 # 1.0.1
 - add a second check to git after the build task to ensure build doesn't affect checked in files
 
