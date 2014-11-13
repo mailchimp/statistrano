@@ -115,8 +115,9 @@ module Statistrano
           end
 
           def remove_untracked_releases remote
-            (remote_releases(remote) - tracked_releases(remote)).each do |untracked|
-              remote.run("rm -rf #{File.join(releases_path(remote), untracked)}")
+            manifest = new_manifest remote
+            (remote_releases(remote) - tracked_releases(remote)).each do |untracked_release|
+              remove_release untracked_release, remote, manifest
             end
           end
 

@@ -141,9 +141,10 @@ describe Statistrano::Deployment::Releaser::Revisions do
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .and_return(manifest)
+                                                .and_return(manifest)
+      allow(manifest).to receive(:remove_if)
       allow(manifest).to receive(:data)
-                      .and_return(releases.map { |r| {release: r} })
+                     .and_return(releases.map { |r| {release: r} })
 
 
       expect(target).to receive(:run)
