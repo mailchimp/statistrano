@@ -43,5 +43,44 @@ describe "Statistrano::Deployment::Strategy::Releases#prune_releases integration
                           "target02/releases/1372040000",
                           "target03/releases/1372040000" ]
     end
+
+    it "won't remove the currently symlinked release" do
+      Given.symlink "deployment/target01/releases/1372030000", "deployment/target01/current"
+      Given.symlink "deployment/target02/releases/1372030000", "deployment/target02/current"
+      Given.symlink "deployment/target03/releases/1372030000", "deployment/target03/current"
+
+      @subject.prune_releases
+
+      expect( multi_release_folder_contents )
+        .to match_array [ "target01/releases/1372030000",
+                          "target01/releases/1372040000",
+
+                          "target02/releases/1372030000",
+                          "target02/releases/1372040000",
+
+                          "target03/releases/1372030000",
+                          "target03/releases/1372040000" ]
+    end
+
+    it "won't remove the currently symlinked release even if untracked" do
+      Given.file    "deployment/target01/releases/foo_bar/index.html", ''
+      Given.file    "deployment/target02/releases/foo_bar/index.html", ''
+      Given.file    "deployment/target03/releases/foo_bar/index.html", ''
+      Given.symlink "deployment/target01/releases/foo_bar", "deployment/target01/current"
+      Given.symlink "deployment/target02/releases/foo_bar", "deployment/target02/current"
+      Given.symlink "deployment/target03/releases/foo_bar", "deployment/target03/current"
+
+      @subject.prune_releases
+
+      expect( multi_release_folder_contents )
+        .to match_array [ "target01/releases/foo_bar",
+                          "target01/releases/1372040000",
+
+                          "target02/releases/foo_bar",
+                          "target02/releases/1372040000",
+
+                          "target03/releases/foo_bar",
+                          "target03/releases/1372040000" ]
+    end
   end
 end
