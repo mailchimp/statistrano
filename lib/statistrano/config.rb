@@ -10,12 +10,11 @@ module Statistrano
     # this is required so that when config'd classes
     # are extended we can pass that configuration along
     def initialize options=nil, tasks=nil
-      @options =  options.nil?  ? {} : options.clone
-      @tasks = tasks.nil? ? {} : tasks.clone
+      @options = options.nil? ? {} : options.clone
+      @tasks   = tasks.nil?   ? {} : tasks.clone
 
       @options.each do |key,val|
-        name = key.to_sym
-        define_option_accessor name
+        define_option_accessor key.to_sym
       end
     end
 
