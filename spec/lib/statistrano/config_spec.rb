@@ -10,6 +10,11 @@ describe Statistrano::Config do
       expect( subject.tasks ).to eq({})
     end
 
+    it "defines an accessor for each given option" do
+      subject = described_class.new foo: 'bar'
+      expect( subject.foo ).to eq 'bar'
+    end
+
     it "uses given options & tasks, but clones so the originals don't get modified" do
       options = { foo: 'bar' }
       tasks   = { foo: 'bar' }
