@@ -15,13 +15,15 @@ module Statistrano
                 register_task deployment, task_name, task_attrs
               end
             end
-          end
 
-          def register_user_task deployment, *task_name_and_space, &block
-            task_name   = task_name_and_space.pop
-            task_space  = task_name_and_space.unshift rake_namespace(deployment)
-
-            register_in_namespace_recursive deployment, task_name, task_space, block
+            deployment.config.user_tasks.each do |task_obj|
+              in_namespace rake_namespace(deployment) do
+                register_in_namespace_recursive deployment,
+                                                task_obj[:name],
+                                                task_obj[:namespaces],
+                                                task_obj[:block]
+              end
+            end
           end
 
           private
@@ -44,17 +46,21 @@ module Statistrano
             end
 
             def register_in_namespace_recursive deployment, task_name, task_space, block
-              in_namespace task_space.shift do
-                if task_space.empty?
-                  task task_name do
-                    if block.arity == 1
-                      block.call deployment
-                    else
-                      block.call
-                    end
-                  end
-                else
+              if task_space.empty?
+                register_user_task deployment, task_name, block
+              else
+                in_namespace task_space.shift do
                   register_in_namespace_recursive deployment, task_name, task_space, block
+                end
+              end
+            end
+
+            def register_user_task deployment, task_name, block
+              task task_name do
+                if block.arity == 1
+                  block.call deployment
+                else
+                  block.call
                 end
               end
             end

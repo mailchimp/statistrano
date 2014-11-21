@@ -1,7 +1,9 @@
 require_relative 'config/configurable'
+require_relative 'config/rake_task_with_context_creation'
 
 module Statistrano
   class Config
+    include RakeTaskWithContextCreation
 
     attr_reader :options
     attr_reader :tasks
