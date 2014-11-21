@@ -29,6 +29,17 @@ describe Statistrano::Config::RakeTaskWithContextCreation do
                                               namespaces: [],
                                               block: block
     end
+
+    it "adds optional desc to task" do
+      subject = Subject.new
+      block   = lambda { }
+      subject.task 'hello', 'I a method', &block
+
+      expect( subject.user_tasks ).to include name: 'hello',
+                                              desc: 'I a method',
+                                              namespaces: [],
+                                              block: block
+    end
   end
 
   describe "#task_namespace" do

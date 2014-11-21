@@ -20,6 +20,7 @@ module Statistrano
               in_namespace rake_namespace(deployment) do
                 register_in_namespace_recursive deployment,
                                                 task_obj[:name],
+                                                task_obj[:desc],
                                                 task_obj[:namespaces],
                                                 task_obj[:block]
               end
@@ -45,24 +46,25 @@ module Statistrano
               end
             end
 
-            def register_in_namespace_recursive deployment, task_name, task_space, block
+            def register_in_namespace_recursive deployment, task_name, task_desc, task_space, block
               if task_space.empty?
-                register_user_task deployment, task_name, block
+                register_user_task deployment, task_name, task_desc, block
               else
                 in_namespace task_space.shift do
-                  register_in_namespace_recursive deployment, task_name, task_space, block
+                  register_in_namespace_recursive deployment, task_name, task_desc, task_space, block
                 end
               end
             end
 
-            def register_user_task deployment, task_name, block
-              task task_name do
+            def register_user_task deployment, task_name, task_desc, block
+              t = task task_name do
                 if block.arity == 1
                   block.call deployment
                 else
                   block.call
                 end
               end
+              t.add_description(task_desc) if task_desc
             end
 
         end

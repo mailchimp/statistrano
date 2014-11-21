@@ -73,6 +73,20 @@ describe Statistrano::Deployment::RakeTasks do
         expect( Rake::Task.tasks.map(&:to_s) ).to include 'name:start'
       end
 
+      it "adds description if given" do
+        config            = Statistrano::Config.new
+        deployment_double = instance_double("Statistrano::Deployment::Strategy::Base", name: 'name', config: config)
+        config.user_tasks.push name: 'start',
+                               desc: 'start something',
+                               namespaces: [],
+                               block: lambda { }
+
+        described_class.register deployment_double
+
+        expect( Rake::Task.tasks.map(&:to_s) ).to include 'name:start'
+        expect( Rake::Task.tasks.select { |t| t.full_comment == 'start something' } ).not_to be_empty
+      end
+
       it "yields the deployment if arity is given" do
         config            = Statistrano::Config.new
         deployment_double = instance_double("Statistrano::Deployment::Strategy::Base", name: 'name', config: config)

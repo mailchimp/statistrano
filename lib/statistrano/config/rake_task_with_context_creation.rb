@@ -21,10 +21,13 @@ module Statistrano
         user_tasks.push *context.user_tasks
       end
 
-      def task name, &block
-        user_tasks.push name: name,
-                        namespaces: user_task_namespaces,
-                        block: block
+      def task name, desc=nil, &block
+        task = { name: name,
+                 namespaces: user_task_namespaces,
+                 block: block }
+        task.merge!(desc: desc) if desc
+
+        user_tasks.push task
       end
 
       class Context
