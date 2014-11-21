@@ -42,4 +42,22 @@ describe Statistrano::Deployment::RakeTasks do
 
   end
 
+  describe "::register_user_task" do
+    it "adds the task in the correct namespace" do
+      deployment_double = instance_double("Statistrano::Deployment::Strategy::Base", name: 'name')
+      Statistrano::Deployment::RakeTasks.register_user_task deployment_double, 'puma', 'start' do
+        puts "puma:start"
+      end
+      expect( Rake::Task.tasks.map(&:to_s) ).to include 'name:puma:start'
+    end
+    it "yields the deployment if arity is given" do
+      deployment_double = instance_double("Statistrano::Deployment::Strategy::Base", name: 'name')
+      Statistrano::Deployment::RakeTasks.register_user_task deployment_double, 'puma', 'start' do |dep|
+        dep.remotes
+      end
+      expect( deployment_double ).to receive(:remotes)
+      Rake::Task['name:puma:start'].invoke
+    end
+  end
+
 end
