@@ -20,7 +20,7 @@ if ENV['DEBUG']
 end
 
 # for eating up stdout & stderr
-unless ENV['VERBOSE']
+unless ENV['VERBOSE'] || ENV['DEBUG']
   stdout  = StringIO.open('','w+')
   $stdout = stdout
 
