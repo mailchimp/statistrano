@@ -23,8 +23,8 @@ module Statistrano
 
       def task name, &block
         user_tasks.push name: name,
-                             namespaces: user_task_namespaces,
-                             block: block
+                        namespaces: user_task_namespaces,
+                        block: block
       end
 
       class Context
