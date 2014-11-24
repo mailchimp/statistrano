@@ -15,7 +15,7 @@ module Statistrano
         end
       end
 
-      def task_namespace namespace, &block
+      def namespace namespace, &block
         context = Context.new (user_task_namespaces + [namespace])
         context.instance_eval &block
         user_tasks.push *context.user_tasks

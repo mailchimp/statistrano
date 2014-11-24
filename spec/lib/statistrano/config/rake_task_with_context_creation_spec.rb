@@ -42,15 +42,15 @@ describe Statistrano::Config::RakeTaskWithContextCreation do
     end
   end
 
-  describe "#task_namespace" do
+  describe "#namespace" do
     it "evaluates given block appending the namespaces" do
       subject = Subject.new
       block   = lambda { }
 
-      subject.task_namespace 'hello' do
+      subject.namespace 'hello' do
         task 'world', &block
 
-        task_namespace 'foo' do
+        namespace 'foo' do
           task 'bar', &block
         end
       end

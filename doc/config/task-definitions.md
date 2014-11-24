@@ -56,9 +56,9 @@ end
 
 ### Define Your Own Tasks
 
-For this we have two methods usable in the configuration blog, `task_namespace` and `task`.
+For this we have two methods usable in the configuration blog, `namespace` and `task`.
 
-`task_namespace` wraps any tasks (or other namespaces) you define to allow creating a sane structure to your new tasks.
+`namespace` wraps any tasks (or other namespaces) you define to allow creating a sane structure to your new tasks.
 
 `task` creates a new task with name & description. Like the `build_task` and `post_deploy_task` if you give your block arity you'll be able to access the deployment.
 
@@ -69,7 +69,7 @@ example = define_deployment "example" do
     deployment.remotes.each(&:test_connection)
   end
 
-  task_namespace :php do
+  namespace :php do
     task :restart, 'restart php-fpm on each remote' do |deployment|
       deployment.remotes.each do |r|
         r.run "sudo php-fpm restart"

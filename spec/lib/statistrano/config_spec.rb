@@ -31,13 +31,4 @@ describe Statistrano::Config do
     end
   end
 
-  describe "#task" do
-  end
-
-  describe "#task_namespace" do
-  end
-
-  describe "#remote_action" do
-  end
-
 end
