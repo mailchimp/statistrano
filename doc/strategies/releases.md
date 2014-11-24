@@ -34,11 +34,20 @@ deployment = define_deployment "production", :releases do
 
   # allows a task to run before the symlink gets updated
   # you might use this to run tests on the target servers
-  pre_symlink_task do |deployment, releaser|
-    deployment.remotes.each_with_object([]) do |r,status|
-      resp = r.run "#{releaser.release_path}/bin/test_something"
-      status.push resp.success?
-    end.all? { |i| i }
+  #
+  # if you return false or raise an exception, the deploy
+  # will cease, leaving the rsynced directories for inspection.
+  # it is suggested that you log an error with an explaination
+  #
+  # unlike other tasks, this is called in the remotes loop
+  # so is run for each remote
+  pre_symlink_task do |releaser, remote|
+    unless remote.run("#{releaser.release_path}/bin/test_something").success?
+      Statistrano::Log.error :"#{remote.config.hostname}", "failed to pass test"
+      false # returning false stops the deploy
+    else
+      true
+    end
   end
 
 end
