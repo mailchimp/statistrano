@@ -34,7 +34,7 @@ deployment = define_deployment "production", :releases do
 
   # allows a task to run before the symlink gets updated
   # you might use this to run tests on the target servers
-  pre_symlink_task do |deployment|
+  pre_symlink_task do |deployment, releaser|
     deployment.remotes.each_with_object([]) do |r,status|
       resp = r.run "#{releaser.release_path}/bin/test_something"
       status.push resp.success?

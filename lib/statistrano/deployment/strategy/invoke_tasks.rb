@@ -22,10 +22,10 @@ module Statistrano
 
         # Run the pre_symlink_task if supplied
         # return [Void]
-        def invoke_pre_symlink_task
+        def invoke_pre_symlink_task releaser
           if config.pre_symlink_task
             Log.info :pre_symlink, "Running the pre_symlink task"
-            resp = call_or_invoke_task config.pre_symlink_task
+            resp = call_or_invoke_task config.pre_symlink_task, releaser
             if resp == false
               Log.error :pre_symlink, "exiting due to falsy return"
               abort()
@@ -33,9 +33,11 @@ module Statistrano
           end
         end
 
-        def call_or_invoke_task task
+        def call_or_invoke_task task, arg=nil
           if task.respond_to? :call
-            if task.arity == 1
+            if arg && task.arity == 2
+              task.call self, arg
+            elsif task.arity == 1
               task.call self
             else
               task.call
