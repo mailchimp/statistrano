@@ -129,15 +129,15 @@ describe Statistrano::Log::DefaultLogger::Formatter do
   describe "#output" do
     it "pads messages" do
       subject = described_class.new( '', :green, 'msg' )
-      expect( subject.output ).to match /->\s{12}msg/
+      expect( subject.output ).to match /->\s{15}msg/
     end
 
     it "pads multiple lined messages" do
       subject = described_class.new( '', :green, 'msg', 'msg2' )
       lines = subject.output.split("\n")
 
-      expect( lines.first ).to match /->\s{12}msg/
-      expect( lines.last  ).to match /\s{14}msg2/
+      expect( lines.first ).to match /->\s{15}msg/
+      expect( lines.last  ).to match /\s{16}msg2/
     end
 
     it "handles 'too long' status by padding message on second line to match first line" do

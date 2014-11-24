@@ -55,7 +55,7 @@ module Statistrano
         attr_reader :width, :status, :color, :msgs
 
         def initialize status, color, *msg
-          @width  = 11
+          @width  = 14
           @status = status.to_s
           @color  = color
           @msgs   = msg
