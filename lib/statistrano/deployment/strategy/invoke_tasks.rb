@@ -22,10 +22,10 @@ module Statistrano
 
         # Run the pre_symlink_task if supplied
         # return [Void]
-        def invoke_pre_symlink_task releaser
+        def invoke_pre_symlink_task remote
           if config.pre_symlink_task
             Log.info :pre_symlink, "Running the pre_symlink task"
-            resp = call_or_invoke_task config.pre_symlink_task, releaser
+            resp = call_or_invoke_task config.pre_symlink_task, remote
             if resp == false
               Log.error :pre_symlink, "exiting due to falsy return"
               abort()

@@ -57,8 +57,9 @@ module Statistrano
             build_data = {}
           end
 
+          persisted_releaser = releaser
           remotes.each do |t|
-            releaser.create_release t, build_data
+            persisted_releaser.create_release t, build_data
           end
 
           invoke_post_deploy_task

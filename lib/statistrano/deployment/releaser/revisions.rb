@@ -26,7 +26,7 @@ module Statistrano
         def create_release remote, build_data={}
           setup_release_path      remote
           rsync_to_remote         remote
-          invoke_pre_symlink_task self
+          invoke_pre_symlink_task remote
           symlink_release         remote
           add_release_to_manifest remote, build_data
           prune_releases          remote
