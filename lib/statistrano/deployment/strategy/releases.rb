@@ -28,6 +28,7 @@ module Statistrano
       class Releases < Base
         register_strategy :releases
 
+        option :pre_symlink_task, nil
         option :release_count, 5
         option :release_dir, "releases"
         option :public_dir,  "current"

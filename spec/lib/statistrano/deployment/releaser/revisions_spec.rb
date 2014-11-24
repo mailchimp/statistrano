@@ -262,11 +262,33 @@ describe Statistrano::Deployment::Releaser::Revisions do
 
       expect(subject).to receive(:setup_release_path).with(target)
       expect(subject).to receive(:rsync_to_remote).with(target)
+      expect(subject).to receive(:invoke_pre_symlink_task)
       expect(subject).to receive(:symlink_release).with(target)
       expect(subject).to receive(:add_release_to_manifest).with(target, arbitrary: 'data')
       expect(subject).to receive(:prune_releases).with(target)
 
       subject.create_release target, arbitrary: 'data'
+    end
+
+    it "aborts deploy if pre_symlink_task returns false or raises" do
+      target  = instance_double("Statistrano::Remote")
+      subject = described_class.new default_arguments
+      subject.config.pre_symlink_task do
+        false
+        # raising has the same outcome
+      end
+
+      expect(subject).to receive(:setup_release_path).with(target)
+      expect(subject).to receive(:rsync_to_remote).with(target)
+      expect(subject).to receive(:invoke_pre_symlink_task).and_call_original
+
+      expect(subject).not_to receive(:symlink_release)
+      expect(subject).not_to receive(:add_release_to_manifest)
+      expect(subject).not_to receive(:prune_releases)
+
+      expect {
+        subject.create_release target
+      }.to raise_error SystemExit
     end
   end
 

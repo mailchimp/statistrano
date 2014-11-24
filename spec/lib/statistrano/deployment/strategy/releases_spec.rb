@@ -26,6 +26,7 @@ describe Statistrano::Deployment::Strategy::Releases do
         dir_permissions:  nil,
         file_permissions: nil,
         rsync_flags:      nil,
+        pre_symlink_task: nil,
         release_count:    5,
         release_dir:      "releases",
         public_dir:       "current"

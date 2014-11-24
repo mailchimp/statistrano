@@ -3,9 +3,10 @@ module Statistrano
     module Releaser
 
       class Revisions
-        extend ::Statistrano::Config::Configurable
+        extend  ::Statistrano::Config::Configurable
+        include ::Statistrano::Deployment::Strategy::InvokeTasks
 
-        options :remote_dir, :local_dir
+        options :remote_dir, :local_dir, :pre_symlink_task
 
         option :release_count, 5
         option :release_dir, "releases"
@@ -25,6 +26,7 @@ module Statistrano
         def create_release remote, build_data={}
           setup_release_path      remote
           rsync_to_remote         remote
+          invoke_pre_symlink_task
           symlink_release         remote
           add_release_to_manifest remote, build_data
           prune_releases          remote
