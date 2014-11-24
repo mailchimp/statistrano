@@ -1,3 +1,5 @@
+- add ability to create user rake tasks that have access to deployment information. see [the docs](doc/config/task-definitions.md) for more info
+
 # 1.0.2
 - make sure that Revisions#remove_untracked_revisions checks it against the "current" revision before removing it.
 
