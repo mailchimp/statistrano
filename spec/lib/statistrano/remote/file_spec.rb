@@ -2,6 +2,18 @@ require 'spec_helper'
 
 describe Statistrano::Remote::File do
 
+  def stub_remote_file_to_exist
+    expect( @remote ).to receive(:run) # the file doesn't exist
+                     .with("[ -f /path ] && echo \"exists\"")
+                     .and_return( HereOrThere::Response.new("exists\n",'',true) )
+  end
+
+  def stub_remote_file_to_not_exist
+    expect( @remote ).to receive(:run) # the file doesn't exist
+                     .with("[ -f /path ] && echo \"exists\"")
+                     .and_return( HereOrThere::Response.new('','',true) )
+  end
+
   describe "#initialize" do
     it "sets the given path" do
       subject = described_class.new "/path", :remote
@@ -61,10 +73,7 @@ describe Statistrano::Remote::File do
 
     context "when remote file doesn't exist" do
       before :each do
-        # the file doesn't exist
-        expect( @remote ).to receive(:run)
-                         .with("[ -f /path ] && echo \"exists\"")
-                         .and_return( HereOrThere::Response.new('','',true) )
+        stub_remote_file_to_not_exist
       end
 
       it "creates the file" do
@@ -86,6 +95,9 @@ describe Statistrano::Remote::File do
     end
 
     context "when remote file already existed" do
+      before :each do
+        stub_remote_file_to_exist
+      end
       it "sets the content to the given content" do
         expect( @remote ).to receive(:run)
                          .with( "echo 'content' > /path" )
