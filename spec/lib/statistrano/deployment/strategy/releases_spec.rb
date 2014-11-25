@@ -29,7 +29,8 @@ describe Statistrano::Deployment::Strategy::Releases do
         pre_symlink_task: nil,
         release_count:    5,
         release_dir:      "releases",
-        public_dir:       "current"
+        public_dir:       "current",
+        log_file_path:    nil
       }
     end
 

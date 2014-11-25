@@ -19,7 +19,8 @@ module Statistrano
                 :hostname, :user, :password, :keys, :forward_agent,
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url,
-                :dir_permissions, :file_permissions, :rsync_flags
+                :dir_permissions, :file_permissions, :rsync_flags,
+                :log_file_path
 
         option  :remotes, []
         option  :verbose, false
