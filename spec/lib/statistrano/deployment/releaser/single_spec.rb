@@ -47,7 +47,7 @@ describe Statistrano::Deployment::Releaser::Single do
       expect(subject).to receive(:setup).with(remote)
       expect(subject).to receive(:rsync_to_remote).with(remote)
 
-      subject.create_release remote
+      subject.create_release remote, {}
     end
   end
 

@@ -17,7 +17,7 @@ module Statistrano
           check_required_options :remote_dir, :local_dir
         end
 
-        def create_release remote
+        def create_release remote, build_data={}
           setup remote
           rsync_to_remote remote
         end

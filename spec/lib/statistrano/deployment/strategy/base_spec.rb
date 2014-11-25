@@ -73,7 +73,7 @@ describe Statistrano::Deployment::Strategy::Base do
 
     it "calls create_release for the releaser" do
       expect( @releaser ).to receive(:create_release)
-                         .with( @remote )
+                         .with( @remote, {} )
 
       @subject.deploy
     end

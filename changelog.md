@@ -1,3 +1,4 @@
+- [BREAKING] change interface of releasers to expect being able to pass a second argument (build data) to #create_release
 - add task hook for before the symlink in the Revisions releaser. `pre_symlink_task` gets called with |releaser, remote| in a remote loop so it's run for each.
 - add ability to create user rake tasks that have access to deployment information. see [the docs](doc/config/task-definitions.md) for more info
 

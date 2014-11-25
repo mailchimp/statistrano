@@ -44,27 +44,6 @@ module Statistrano
           @name = name
         end
 
-        def deploy
-          unless safe_to_deploy?
-            Log.error "exiting due to git check failing"
-            abort()
-          end
-
-          build_data = invoke_build_task
-          if build_data.respond_to? :to_hash
-            build_data = build_data.to_hash
-          else
-            build_data = {}
-          end
-
-          persisted_releaser = releaser
-          remotes.each do |t|
-            persisted_releaser.create_release t, build_data
-          end
-
-          invoke_post_deploy_task
-        end
-
         def rollback_release
           remotes.each do |t|
             releaser.rollback_release t

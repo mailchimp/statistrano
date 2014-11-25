@@ -43,7 +43,12 @@ module Statistrano
             abort()
           end
 
-          invoke_build_task
+          build_data = invoke_build_task
+          if build_data.respond_to? :to_hash
+            build_data = build_data.to_hash
+          else
+            build_data = {}
+          end
 
           unless safe_to_deploy?
             Log.error "exiting due to git check failing"
@@ -52,7 +57,7 @@ module Statistrano
           end
 
           remotes.each do |r|
-            releaser.create_release r
+            releaser.create_release r, build_data
           end
 
           invoke_post_deploy_task
