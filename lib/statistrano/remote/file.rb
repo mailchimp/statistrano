@@ -32,6 +32,18 @@ module Statistrano
         end
       end
 
+      def append_content! new_content
+        create_remote_file unless remote_file_exists?
+        resp = remote.run "echo '#{new_content}' >> #{path}"
+
+        if resp.success?
+          Log.info :success, "appended content to file at #{path} on #{remote.config.hostname}"
+        else
+          Log.error "problem appending content to file at #{path} on #{remote.config.hostname}",
+                    resp.stderr
+        end
+      end
+
       def destroy!
         resp = remote.run "rm #{path}"
         if resp.success?
@@ -54,9 +66,9 @@ module Statistrano
                             "&& chmod #{permissions} #{path}"
 
           if resp.success?
-            Log.info :success, "created manifest file on #{remote.config.hostname}"
+            Log.info :success, "created file at #{path} on #{remote.config.hostname}"
           else
-            Log.error "problem saving the manifest for #{remote.config.hostname}",
+            Log.error "problem creating file at #{path} on #{remote.config.hostname}",
                       resp.stderr
           end
         end

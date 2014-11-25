@@ -108,6 +108,48 @@ describe Statistrano::Remote::File do
     end
   end
 
+
+  describe "#append_content!" do
+
+    before :each do
+      @config  = double("Statistrano::Config", hostname: 'web01')
+      @remote  = instance_double("Statistrano::Remote", config: @config )
+      allow( @remote ).to receive(:run)
+                      .and_return( HereOrThere::Response.new("",'',true) )
+      @subject = described_class.new '/path', @remote
+    end
+
+    context "when remote file doesn't exist" do
+
+      before :each do
+        stub_remote_file_to_not_exist
+      end
+
+      it "creates the file before trying to append" do
+        expect( @remote ).to receive(:run)
+                         .with("touch /path " +
+                               "&& chmod 644 /path")
+
+        @subject.append_content! "the content"
+      end
+    end
+
+    context "when remote file already exists" do
+
+      before :each do
+        stub_remote_file_to_exist
+      end
+
+      it "appends new content to file" do
+        expect( @remote ).to receive(:run)
+                         .with("echo 'the content' >> /path")
+
+        @subject.append_content! "the content"
+      end
+    end
+  end
+
+
   describe "#destroy!" do
     it "removes the file" do
       config  = double("Statistrano::Config", hostname: 'web01')
