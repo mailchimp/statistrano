@@ -82,6 +82,59 @@ describe Statistrano::Deployment::Strategy::Base do
       expect( @subject ).to receive(:invoke_post_deploy_task)
       @subject.deploy
     end
+
+    context "when log_file_path is set" do
+
+      before :each do
+        @subject = define_deployment "base", :base do
+          remote_dir "/tmp"
+          local_dir  "/tmp"
+          hostname   "localhost"
+          build_task do
+            { build_task: 'data' }
+          end
+          post_deploy_task do
+            { post_deploy_task: 'data' }
+          end
+
+          log_file_path '/log/path'
+          log_file_entry do |dep, rel, build_data, post_deploy_data|
+            {
+              log: 'entry',
+            }.merge( build_data ).merge( post_deploy_data )
+          end
+        end
+      end
+
+      it "should create a Remote::File for the log & append log_file_entry to it" do
+        log_file_double = instance_double("Statistrano::Remote::File")
+        expect( Statistrano::Remote::File ).to receive(:new)
+                              .with('/log/path', @remote)
+                              .and_return( log_file_double )
+        expect( log_file_double ).to receive(:append_content!)
+                                 .with('{"log":"entry","build_task":"data","post_deploy_task":"data"}')
+
+        @subject.deploy
+      end
+
+      it "if given relative path, makes it relative to release_dir" do
+        @subject.config.log_file_path = "log"
+        log_file_double = instance_double("Statistrano::Remote::File")
+        expect( Statistrano::Remote::File ).to receive(:new)
+                              .with('/tmp/log', @remote)
+                              .and_return( log_file_double )
+        allow( log_file_double ).to receive(:append_content!)
+
+        @subject.deploy
+      end
+    end
+
+    context "when log_file_path isn't set" do
+      it "doesn't create a log file" do
+        expect( Statistrano::Remote::File ).not_to receive(:new)
+        @subject.deploy
+      end
+    end
   end
 
 end

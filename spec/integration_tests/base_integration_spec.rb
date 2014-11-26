@@ -32,6 +32,27 @@ describe "Statistrano::Deployment::Base integration", :integration do
 
       expect( Dir.exists?("deployment") ).to be_falsy
     end
+
+    it "appends to a log file with each deploy" do
+      Given.fixture "base"
+      deploys = 0
+      base = define_deployment "base" do
+        build_task 'remote:copy'
+        hostname   'localhost'
+        local_dir  'build'
+        remote_dir File.join( Dir.pwd, 'deployment' )
+
+        log_file_path File.join( Dir.pwd, 'deploy.log' )
+        log_file_entry do |d, r, b_d, p_d_d|
+          { deployment: (deploys += 1) }
+        end
+      end
+
+      base.deploy
+      base.deploy
+
+      expect( Statistrano::Shell.run_local("cat deploy.log").stdout ).to eq "{\"deployment\":1}\n{\"deployment\":2}\n"
+    end
   end
 
   context "with multiple remotes" do

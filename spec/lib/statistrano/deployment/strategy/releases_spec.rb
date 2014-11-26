@@ -30,7 +30,8 @@ describe Statistrano::Deployment::Strategy::Releases do
         release_count:    5,
         release_dir:      "releases",
         public_dir:       "current",
-        log_file_path:    nil
+        log_file_path:    nil,
+        log_file_entry:   nil
       }
     end
 
@@ -171,7 +172,8 @@ describe Statistrano::Deployment::Strategy::Releases do
         config      = double("Statistrano::Config", build_task: -> {},
                                                     check_git: false,
                                                     options: { remotes: [] },
-                                                    post_deploy_task: task_double)
+                                                    post_deploy_task: task_double,
+                                                    log_file_path: nil)
         allow( subject ).to receive(:config).and_return(config)
 
         expect( task_double ).to receive(:call)

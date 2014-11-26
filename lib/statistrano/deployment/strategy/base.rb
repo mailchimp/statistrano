@@ -20,7 +20,7 @@ module Statistrano
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url,
                 :dir_permissions, :file_permissions, :rsync_flags,
-                :log_file_path
+                :log_file_path, :log_file_entry
 
         option  :remotes, []
         option  :verbose, false
@@ -45,23 +45,31 @@ module Statistrano
           end
 
           build_data = invoke_build_task
-          if build_data.respond_to? :to_hash
-            build_data = build_data.to_hash
-          else
-            build_data = {}
-          end
+          build_data = ensure_data_is_hash build_data
 
           unless safe_to_deploy?
-            Log.error "exiting due to git check failing"
-            Log.error "your build task modified checked in files"
+            Log.error "exiting due to git check failing",
+                      "your build task modified checked in files"
             abort()
           end
 
+          persisted_releaser = releaser
           remotes.each do |r|
-            releaser.create_release r, build_data
+            persisted_releaser.create_release r, build_data
           end
 
-          invoke_post_deploy_task
+          post_deploy_data = invoke_post_deploy_task
+          post_deploy_data = ensure_data_is_hash post_deploy_data
+
+          if config.log_file_path
+            log_entry = config.log_file_entry.call self, persisted_releaser,
+                                                   build_data, post_deploy_data
+
+            remotes.each do |remote|
+              log_file = Remote::File.new resolve_log_file_path, remote
+              log_file.append_content! log_entry.to_json
+            end
+          end
         end
 
         def register_tasks
@@ -83,6 +91,22 @@ module Statistrano
         end
 
         private
+
+          def resolve_log_file_path
+            if config.log_file_path.start_with? '/'
+              config.log_file_path
+            else
+              File.join( config.remote_dir, config.log_file_path )
+            end
+          end
+
+          def ensure_data_is_hash data
+            if data.respond_to? :to_hash
+              data = data.to_hash
+            else
+              data = {}
+            end
+          end
 
           def releaser
             Releaser::Single.new config.options
