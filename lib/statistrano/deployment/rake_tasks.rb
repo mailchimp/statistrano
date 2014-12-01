@@ -50,8 +50,8 @@ module Statistrano
               if task_space.empty?
                 register_user_task deployment, task_name, task_desc, block
               else
-                in_namespace task_space.shift do
-                  register_in_namespace_recursive deployment, task_name, task_desc, task_space, block
+                in_namespace task_space.first do
+                  register_in_namespace_recursive deployment, task_name, task_desc, task_space[1..-1], block
                 end
               end
             end

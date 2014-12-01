@@ -51,7 +51,8 @@ describe Statistrano::Config::RakeTaskWithContextCreation do
         task 'world', &block
 
         namespace 'foo' do
-          task 'bar', &block
+          task 'bar',  &block
+          task 'bang', &block
         end
       end
 
@@ -60,6 +61,10 @@ describe Statistrano::Config::RakeTaskWithContextCreation do
                                               block: block
 
       expect( subject.user_tasks ).to include name: 'bar',
+                                              namespaces: ['hello', 'foo'],
+                                              block: block
+
+      expect( subject.user_tasks ).to include name: 'bang',
                                               namespaces: ['hello', 'foo'],
                                               block: block
     end
