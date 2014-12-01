@@ -1,3 +1,5 @@
+- `#persisted_releaser` is available on a deployment from rake tasks. this will be the same for tasks called during a deploy for example.
+- addition of a `#current_release_data` method for the Revisions releaser. This pulls merged data from the manifest and the log file.
 - add `log_file_path` and `log_file_entry` to config to setup a log file for all deploys
 - [BREAKING] change interface of releasers to expect being able to pass a second argument (build data) to #create_release
 - add task hook for before the symlink in the Revisions releaser. `pre_symlink_task` gets called with |releaser, remote| in a remote loop so it's run for each.
