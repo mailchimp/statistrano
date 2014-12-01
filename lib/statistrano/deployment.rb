@@ -1,5 +1,6 @@
 # deployment utils
 require_relative 'deployment/manifest'
+require_relative 'deployment/log_file'
 require_relative 'deployment/rake_tasks'
 require_relative 'deployment/registerable'
 

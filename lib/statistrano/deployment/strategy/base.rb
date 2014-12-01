@@ -65,8 +65,8 @@ module Statistrano
                                                    build_data, post_deploy_data
 
             remotes.each do |remote|
-              log_file = Remote::File.new resolve_log_file_path, remote
-              log_file.append_content! log_entry.to_json
+              log_file = Deployment::LogFile.new config.log_file_path, remote
+              log_file.append! log_entry
             end
           end
 

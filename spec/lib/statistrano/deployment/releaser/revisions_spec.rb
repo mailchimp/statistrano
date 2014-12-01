@@ -349,21 +349,22 @@ describe Statistrano::Deployment::Releaser::Revisions do
       remote   = instance_double("Statistrano::Remote", config: config )
       subject  = described_class.new default_arguments
       manifest = instance_double("Statistrano::Deployment::Manifest")
-      log_file = instance_double("Statistrano::Remote::File")
+      log_file = instance_double("Statistrano::Deployment::LogFile")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                 .and_return(manifest)
-      allow( Statistrano::Remote::File ).to receive(:new)
-                                        .with('/var/log', remote)
-                                        .and_return(log_file)
+      allow( Statistrano::Deployment::LogFile ).to receive(:new)
+                                               .with('/var/log', remote)
+                                               .and_return(log_file)
 
       manifest_data = [{release: 'first', foo: 'bar'},{release: 'current', random: 'data'}]
       allow(manifest).to receive(:data)
                      .and_return(manifest_data)
-      allow(log_file).to receive(:content)
-                     .and_return <<-EOF
-                        {"name":"first","log":"data-first"}
-                        {"name":"current","log":"data-current","nested":{"data":"nested"}}
-                      EOF
+      allow(log_file).to receive(:last_entry)
+                     .and_return name:   'current',
+                                 log:    'data-current',
+                                 nested: {
+                                  data: 'nested'
+                                 }
 
       expect( subject.current_release_data(remote) ).to eq release:'current',
                                                            random: 'data',

@@ -73,8 +73,7 @@ module Statistrano
           release_data = new_manifest(remote).data.last
 
           if remote.config.log_file_path
-            log_data = log_file(remote).content.split("\n").last
-            release_data.merge! Util.symbolize_hash_keys(JSON.parse(log_data)) if log_data
+            release_data.merge! log_file(remote).last_entry 
           end
 
           release_data
@@ -106,7 +105,7 @@ module Statistrano
           end
 
           def log_file remote
-            Remote::File.new remote.config.log_file_path, remote
+            Deployment::LogFile.new remote_overridable_config(:log_file_path, remote), remote
           end
 
           def remote_overridable_config option, remote

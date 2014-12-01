@@ -116,17 +116,6 @@ describe Statistrano::Deployment::Strategy::Base do
 
         @subject.deploy
       end
-
-      it "if given relative path, makes it relative to release_dir" do
-        @subject.config.log_file_path = "log"
-        log_file_double = instance_double("Statistrano::Remote::File")
-        expect( Statistrano::Remote::File ).to receive(:new)
-                              .with('/tmp/log', @remote)
-                              .and_return( log_file_double )
-        allow( log_file_double ).to receive(:append_content!)
-
-        @subject.deploy
-      end
     end
 
     context "when log_file_path isn't set" do
