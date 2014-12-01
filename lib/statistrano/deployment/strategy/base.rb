@@ -65,8 +65,7 @@ module Statistrano
                                                    build_data, post_deploy_data
 
             remotes.each do |remote|
-              log_file = Deployment::LogFile.new config.log_file_path, remote
-              log_file.append! log_entry
+              log_file(remote).append! log_entry
             end
           end
 
@@ -89,6 +88,10 @@ module Statistrano
           @_remotes = remotes.map do |t|
                         Remote.new(t)
                       end
+        end
+
+        def log_file remote=remotes.first
+          Deployment::LogFile.new config.log_file_path, remote
         end
 
         def persisted_releaser
