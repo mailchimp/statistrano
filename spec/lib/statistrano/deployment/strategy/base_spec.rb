@@ -137,4 +137,33 @@ describe Statistrano::Deployment::Strategy::Base do
     end
   end
 
+  describe "#persited_releaser" do
+    it "returns same object each time it's called" do
+      subject = define_deployment "base", :base do
+        remote_dir "/tmp"
+        local_dir  "/tmp"
+        hostname   "localhost"
+        build_task { "empty block" }
+      end
+
+      expect( subject.persisted_releaser ).to eq subject.persisted_releaser
+    end
+  end
+
+  describe "#flush_persisted_releaser!" do
+    it "removes the persisted_releaser" do
+      subject = define_deployment "base", :base do
+        remote_dir "/tmp"
+        local_dir  "/tmp"
+        hostname   "localhost"
+        build_task { "empty block" }
+      end
+
+      first_releaser = subject.persisted_releaser
+      subject.flush_persisted_releaser!
+
+      expect( subject.persisted_releaser ).not_to eq first_releaser
+    end
+  end
+
 end

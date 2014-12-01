@@ -53,7 +53,6 @@ module Statistrano
             abort()
           end
 
-          persisted_releaser = releaser
           remotes.each do |r|
             persisted_releaser.create_release r, build_data
           end
@@ -70,6 +69,8 @@ module Statistrano
               log_file.append_content! log_entry.to_json
             end
           end
+
+          flush_persisted_releaser!
         end
 
         def register_tasks
@@ -88,6 +89,14 @@ module Statistrano
           @_remotes = remotes.map do |t|
                         Remote.new(t)
                       end
+        end
+
+        def persisted_releaser
+          @_persisted_releaser ||= releaser
+        end
+
+        def flush_persisted_releaser!
+          @_persisted_releaser = nil
         end
 
         private
