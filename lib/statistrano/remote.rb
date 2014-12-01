@@ -12,13 +12,13 @@ module Statistrano
     # included to allow override in Releaser,
     # generally these should not be used
     options :remote_dir, :local_dir,
-            :release_count, :release_dir, :public_dir
+            :release_count, :release_dir, :public_dir,
+            :log_file_path
 
     # configure rsync & setup operations
     option :dir_permissions,  755
     option :file_permissions, 644
     option :rsync_flags,      '-aqz --delete-after'
-
 
     option  :verbose, false
 

@@ -68,6 +68,18 @@ module Statistrano
           end.reverse
         end
 
+        # merge of manifest & log data (if a log)
+        def current_release_data remote
+          release_data = new_manifest(remote).data.last
+
+          if remote.config.log_file_path
+            log_data = log_file(remote).content.split("\n").last
+            release_data.merge! Util.symbolize_hash_keys(JSON.parse(log_data)) if log_data
+          end
+
+          release_data
+        end
+
         def rollback_release remote
           manifest = new_manifest remote
           releases = tracked_releases remote, manifest
@@ -91,6 +103,10 @@ module Statistrano
 
           def new_manifest remote
             Deployment::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+          end
+
+          def log_file remote
+            Remote::File.new remote.config.log_file_path, remote
           end
 
           def remote_overridable_config option, remote

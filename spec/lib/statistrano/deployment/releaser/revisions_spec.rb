@@ -15,7 +15,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       local_dir:     nil,
       release_count: nil,
       release_dir:   nil,
-      public_dir:    nil
+      public_dir:    nil,
+      log_file_path: nil
     }
   end
 
@@ -313,7 +314,7 @@ describe Statistrano::Deployment::Releaser::Revisions do
       subject  = described_class.new default_arguments
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .and_return(manifest)
+                                                .and_return(manifest)
 
       release_one   = ( Time.now.to_i + 0 ).to_s
       release_two   = ( Time.now.to_i + 1 ).to_s
@@ -324,6 +325,75 @@ describe Statistrano::Deployment::Releaser::Revisions do
                      .and_return( release_data + [{not_release:"foo"}])
 
       expect( subject.list_releases(target) ).to eq [{release:release_three},{release:release_two},{release:release_one}]
+    end
+  end
+
+  describe "#current_release_data" do
+    it "returns data from current release" do
+      config   = double("Statistrano::Config", default_target_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
+                                                .and_return(manifest)
+
+      manifest_data = [{release: 'first', foo: 'bar'},{release: 'current', random: 'data'}]
+      allow(manifest).to receive(:data)
+                     .and_return(manifest_data)
+
+      expect( subject.current_release_data(remote) ).to eq release:'current', random:'data'
+    end
+
+    it "merges data from log if log_file_path given" do
+      config   = double("Statistrano::Config", default_target_config_responses.merge(log_file_path: '/var/log') )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      log_file = instance_double("Statistrano::Remote::File")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
+                                                .and_return(manifest)
+      allow( Statistrano::Remote::File ).to receive(:new)
+                                        .with('/var/log', remote)
+                                        .and_return(log_file)
+
+      manifest_data = [{release: 'first', foo: 'bar'},{release: 'current', random: 'data'}]
+      allow(manifest).to receive(:data)
+                     .and_return(manifest_data)
+      allow(log_file).to receive(:content)
+                     .and_return <<-EOF
+                        {"name":"first","log":"data-first"}
+                        {"name":"current","log":"data-current","nested":{"data":"nested"}}
+                      EOF
+
+      expect( subject.current_release_data(remote) ).to eq release:'current',
+                                                           random: 'data',
+                                                           name:   'current',
+                                                           log:    'data-current',
+                                                           nested: {
+                                                            data: 'nested'
+                                                           }
+    end
+
+    it "handles an empty log file if log_file_path is given" do
+      config   = double("Statistrano::Config", default_target_config_responses.merge(log_file_path: '/var/log') )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new default_arguments
+      manifest = instance_double("Statistrano::Deployment::Manifest")
+      log_file = instance_double("Statistrano::Remote::File")
+      allow( Statistrano::Deployment::Manifest ).to receive(:new)
+                                                .and_return(manifest)
+      allow( Statistrano::Remote::File ).to receive(:new)
+                                        .with('/var/log', remote)
+                                        .and_return(log_file)
+
+      manifest_data = [{release: 'first', foo: 'bar'},{release: 'current', random: 'data'}]
+      allow(manifest).to receive(:data)
+                     .and_return(manifest_data)
+      allow(log_file).to receive(:content)
+                     .and_return ""
+
+      expect( subject.current_release_data(remote) ).to eq release:'current',
+                                                           random: 'data'
     end
   end
 
