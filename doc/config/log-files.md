@@ -18,16 +18,28 @@ repo = Asgit::Project.new service:        :github,
 
 define_deployment "caesar" do
 
+  build_task do |deployment|
+    # do some work
+
+    # return data from build
+    {
+      commit:          Asgit.current_commit,
+      previous_commit: deployment.persisted_releaser
+                                 .current_release_data(
+                                    deployment.remotes.first
+                                 )[:commit]
+      # etc ...
+    }
+  end
+
   log_file_path "/var/log/caesar.deploy.log"
   log_file_entry do |deployment, releaser, build_data, post_deploy_data|
     {
-      time:     releaser.name,
+      time:     releaser.release_name,
       deployer: `whoami`,
-      commit:   Asgit.current_commit,
       diff_url: repo.urls.compare( Asgit.current_commit,
-                                   magical_previous_deploy_commit )
-      build:    build_data
-    }
+                                   build_data.delete(:previous_commit) )
+    }.merge(build_data)
   end
 
 end
