@@ -11,27 +11,15 @@ module Statistrano
 
         option :base_domain
         option :public_dir, :call, Proc.new { Asgit.current_branch.to_slug }
-        option :post_deploy_task,  Proc.new { |d| d.generate_index }
+        option :post_deploy_task,  Proc.new { |d|
+          d.push_current_release_to_manifest
+          d.generate_index
+        }
 
         task :list,           :list_releases,  "List branches"
         task :prune,          :prune_releases, "Prune a branch"
         task :generate_index, :generate_index, "Generate a branch index"
         task :open,           :open_url,       "Open the current branch URL"
-
-        def deploy
-          unless safe_to_deploy?
-            Log.error "exiting due to git check failing"
-            abort()
-          end
-
-          invoke_build_task
-          releaser.create_release remote
-
-          manifest.put Release.new( config.public_dir, config ).to_hash, :name
-          manifest.save!
-
-          invoke_post_deploy_task
-        end
 
         # output a list of the releases in manifest
         # @return [Void]
@@ -61,6 +49,13 @@ module Statistrano
           index_path = File.join( index_dir, "index.html" )
           remote.create_remote_dir index_dir
           remote.run "touch #{index_path} && echo '#{release_list_html}' > #{index_path}"
+        end
+
+        # push the current release into the manifest
+        # @return [Void]
+        def push_current_release_to_manifest
+          manifest.put Release.new( config.public_dir, config ).to_hash, :name
+          manifest.save!
         end
 
         private
