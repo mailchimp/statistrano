@@ -23,6 +23,10 @@ module Statistrano
                 :log_file_path, :log_file_entry
 
         option  :remotes, []
+        option  :dir_permissions, 755
+        option  :file_permissions, 644
+        option  :rsync_flags, '-aqz --delete-after'
+
         option  :verbose, false
 
         task :deploy,      :deploy,                  "Deploy to remote"
@@ -53,8 +57,8 @@ module Statistrano
             abort()
           end
 
-          remotes.each do |r|
-            persisted_releaser.create_release r, build_data
+          remotes.each do |remote|
+            persisted_releaser.create_release remote, build_data
           end
 
           post_deploy_data = invoke_post_deploy_task
@@ -79,15 +83,12 @@ module Statistrano
         def remotes
           return @_remotes if @_remotes
 
-          options = config.options.dup
-          remotes = options.delete(:remotes).map do |t|
-                      options.merge(t)
-                    end
-          remotes.push options if remotes.empty?
+          @_remotes = config.options[:remotes].map do |remote_options|
+            Remote.new Config.new( config.options.dup.merge(remote_options) )
+          end
+          @_remotes.push Remote.new(config) if @_remotes.empty?
 
-          @_remotes = remotes.map do |t|
-                        Remote.new(t)
-                      end
+          return @_remotes
         end
 
         def log_file remote=remotes.first
@@ -121,7 +122,7 @@ module Statistrano
           end
 
           def releaser
-            Releaser::Single.new config.options
+            Releaser::Single.new
           end
 
       end

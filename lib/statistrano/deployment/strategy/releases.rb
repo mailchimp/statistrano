@@ -29,9 +29,9 @@ module Statistrano
         register_strategy :releases
 
         option :pre_symlink_task, nil
-        option :release_count, 5
-        option :release_dir, "releases"
-        option :public_dir,  "current"
+        option :release_count,    5
+        option :release_dir,      "releases"
+        option :public_dir,       "current"
 
         option :remotes, []
 
@@ -45,28 +45,28 @@ module Statistrano
         end
 
         def rollback_release
-          remotes.each do |t|
-            releaser.rollback_release t
+          remotes.each do |remote|
+            releaser.rollback_release remote
           end
         end
 
         def prune_releases
-          remotes.each do |t|
-            releaser.prune_releases t
+          remotes.each do |remote|
+            releaser.prune_releases remote
           end
         end
 
         def list_releases
-          remotes.each do |t,out|
-            releases = releaser.list_releases(t).map { |rel| rel[:release] }
-            Log.info :"#{t.config.hostname}", releases
+          remotes.each do |remote|
+            releases = releaser.list_releases(remote).map { |rel| rel[:release] }
+            Log.info :"#{remote.config.hostname}", releases
           end
         end
 
         private
 
           def releaser
-            Releaser::Revisions.new config.options
+            Releaser::Revisions.new
           end
 
       end

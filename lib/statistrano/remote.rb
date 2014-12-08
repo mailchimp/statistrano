@@ -6,27 +6,11 @@ module Statistrano
   # individual target for deployment
   # including it's own ssh connection to it's target server
   class Remote
-    extend ::Statistrano::Config::Configurable
-    options :hostname, :user, :password, :keys, :forward_agent
 
-    # included to allow override in Releaser,
-    # generally these should not be used
-    options :remote_dir, :local_dir,
-            :release_count, :release_dir, :public_dir,
-            :log_file_path
+    attr_reader :config
 
-    # configure rsync & setup operations
-    option :dir_permissions,  755
-    option :file_permissions, 644
-    option :rsync_flags,      '-aqz --delete-after'
-
-    option  :verbose, false
-
-    def initialize options={}
-      config.options.each do |opt,val|
-        config.send opt, (options.fetch(opt,val) || val)
-      end
-
+    def initialize config
+      @config = config
       raise ArgumentError, "a hostname is required" unless config.hostname
     end
 

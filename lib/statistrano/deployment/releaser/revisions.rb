@@ -3,23 +3,11 @@ module Statistrano
     module Releaser
 
       class Revisions
-        extend  ::Statistrano::Config::Configurable
-        include ::Statistrano::Deployment::Strategy::InvokeTasks
-
-        options :remote_dir, :local_dir, :pre_symlink_task
-
-        option :release_count, 5
-        option :release_dir, "releases"
-        option :public_dir,  "current"
+        include Strategy::InvokeTasks
 
         attr_reader :release_name
 
-        def initialize options={}
-          config.options.each do |opt,val|
-            config.send opt, options.fetch(opt,val)
-          end
-
-          check_required_options :remote_dir, :local_dir
+        def initialize
           @release_name = Time.now.to_i.to_s
         end
 
@@ -101,20 +89,16 @@ module Statistrano
         private
 
           def new_manifest remote
-            Deployment::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+            Deployment::Manifest.new remote.config.remote_dir, remote
           end
 
           def log_file remote
-            Deployment::LogFile.new remote_overridable_config(:log_file_path, remote), remote
-          end
-
-          def remote_overridable_config option, remote
-            (remote && remote.config.public_send(option)) || config.public_send(option)
+            Deployment::LogFile.new remote.config.log_file_path, remote
           end
 
           def remove_releases_beyond_release_count remote
             manifest = new_manifest remote
-            beyond   = tracked_releases(remote, manifest)[remote_overridable_config(:release_count, remote)..-1]
+            beyond   = tracked_releases(remote, manifest)[remote.config.release_count..-1]
             Array(beyond).each do |beyond|
               remove_release beyond, remote, manifest
             end
@@ -155,18 +139,12 @@ module Statistrano
             end.compact.sort.reverse
           end
 
-          def check_required_options *opts
-            opts.each do |opt|
-              raise ArgumentError, "a #{opt} is required" unless config.public_send(opt)
-            end
-          end
-
           def local_path remote=nil
-            File.join( Dir.pwd, remote_overridable_config(:local_dir, remote) )
+            File.join( Dir.pwd, remote.config.local_dir )
           end
 
           def releases_path remote=nil
-            File.join( remote_overridable_config(:remote_dir, remote), remote_overridable_config(:release_dir, remote) )
+            File.join( remote.config.remote_dir, remote.config.release_dir )
           end
 
           def release_path remote=nil, release=nil
@@ -175,7 +153,7 @@ module Statistrano
           end
 
           def public_path remote=nil
-            File.join( remote_overridable_config(:remote_dir, remote), remote_overridable_config(:public_dir, remote) )
+            File.join( remote.config.remote_dir, remote.config.public_dir )
           end
 
       end

@@ -23,9 +23,9 @@ describe Statistrano::Deployment::Strategy::Releases do
         git_branch:       nil,
         repo_url:         nil,
         post_deploy_task: nil,
-        dir_permissions:  nil,
-        file_permissions: nil,
-        rsync_flags:      nil,
+        dir_permissions:  755,
+        file_permissions: 644,
+        rsync_flags:      '-aqz --delete-after',
         pre_symlink_task: nil,
         release_count:    5,
         release_dir:      "releases",
@@ -71,8 +71,13 @@ describe Statistrano::Deployment::Strategy::Releases do
         ]
       end
 
+      config_double = instance_double("Statistrano::Config")
+      expect( Statistrano::Config ).to receive(:new)
+                                   .with(default_options.merge({remotes: [{hostname: 'web01', remote_dir: 'web01_remote_dir'}]})
+                                                        .merge(hostname: 'web01', remote_dir: 'web01_remote_dir'))
+                                   .and_return(config_double)
       expect( Statistrano::Remote ).to receive(:new)
-        .with(default_options.merge({hostname: 'web01', remote_dir: 'web01_remote_dir'}))
+                                   .with(config_double)
       deployment.remotes
     end
   end

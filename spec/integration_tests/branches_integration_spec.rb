@@ -177,8 +177,6 @@ eof
         @deployment.prune_releases
       end
 
-      binding.pry
-
       expect( deployment_dir_contents ).not_to include "remote01/first_branch"
       expect( deployment_dir_contents ).not_to include "remote02/first_branch"
 

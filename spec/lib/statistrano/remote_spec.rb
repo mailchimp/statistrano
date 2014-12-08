@@ -1,9 +1,22 @@
 require 'spec_helper'
+require 'ostruct'
 
 describe Statistrano::Remote do
 
   let(:default_options) do
-    { hostname: 'web01' }
+    {
+      hostname:         'web01',
+      verbose:          false,
+      user:             nil,
+      passowrd:         nil,
+      dir_permissions:  755,
+      file_permissions: 644,
+      rsync_flags:      '-aqz --delete-after'
+    }
+  end
+
+  let(:default_config) do
+    config default_options
   end
 
   def create_ssh_double
@@ -12,20 +25,19 @@ describe Statistrano::Remote do
     return ssh_double
   end
 
-  describe "#initialize" do
-    it "assigns options hash to configuration" do
-      subject = described_class.new default_options
-      expect( subject.config.options[:remote] ).to eq default_options[:remote]
-    end
+  def config options
+    OpenStruct.new( options )
+  end
 
-    it "uses config.options defaults if option not given" do
-      subject = described_class.new default_options
-      expect( subject.config.user ).to be_nil
+  describe "#initialize" do
+    it "assigns given config to config" do
+      subject = described_class.new default_config
+      expect( subject.config ).to eq default_config
     end
 
     it "raises an error if no hostname is given" do
       expect{
-        described_class.new({user: 'woo'})
+        described_class.new( Struct.new(:hostname).new )
       }.to raise_error ArgumentError, 'a hostname is required'
     end
   end
@@ -33,7 +45,7 @@ describe Statistrano::Remote do
   describe "#run" do
     it "passes command to ssh_session#run" do
       ssh_double = create_ssh_double
-      subject = described_class.new default_options
+      subject    = described_class.new default_config
 
       expect( ssh_double ).to receive(:run).with('ls')
       subject.run 'ls'
@@ -41,7 +53,7 @@ describe Statistrano::Remote do
 
     it "logs the command if verbose is true" do
       ssh_double = create_ssh_double
-      subject    = described_class.new default_options.merge verbose: true
+      subject    = described_class.new config default_options.merge verbose: true
 
 
       allow( ssh_double ).to receive(:run).with('ls')
@@ -54,7 +66,7 @@ describe Statistrano::Remote do
   describe "#done" do
     it "passes close_session command to ssh_session" do
       ssh_double = create_ssh_double
-      subject = described_class.new default_options
+      subject    = described_class.new default_config
 
       expect( ssh_double ).to receive(:close_session)
       subject.done
@@ -65,7 +77,7 @@ describe Statistrano::Remote do
     it "runs whoami on remote" do
       ssh_double = create_ssh_double
       allow(ssh_double).to receive(:close_session)
-      subject    = described_class.new default_options
+      subject    = described_class.new default_config
 
       expect( ssh_double ).to receive(:run).with('whoami')
                           .and_return( HereOrThere::Response.new("statistrano","",true))
@@ -74,7 +86,7 @@ describe Statistrano::Remote do
     it "returns true if successful" do
       ssh_double = create_ssh_double
       allow(ssh_double).to receive(:close_session)
-      subject    = described_class.new default_options
+      subject    = described_class.new default_config
 
       expect( ssh_double ).to receive(:run).with('whoami')
                           .and_return( HereOrThere::Response.new("statistrano","",true))
@@ -83,7 +95,7 @@ describe Statistrano::Remote do
     it "returns false if fails" do
       ssh_double = create_ssh_double
       allow(ssh_double).to receive(:close_session)
-      subject    = described_class.new default_options
+      subject    = described_class.new default_config
 
       expect( ssh_double ).to receive(:run).with('whoami')
                           .and_return( HereOrThere::Response.new("","error",false))
@@ -94,7 +106,7 @@ describe Statistrano::Remote do
   describe "#create_remote_dir" do
     it "runs mkdir command on remote" do
       ssh_double = create_ssh_double
-      subject = described_class.new default_options
+      subject = described_class.new default_config
 
       expect( ssh_double ).to receive(:run)
                           .with("mkdir -p -m 755 /var/www/proj")
@@ -104,7 +116,7 @@ describe Statistrano::Remote do
 
     it "requires an absolute path" do
       ssh_double = create_ssh_double
-      subject = described_class.new default_options
+      subject = described_class.new default_config
 
       expect {
         subject.create_remote_dir "var/www/proj"
@@ -113,7 +125,7 @@ describe Statistrano::Remote do
 
     it "uses the set dir_permissions" do
       ssh_double = create_ssh_double
-      subject = described_class.new default_options.merge dir_permissions: 644
+      subject = described_class.new config default_options.merge dir_permissions: 644
 
       expect( ssh_double ).to receive(:run)
                           .with("mkdir -p -m 644 /var/www/proj")
@@ -124,7 +136,7 @@ describe Statistrano::Remote do
     context "when remote dir creation fails" do
       it "logs error & exits" do
         ssh_double = create_ssh_double
-        subject = described_class.new default_options
+        subject = described_class.new default_config
         allow( ssh_double ).to receive(:run)
                             .with("mkdir -p -m 755 /var/www/proj")
                             .and_return( HereOrThere::Response.new("","oh noes",false) )
@@ -141,7 +153,7 @@ describe Statistrano::Remote do
 
   describe "#rsync_to_remote" do
     it "runs command to rsync local to remote" do
-      subject = described_class.new default_options
+      subject = described_class.new default_config
 
       expect( Statistrano::Shell ).to receive(:run_local)
                                   .with("rsync -aqz --delete-after " +
@@ -154,7 +166,7 @@ describe Statistrano::Remote do
     end
 
     it "corrects for adding a trailing slash to local_path or remote_path" do
-      subject = described_class.new default_options
+      subject = described_class.new default_config
 
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .with("rsync -aqz --delete-after " +
@@ -167,7 +179,7 @@ describe Statistrano::Remote do
     end
 
     it "uses the set dir_permissions & file_permissions" do
-      subject = described_class.new default_options.merge dir_permissions: 644, file_permissions: 755
+      subject = described_class.new config default_options.merge dir_permissions: 644, file_permissions: 755
 
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .with("rsync -aqz --delete-after " +
@@ -180,7 +192,7 @@ describe Statistrano::Remote do
     end
 
     it "uses the set rsync_flags" do
-      subject = described_class.new default_options.merge rsync_flags: "-aqz"
+      subject = described_class.new config default_options.merge rsync_flags: "-aqz"
 
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .with("rsync -aqz " +
@@ -193,7 +205,7 @@ describe Statistrano::Remote do
     end
 
     it "logs error if rsync command fails" do
-      subject = described_class.new default_options
+      subject = described_class.new default_config
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .and_return( HereOrThere::Response.new("","",false) )
 
@@ -202,7 +214,7 @@ describe Statistrano::Remote do
     end
 
     it "returns the response" do
-      subject = described_class.new default_options
+      subject = described_class.new default_config
       response = HereOrThere::Response.new("woo","",true)
       expect( Statistrano::Shell ).to receive(:run_local)
                                  .and_return( response )

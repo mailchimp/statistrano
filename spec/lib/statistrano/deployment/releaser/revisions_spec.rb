@@ -2,143 +2,106 @@ require 'spec_helper'
 
 describe Statistrano::Deployment::Releaser::Revisions do
 
-  let(:default_arguments) do
+  let(:default_remote_config_responses) do
     {
-      remote_dir: '/var/www/proj',
-      local_dir: 'build'
-    }
-  end
-
-  let(:default_target_config_responses) do
-    {
-      remote_dir:    nil,
-      local_dir:     nil,
-      release_count: nil,
-      release_dir:   nil,
-      public_dir:    nil,
+      remote_dir:    '/var/www/proj',
+      local_dir:     'build',
+      release_count: 5,
+      release_dir:   'releases',
+      public_dir:    'current',
       log_file_path: nil
     }
   end
 
   describe "#initialize" do
-    it "assigns options hash to configuration" do
-      subject = described_class.new default_arguments.merge(release_count: 10)
-      expect( subject.config.release_count ).to eq 10
-    end
-
-    it "uses config.options defaults if option not given" do
-      subject = described_class.new default_arguments
-      expect( subject.config.release_dir ).to eq "releases"
-    end
-
-    it "requires a remote_dir to be set" do
-      args = default_arguments.dup
-      args.delete(:remote_dir)
-      expect{
-        described_class.new args
-      }.to raise_error ArgumentError, "a remote_dir is required"
-    end
-
-    it "requires a local_dir to be set" do
-      args = default_arguments.dup
-      args.delete(:local_dir)
-      expect{
-        described_class.new args
-      }.to raise_error ArgumentError, "a local_dir is required"
-    end
-
-    it "generates release_name from current time" do
-      time = Time.now
-      allow( Time ).to receive(:now).and_return(time)
-      subject = described_class.new default_arguments
-
-      allow( Time ).to receive(:now).and_return(time + 1)
-      expect( Time.now ).not_to eq time # ensure that the time + 1 works
-      expect( subject.release_name ).to eq time.to_i.to_s
+    it "creates a release_name based on current time" do
+      allow( Time ).to receive(:now).and_return(12345)
+      subject = described_class.new
+      expect( subject.release_name ).to eq "12345"
     end
   end
 
   describe "#setup_release_path" do
     context "with an existing release" do
       it "copies existing 'current' release to release_path" do
-        config  = double("Statistrano::Config", default_target_config_responses )
-        target  = instance_double("Statistrano::Remote", config: config )
-        subject = described_class.new default_arguments
+        config  = double("Statistrano::Config", default_remote_config_responses )
+        remote  = instance_double("Statistrano::Remote", config: config )
+        subject = described_class.new
         release_path = File.join( '/var/www/proj/releases', subject.release_name )
-        allow( target ).to receive(:run)
+        allow( remote ).to receive(:run)
                        .and_return( HereOrThere::Response.new("","",true) )
 
-        expect( target ).to receive(:create_remote_dir)
+        expect( remote ).to receive(:create_remote_dir)
                         .with( '/var/www/proj/releases' )
-        expect( target ).not_to receive(:create_remote_dir)
+        expect( remote ).not_to receive(:create_remote_dir)
                         .with( release_path )
 
-        allow( target ).to receive(:run).with("readlink /var/www/proj/current")
+        allow( remote ).to receive(:run).with("readlink /var/www/proj/current")
                        .and_return( HereOrThere::Response.new("/var/www/proj/releases/1234","",true) )
-        expect( target ).to receive(:run)
+        expect( remote ).to receive(:run)
                         .with("cp -a /var/www/proj/releases/1234 #{release_path}")
-        subject.setup_release_path target
+        subject.setup_release_path remote
       end
     end
     context "with no existing releases" do
-      it "creates the release_path on the target" do
-        config  = double("Statistrano::Config", default_target_config_responses )
-        target  = instance_double("Statistrano::Remote", config: config )
-        subject = described_class.new default_arguments
-        allow( target ).to receive(:run)
+      it "creates the release_path on the remote" do
+        config  = double("Statistrano::Config", default_remote_config_responses )
+        remote  = instance_double("Statistrano::Remote", config: config )
+        subject = described_class.new
+        allow( remote ).to receive(:run)
                        .and_return( HereOrThere::Response.new("","",true) )
 
-        expect( target ).to receive(:create_remote_dir)
+        expect( remote ).to receive(:create_remote_dir)
                         .with( '/var/www/proj/releases' )
-        expect( target ).to receive(:create_remote_dir)
+        expect( remote ).to receive(:create_remote_dir)
                         .with( File.join( '/var/www/proj/releases', subject.release_name ) )
-        subject.setup_release_path target
+        subject.setup_release_path remote
       end
     end
   end
 
   describe "#rsync_to_remote" do
-    it "calls rsync_to_remote on the target with the local_dir & release_path" do
-      config  = double("Statistrano::Config", default_target_config_responses )
-      target  = instance_double("Statistrano::Remote", config: config )
-      subject = described_class.new default_arguments
+    it "calls rsync_to_remote on the remote with the local_dir & release_path" do
+      config  = double("Statistrano::Config", default_remote_config_responses )
+      remote  = instance_double("Statistrano::Remote", config: config )
+      subject = described_class.new
 
       allow( Dir ).to receive(:pwd).and_return('/local')
-      expect( target ).to receive(:rsync_to_remote)
+      expect( remote ).to receive(:rsync_to_remote)
                       .with( '/local/build', File.join( '/var/www/proj/releases', subject.release_name ) )
                       .and_return( HereOrThere::Response.new("","",true) )
-      subject.rsync_to_remote target
+      subject.rsync_to_remote remote
     end
   end
 
   describe "#symlink_release" do
-    it "runs symlink command on target" do
-      config  = double("Statistrano::Config", default_target_config_responses )
-      target  = instance_double("Statistrano::Remote", config: config )
-      subject = described_class.new default_arguments
+    it "runs symlink command on remote" do
+      config  = double("Statistrano::Config", default_remote_config_responses )
+      remote  = instance_double("Statistrano::Remote", config: config )
+      subject = described_class.new
       release_path = File.join( '/var/www/proj/releases', subject.release_name )
 
-      expect( target ).to receive(:run)
+      expect( remote ).to receive(:run)
                       .with( "ln -nfs #{release_path} /var/www/proj/current" )
-      subject.symlink_release target
+      subject.symlink_release remote
     end
   end
 
   describe "#prune_releases" do
     it "removes releases not tracked in manifest" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
       manifest = instance_double("Statistrano::Deployment::Manifest")
-      subject  = described_class.new default_arguments
+      subject  = described_class.new
       releases = [ Time.now.to_i.to_s,
                   (Time.now.to_i + 1 ).to_s,
                   (Time.now.to_i + 2 ).to_s ]
       extra_release = (Time.now.to_i + 3).to_s
 
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                     .with("ls -m /var/www/proj/releases")
                     .and_return( HereOrThere::Response.new( (releases + [extra_release]).join(','), '', true ) )
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
@@ -148,42 +111,42 @@ describe Statistrano::Deployment::Releaser::Revisions do
                      .and_return(releases.map { |r| {release: r} })
 
 
-      expect(target).to receive(:run)
+      expect(remote).to receive(:run)
                     .with("rm -rf /var/www/proj/releases/#{extra_release}")
       expect(manifest).to receive(:save!)
-      subject.prune_releases target
+      subject.prune_releases remote
     end
 
     it "removes older releases beyond release count from remote & manifest" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments.merge( release_count: 2 )
-      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      config   = double("Statistrano::Config", default_remote_config_responses.merge(release_count: 2) )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', remote
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .with( '/var/www/proj', target )
+                                                             .with( '/var/www/proj', remote )
                                                              .and_return(manifest)
       releases = [ Time.now.to_i.to_s,
                   (Time.now.to_i + 1 ).to_s,
                   (Time.now.to_i + 2 ).to_s ]
 
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("ls -m /var/www/proj/releases")
                    .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
 
       # this is gnarly but we need to test against
       # the manifest release data because of the block in
       # Manifest#remove_if
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("cat /var/www/proj/manifest.json")
                    .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
 
-      expect(target).to receive(:run)
+      expect(remote).to receive(:run)
                    .with("rm -rf /var/www/proj/releases/#{releases.first}")
       expect(manifest).to receive(:save!)
-      subject.prune_releases target
+      subject.prune_releases remote
 
       # our expectation is for manifest data to be missing
       # the release that is to be removed
@@ -191,96 +154,95 @@ describe Statistrano::Deployment::Releaser::Revisions do
     end
 
     it "skips removing a release if it is currently symlinked" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments.merge( release_count: 2 )
-      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      config   = double("Statistrano::Config", default_remote_config_responses.merge(release_count: 2) )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', remote
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .with( '/var/www/proj', target )
+                                                             .with( '/var/www/proj', remote )
                                                              .and_return(manifest)
       releases = [ Time.now.to_i.to_s,
                   (Time.now.to_i + 1 ).to_s,
                   (Time.now.to_i + 2 ).to_s ]
 
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("ls -m /var/www/proj/releases")
                    .and_return( HereOrThere::Response.new( releases.join(','), '', true ) )
 
       # this is gnarly but we need to test against
       # the manifest release data because of the block in
       # Manifest#remove_if
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("cat /var/www/proj/manifest.json")
                    .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
 
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("/var/www/proj/releases/#{releases.first}\n",'',true) )
-      expect(target).not_to receive(:run)
+      expect(remote).not_to receive(:run)
                     .with("rm -rf /var/www/proj/releases/#{releases.first}")
       expect(manifest).to receive(:save!)
 
-      subject.prune_releases target
+      subject.prune_releases remote
     end
   end
 
   describe "#add_release_to_manifest" do
     it "adds release to manifest & saves" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
-      subject = described_class.new default_arguments
+      subject = described_class.new
 
       expect(manifest).to receive(:push)
                       .with( release: subject.release_name )
       expect(manifest).to receive(:save!)
-      subject.add_release_to_manifest target
+      subject.add_release_to_manifest remote
     end
 
     it "merges build_data to release in manifest" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
-      subject = described_class.new default_arguments
+      subject = described_class.new
 
       expect(manifest).to receive(:push)
                       .with( release: subject.release_name, arbitrary: 'data' )
       expect(manifest).to receive(:save!)
 
-      subject.add_release_to_manifest target, arbitrary: 'data'
+      subject.add_release_to_manifest remote, arbitrary: 'data'
     end
   end
 
   describe "#create_release" do
     it "runs through the pipeline" do
       # stupid spec for now
-      target  = instance_double("Statistrano::Remote")
-      subject = described_class.new default_arguments
+      remote  = instance_double("Statistrano::Remote")
+      subject = described_class.new
 
-      expect(subject).to receive(:setup_release_path).with(target)
-      expect(subject).to receive(:rsync_to_remote).with(target)
+      expect(subject).to receive(:setup_release_path).with(remote)
+      expect(subject).to receive(:rsync_to_remote).with(remote)
       expect(subject).to receive(:invoke_pre_symlink_task)
-      expect(subject).to receive(:symlink_release).with(target)
-      expect(subject).to receive(:add_release_to_manifest).with(target, arbitrary: 'data')
-      expect(subject).to receive(:prune_releases).with(target)
+      expect(subject).to receive(:symlink_release).with(remote)
+      expect(subject).to receive(:add_release_to_manifest).with(remote, arbitrary: 'data')
+      expect(subject).to receive(:prune_releases).with(remote)
 
-      subject.create_release target, arbitrary: 'data'
+      subject.create_release remote, arbitrary: 'data'
     end
 
     it "aborts deploy if pre_symlink_task returns false or raises" do
-      target  = instance_double("Statistrano::Remote")
-      subject = described_class.new default_arguments
-      subject.config.pre_symlink_task do
-        false
-        # raising has the same outcome
-      end
+      config   = double("Statistrano::Config", default_remote_config_responses.merge(
+        pre_symlink_task: lambda { false }
+      ))
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject = described_class.new
 
-      expect(subject).to receive(:setup_release_path).with(target)
-      expect(subject).to receive(:rsync_to_remote).with(target)
+      expect(subject).to receive(:setup_release_path).with(remote)
+      expect(subject).to receive(:rsync_to_remote).with(remote)
       expect(subject).to receive(:invoke_pre_symlink_task).and_call_original
 
       expect(subject).not_to receive(:symlink_release)
@@ -288,16 +250,16 @@ describe Statistrano::Deployment::Releaser::Revisions do
       expect(subject).not_to receive(:prune_releases)
 
       expect {
-        subject.create_release target
+        subject.create_release remote
       }.to raise_error SystemExit
     end
   end
 
   describe "#list_releases" do
     it "returns manifest data of releases" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
@@ -306,12 +268,12 @@ describe Statistrano::Deployment::Releaser::Revisions do
       allow(manifest).to receive(:data)
                      .and_return( release_data + [{not_release:"foo"}])
 
-      expect( subject.list_releases(target) ).to match_array release_data
+      expect( subject.list_releases(remote) ).to match_array release_data
     end
     it "sorts releases by release data (newest first)" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                 .and_return(manifest)
@@ -324,15 +286,15 @@ describe Statistrano::Deployment::Releaser::Revisions do
       allow(manifest).to receive(:data)
                      .and_return( release_data + [{not_release:"foo"}])
 
-      expect( subject.list_releases(target) ).to eq [{release:release_three},{release:release_two},{release:release_one}]
+      expect( subject.list_releases(remote) ).to eq [{release:release_three},{release:release_two},{release:release_one}]
     end
   end
 
   describe "#current_release_data" do
     it "returns data from current release" do
-      config   = double("Statistrano::Config", default_target_config_responses )
+      config   = double("Statistrano::Config", default_remote_config_responses )
       remote   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                 .and_return(manifest)
@@ -345,9 +307,9 @@ describe Statistrano::Deployment::Releaser::Revisions do
     end
 
     it "merges data from log if log_file_path given" do
-      config   = double("Statistrano::Config", default_target_config_responses.merge(log_file_path: '/var/log') )
+      config   = double("Statistrano::Config", default_remote_config_responses.merge(log_file_path: '/var/log') )
       remote   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       log_file = instance_double("Statistrano::Deployment::LogFile")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
@@ -376,9 +338,9 @@ describe Statistrano::Deployment::Releaser::Revisions do
     end
 
     it "handles an empty log file if log_file_path is given" do
-      config   = double("Statistrano::Config", default_target_config_responses.merge(log_file_path: '/var/log') )
+      config   = double("Statistrano::Config", default_remote_config_responses.merge(log_file_path: '/var/log') )
       remote   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       log_file = instance_double("Statistrano::Remote::File")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
@@ -400,12 +362,12 @@ describe Statistrano::Deployment::Releaser::Revisions do
 
   describe "#rollback_release" do
     it "symlinks the previous release" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .with( '/var/www/proj', target )
+                                                             .with( '/var/www/proj', remote )
                                                              .and_return(manifest)
 
 
@@ -419,26 +381,26 @@ describe Statistrano::Deployment::Releaser::Revisions do
                           {release: release_two},
                           {release: release_three}
                         ])
-      allow( target ).to receive(:run)
-      allow(target).to receive(:run)
+      allow( remote ).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
       allow( manifest ).to receive(:remove_if)
       allow( manifest ).to receive(:save!)
 
       expect( subject ).to receive(:symlink_release)
-                       .with( target, release_two )
+                       .with( remote, release_two )
 
-      subject.rollback_release target
+      subject.rollback_release remote
     end
 
-    it "removes the newest release from disk on target" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+    it "removes the newest release from disk on remote" do
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .with( '/var/www/proj', target )
+                                                             .with( '/var/www/proj', remote )
                                                              .and_return(manifest)
 
       release_one   = ( Time.now.to_i + 0 ).to_s
@@ -454,26 +416,26 @@ describe Statistrano::Deployment::Releaser::Revisions do
 
 
       allow( subject ).to receive(:symlink_release)
-                      .with( target, release_two )
+                      .with( remote, release_two )
       allow( manifest ).to receive(:remove_if)
       allow( manifest ).to receive(:save!)
 
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
-      expect( target ).to receive(:run)
+      expect( remote ).to receive(:run)
                       .with("rm -rf /var/www/proj/releases/#{release_three}")
 
-      subject.rollback_release target
+      subject.rollback_release remote
     end
 
     it "removes the newest release from the manifest" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
-      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', target
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
+      manifest = Statistrano::Deployment::Manifest.new '/var/www/proj', remote
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
-                                                             .with( '/var/www/proj', target )
+                                                             .with( '/var/www/proj', remote )
                                                              .and_return(manifest)
 
 
@@ -481,8 +443,8 @@ describe Statistrano::Deployment::Releaser::Revisions do
       release_two   = ( Time.now.to_i + 1 ).to_s
       release_three = ( Time.now.to_i + 2 ).to_s
       releases      = [release_three,release_two,release_one]
-      allow( target ).to receive(:run)
-      allow(target).to receive(:run)
+      allow( remote ).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("readlink /var/www/proj/current")
                    .and_return( HereOrThere::Response.new("",'',true) )
 
@@ -490,22 +452,22 @@ describe Statistrano::Deployment::Releaser::Revisions do
       # this is gnarly but we need to test against
       # the manifest release data because of the block in
       # Manifest#remove_if
-      allow(target).to receive(:run)
+      allow(remote).to receive(:run)
                    .with("cat /var/www/proj/manifest.json")
                    .and_return( HereOrThere::Response.new("[#{ releases.map{ |r| "{\"release\": \"#{r}\"}" }.join(',') }]",'',true) )
 
       allow( subject ).to receive(:symlink_release)
-                       .with( target, release_two )
+                       .with( remote, release_two )
 
       expect( manifest ).to receive(:save!)
-      subject.rollback_release target
+      subject.rollback_release remote
       expect( manifest.data ).to eq releases[1..-1].map {|r| {release: r}}
     end
 
     it "errors if there is only one release" do
-      config   = double("Statistrano::Config", default_target_config_responses )
-      target   = instance_double("Statistrano::Remote", config: config )
-      subject  = described_class.new default_arguments
+      config   = double("Statistrano::Config", default_remote_config_responses )
+      remote   = instance_double("Statistrano::Remote", config: config )
+      subject  = described_class.new
       manifest = instance_double("Statistrano::Deployment::Manifest")
       allow( Statistrano::Deployment::Manifest ).to receive(:new)
                                                              .and_return(manifest)
@@ -517,7 +479,7 @@ describe Statistrano::Deployment::Releaser::Revisions do
                         ])
 
       expect( Statistrano::Log ).to receive(:error)
-      subject.rollback_release target
+      subject.rollback_release remote
     end
   end
 

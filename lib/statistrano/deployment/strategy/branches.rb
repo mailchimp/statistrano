@@ -55,7 +55,7 @@ module Statistrano
         # @return [Void]
         def generate_index
           remotes.each do |remote|
-            index_dir  = File.join( remote_overridable_config(:remote_dir, remote), "index" )
+            index_dir  = File.join( remote.config.remote_dir, "index" )
             index_path = File.join( index_dir, "index.html" )
             remote.create_remote_dir index_dir
             remote.run "touch #{index_path} && echo '#{release_list_html(remote)}' > #{index_path}"
@@ -78,12 +78,8 @@ module Statistrano
             @_manifests ||= {}
 
             @_manifests.fetch( remote ) do
-              Deployment::Manifest.new remote_overridable_config(:remote_dir, remote), remote
+              Deployment::Manifest.new remote.config.remote_dir, remote
             end
-          end
-
-          def remote_overridable_config option, remote
-            (remote && remote.config.public_send(option)) || config.public_send(option)
           end
 
           def pick_and_remove_release candidate_releases
@@ -163,7 +159,7 @@ module Statistrano
           # return array of releases on the remote
           # @return [Array]
           def get_actual_releases remote
-            remote.run("ls -mp #{remote_overridable_config(:remote_dir, remote)}")
+            remote.run("ls -mp #{remote.config.remote_dir}")
                   .stdout.strip.split(',')
                   .keep_if { |release| /\/$/.match(release) }
                   .map     { |release| release.strip.sub(/(\/$)/, '') }
@@ -180,7 +176,7 @@ module Statistrano
           # path to a specific release
           # @return [String]
           def release_path name, remote
-            File.join( remote_overridable_config(:remote_dir, remote), name )
+            File.join( remote.config.remote_dir, name )
           end
 
           # open the current checked out branch
