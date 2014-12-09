@@ -11,7 +11,7 @@ Installation
 With Bundler
 ```ruby
 gem "statistrano", git: "git@github.com:mailchimp/statistrano.git",
-                   tag: "1.0.0"
+                   tag: "X.X.X"
 ```
 
 

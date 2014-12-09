@@ -20,7 +20,7 @@ define_deployment "example" do
 end
 ```
 
-Using `775` and `664` is great if the deployment members are part of the same group, but unless you're using the `releases` deployment strategy you'll run into trouble when rsync tries to update the timestamps on directories. You *must* be the owner of the directory to do that. Getting around that little caveat we can configure the rsync flags to skip updating timestamps:
+Using `775` and `664` is ok if the deployment members are part of the same group, but unless you're using the `releases` deployment strategy you'll run into trouble when rsync tries to update the timestamps on directories. You *must* be the owner of the directory to do that. Getting around that little caveat we can configure the rsync flags to skip updating timestamps:
 
 ```ruby
 define_deployment "example" do

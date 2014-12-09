@@ -1,3 +1,7 @@
+- remote specific config is now tied directly to the remote through it's own config object. Internally this cleans up many checks, but causes [BREAKING] changes if you depended on the API of any of the internal classes. If you use config data in any of your tasks, it's now suggested that you do so inside your `remotes` iterators.
+- get `Strategy::Branches` supporting multiple remotes. The stdout output of `list_releases` and `prune_releases` has changed, so if you depended on this it may be breaking.
+- move `Strategy::Branches` custom behavior to a `post_deploy_task` so it uses the same `deploy` method inherited from `Strategy::Base`. This could cause [BREAKING] changes if you use a custom `post_deploy_task` with a `Branches` deploy type.
+
 # 1.1.0
 - `#persisted_releaser` is available on a deployment from rake tasks. this will be the same for tasks called during a deploy for example.
 - addition of a `#current_release_data` method for the Revisions releaser. This pulls merged data from the manifest and the log file.

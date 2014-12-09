@@ -21,9 +21,13 @@ deployment = define_deployment "branches", :branches do
   public_dir  "current_branch"
 
   # the post deploy task defaults to generating the index file
+  # and adding the current_release to the manifest
   # so if you touch this keep that in mind as you may want to
   # generate that as well
-  post_deploy_task "branches:generate_index"
+  post_deploy_task do |deployment|
+    d.push_current_release_to_manifest
+    d.generate_index
+  end
 
 end
 ```
@@ -57,10 +61,10 @@ Set up your configs to pass the subdomain down as the docroots, here's some rela
 ```nginx
 server {
   listen 80;
-  server_name ~^(?<subdomain>.*)\.polar-refuge.com;
+  server_name ~^(?<subdomain>.*)\.yourdomain.com;
 
   # use the subdomain captured above in the docroot
-  root /var/www/branches.mailchimp.com/$subdomain;
+  root /var/www/branches.yourdomain.com/$subdomain;
   index index.html index.htm index.php;
 
   # pass the subdomain to fastcgi as well
@@ -70,7 +74,7 @@ server {
       fastcgi_pass unix:/var/run/php5-fpm.sock;
       fastcgi_index index.php;
       include fastcgi_params;
-      fastcgi_param SCRIPT_FILENAME /var/www/branches.mailchimp.com/$subdomain$fastcgi_script_name;
+      fastcgi_param SCRIPT_FILENAME /var/www/branches.yourdomain.com/$subdomain$fastcgi_script_name;
   }
 
   # other nginx stuf ..

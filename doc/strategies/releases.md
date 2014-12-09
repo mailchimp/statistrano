@@ -42,7 +42,8 @@ deployment = define_deployment "production", :releases do
   # unlike other tasks, this is called in the remotes loop
   # so is run for each remote
   pre_symlink_task do |releaser, remote|
-    unless remote.run("#{releaser.release_path}/bin/test_something").success?
+    release_path = File.join remote.config.remote_dir, remote.config.release_dir, releaser.release_name
+    unless remote.run("#{release_path}/bin/test_something").success?
       Statistrano::Log.error :"#{remote.config.hostname}", "failed to pass test"
       false # returning false stops the deploy
     else

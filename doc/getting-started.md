@@ -93,3 +93,4 @@ For more information on specific, check out the guides below.
 
 - [Task Definitions](/doc/config/task-definitions.md)
 - [File Permissions](/doc/config/file-permissions.md)
+- [Log Files](/doc/config/log-files.md)
