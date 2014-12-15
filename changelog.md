@@ -1,3 +1,4 @@
+# 1.2.0
 - remote specific config is now tied directly to the remote through it's own config object. Internally this cleans up many checks, but causes [BREAKING] changes if you depended on the API of any of the internal classes. If you use config data in any of your tasks, it's now suggested that you do so inside your `remotes` iterators.
 - get `Strategy::Branches` supporting multiple remotes. The stdout output of `list_releases` and `prune_releases` has changed, so if you depended on this it may be breaking.
 - move `Strategy::Branches` custom behavior to a `post_deploy_task` so it uses the same `deploy` method inherited from `Strategy::Base`. This could cause [BREAKING] changes if you use a custom `post_deploy_task` with a `Branches` deploy type.
