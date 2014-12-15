@@ -1,3 +1,5 @@
+- fix bug where `Strategy::Branches` wasn't caching manifests, causing the prune task to fail at removing releases from the manifest.
+
 # 1.2.0
 - remote specific config is now tied directly to the remote through it's own config object. Internally this cleans up many checks, but causes [BREAKING] changes if you depended on the API of any of the internal classes. If you use config data in any of your tasks, it's now suggested that you do so inside your `remotes` iterators.
 - get `Strategy::Branches` supporting multiple remotes. The stdout output of `list_releases` and `prune_releases` has changed, so if you depended on this it may be breaking.

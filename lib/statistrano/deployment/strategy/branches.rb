@@ -78,7 +78,7 @@ module Statistrano
             @_manifests ||= {}
 
             @_manifests.fetch( remote ) do
-              Deployment::Manifest.new remote.config.remote_dir, remote
+              @_manifests[remote] = Deployment::Manifest.new remote.config.remote_dir, remote
             end
           end
 

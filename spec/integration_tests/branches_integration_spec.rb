@@ -70,6 +70,9 @@ eof
       release_stdin 1 do
         @deployment.prune_releases
         expect( Dir[ "deployment/**" ] ).not_to include "deployment/first_branch"
+
+        manifest_json = JSON.parse(IO.read("deployment/manifest.json"))
+        expect( manifest_json.map { |d| d["name"] } ).not_to include "first_branch"
       end
     end
   end
