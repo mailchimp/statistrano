@@ -1,3 +1,4 @@
+# 1.2.1
 - fix bug where `Strategy::Branches` wasn't caching manifests, causing the prune task to fail at removing releases from the manifest.
 
 # 1.2.0
