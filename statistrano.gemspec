@@ -7,10 +7,11 @@ Gem::Specification.new do |s|
   s.platform      = Gem::Platform::RUBY
 
   s.summary       = 'deployment tool for static sites'
-  s.description   = %q{ Deployment tool for static sites. Make releases if you'd like, and the ability to stage feature branches. }
+  s.description   = %q{ Deployment tool focused on static sites. Has different modes for releases with rollbacks, or for multiple branches allowing rapid prototyping. }
   s.authors       = ["Jordan Andree", "Steven Sloan"]
   s.email         = "marketing-dev@mailchimp.com"
-  s.homepage      = "http://github.com/stevenosloan/statistrano"
+  s.homepage      = "http://github.com/mailchimp/statistrano"
+  s.license       = "New-BSD"
 
   s.files         = Dir[ "{doc,lib}/**/*", "readme.md", "changelog.md" ]
   s.test_files    = Dir["spec/**/*.rb"]
