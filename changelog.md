@@ -1,3 +1,4 @@
+# 1.2.2
 - bump dependency of `HereOrThere`, prevents issues w/ getting the contents of remote files when they're large enough to have chunked responses.
 
 # 1.2.1
