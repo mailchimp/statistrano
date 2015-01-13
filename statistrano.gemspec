@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency "rake",          ["~> 10.0"]
   s.add_dependency "rainbow",       [">=  1.99", "< 2.1"]
   s.add_dependency "slugity",       ["~>  1.0"]
-  s.add_dependency "here_or_there", ["~>  0.1"]
+  s.add_dependency "here_or_there", ["~>  0.2"]
   s.add_dependency "asgit",         ["~>  0.1"]
 
 end
