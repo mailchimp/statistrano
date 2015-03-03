@@ -10,8 +10,7 @@ Installation
 
 With Bundler
 ```ruby
-gem "statistrano", git: "git@github.com:mailchimp/statistrano.git",
-                   tag: "X.X.X"
+gem "statistrano", "~> 1.2.2"
 ```
 
 
