@@ -1,3 +1,4 @@
+# 1.2.3
 - fix bug in manifest creation/saving from changes in ruby 2.2.x
 
 # 1.2.2
