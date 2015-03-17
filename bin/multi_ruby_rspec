@@ -15,3 +15,6 @@ run_spec
 
 rvm use ruby-2.1.5@statistrano_test_215 --create
 run_spec
+
+rvm use ruby-2.2.1@statistrano_test_221 --create
+run_spec

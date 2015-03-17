@@ -1,3 +1,5 @@
+- fix bug in manifest creation/saving from changes in ruby 2.2.x
+
 # 1.2.2
 - bump dependency of `HereOrThere`, prevents issues w/ getting the contents of remote files when they're large enough to have chunked responses.
 

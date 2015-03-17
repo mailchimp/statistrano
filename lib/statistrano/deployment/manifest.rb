@@ -26,9 +26,9 @@ module Statistrano
       # not that if you have used the `push` method previously
       # all duplicates with the matching key **will** be removed
       #
-      def put data, match_key
-        remove_if { |i| i[match_key] == data[match_key] }
-        push data
+      def put new_data, match_key
+        remove_if { |i| i[match_key] == new_data[match_key] }
+        push new_data
       end
 
       # pushes a data has into the manifest's array
@@ -75,8 +75,8 @@ module Statistrano
           end
         end
 
-        def serialize data=data
-          data.to_json
+        def serialize data_to_serialize=data
+          data_to_serialize.to_json
         end
 
         def remote_path
