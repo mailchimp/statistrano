@@ -38,6 +38,14 @@ module Statistrano
       session.run command
     end
 
+    def run_local command
+      if config.verbose
+        Log.info :local, "running cmd: #{command}"
+      end
+
+      Shell.run_local command
+    end
+
     def done
       session.close_session
     end
@@ -63,9 +71,9 @@ module Statistrano
       Log.info "Syncing files from '#{local_path}' to '#{remote_path}' on #{config.hostname}"
 
       time_before = Time.now
-      resp = Shell.run_local "rsync #{rsync_options} " +
-                             "-e ssh #{local_path}/ " +
-                             "#{host_connection}:#{remote_path}/"
+      resp = run_local "rsync #{rsync_options} " +
+                       "-e ssh #{local_path}/ " +
+                       "#{host_connection}:#{remote_path}/"
       time_after = Time.now
       total_time = (time_after - time_before).round(2)
 
