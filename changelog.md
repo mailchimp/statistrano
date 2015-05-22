@@ -1,3 +1,5 @@
+- add a `run_local` method to Remote to wrap `Shell.run_local` to display commands when in verbose mode.
+
 # 1.2.3
 - fix bug in manifest creation/saving from changes in ruby 2.2.x
 
