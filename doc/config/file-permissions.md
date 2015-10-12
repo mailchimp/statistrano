@@ -31,3 +31,15 @@ define_deployment "example" do
 
 end
 ```
+
+
+If you are running rsync 3.1.0+ locally & on the remote you can also set the owner of the files. Look at the [rsync man page](https://download.samba.org/pub/rsync/rsync.html) for `chown`, `groupmap`, or `usermap` for more information on how this works.
+
+To configure set `dir_user` or `dir_group` on your deployment.
+
+```ruby
+define_deployment "example" do
+  dir_group 'deploy'
+end
+```
+

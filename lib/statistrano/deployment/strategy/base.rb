@@ -20,6 +20,7 @@ module Statistrano
                 :build_task, :post_deploy_task,
                 :check_git, :git_branch, :repo_url,
                 :dir_permissions, :file_permissions, :rsync_flags,
+                :dir_group, :dir_user,
                 :log_file_path, :log_file_entry
 
         option  :remotes, []

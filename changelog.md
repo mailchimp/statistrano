@@ -1,3 +1,6 @@
+- add a "optimistic" feature for setting deploy group. This requires rsync 3.1.0+ locally & on the remote. A warning is logged but doesn't abort.
+- add a `run_local` method to Remote to wrap `Shell.run_local` to display commands when in verbose mode.
+
 # 1.2.3
 - fix bug in manifest creation/saving from changes in ruby 2.2.x
 

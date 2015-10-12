@@ -38,6 +38,14 @@ module Statistrano
       session.run command
     end
 
+    def run_local command
+      if config.verbose
+        Log.info :local, "running cmd: #{command}"
+      end
+
+      Shell.run_local command
+    end
+
     def done
       session.close_session
     end
@@ -63,9 +71,9 @@ module Statistrano
       Log.info "Syncing files from '#{local_path}' to '#{remote_path}' on #{config.hostname}"
 
       time_before = Time.now
-      resp = Shell.run_local "rsync #{rsync_options} " +
-                             "-e ssh #{local_path}/ " +
-                             "#{host_connection}:#{remote_path}/"
+      resp = run_local "rsync #{rsync_options} " +
+                       "-e ssh #{local_path}/ " +
+                       "#{host_connection}:#{remote_path}/"
       time_after = Time.now
       total_time = (time_after - time_before).round(2)
 
@@ -102,9 +110,42 @@ module Statistrano
         dir_perms  = Util::FilePermissions.new( config.dir_permissions ).to_chmod
         file_perms = Util::FilePermissions.new( config.file_permissions ).to_chmod
 
-        "#{config.rsync_flags} --chmod=" +
+        "#{config.rsync_flags}#{rsync_ownership}" +
+            " --chmod=" +
             "Du=#{dir_perms.user},Dg=#{dir_perms.group},Do=#{dir_perms.others}," +
             "Fu=#{file_perms.user},Fg=#{file_perms.group},Fo=#{file_perms.others}"
+      end
+
+      def rsync_ownership
+        if config.dir_group || config.dir_user
+          rsync_version_check( '3.1.0', 'the dir_group & dir_user options required rsync 3.1.0')
+
+          if config.dir_group && config.dir_user
+            return " --chown=#{config.dir_user}:#{config.dir_group}"
+          elsif config.dir_group
+            return " --groupmap=*:#{config.dir_group}"
+          elsif config.dir_user
+            return " --usermap=*:#{config.dir_user}"
+          end
+        else
+          return ""
+        end
+
+      end
+
+      def rsync_version_check min_version, message
+        # http://rubular.com/r/QgR0ypIzNt
+        pattern = /^rsync\s+version\s(\d{1,2}\.\d{1,2}\.\d{1,2})/
+
+        remote = session.run "rsync --version"
+        local  = run_local "rsync --version"
+
+        {remote: remote, local: local}.each do |env, resp|
+          version = resp.stdout.match(pattern)[1]
+          if version < min_version
+            Log.error "on #{env}", message
+          end
+        end
       end
 
   end
