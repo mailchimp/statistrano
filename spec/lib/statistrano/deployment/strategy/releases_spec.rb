@@ -31,7 +31,9 @@ describe Statistrano::Deployment::Strategy::Releases do
         release_dir:      "releases",
         public_dir:       "current",
         log_file_path:    nil,
-        log_file_entry:   nil
+        log_file_entry:   nil,
+        dir_group:        nil,
+        dir_user:         nil
       }
     end
 
@@ -73,8 +75,8 @@ describe Statistrano::Deployment::Strategy::Releases do
 
       config_double = instance_double("Statistrano::Config")
       expect( Statistrano::Config ).to receive(:new)
-                                   .with(default_options.merge({remotes: [{hostname: 'web01', remote_dir: 'web01_remote_dir'}]})
-                                                        .merge(hostname: 'web01', remote_dir: 'web01_remote_dir'))
+                                   .with( default_options.merge({remotes: [{hostname: 'web01', remote_dir: 'web01_remote_dir'}]})
+                                                           .merge(hostname: 'web01', remote_dir: 'web01_remote_dir'))
                                    .and_return(config_double)
       expect( Statistrano::Remote ).to receive(:new)
                                    .with(config_double)
