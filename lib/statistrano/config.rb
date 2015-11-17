@@ -29,12 +29,12 @@ module Statistrano
     private
 
       def define_validator name
-        define_singleton_method(:"validator_for_#{name}") do |key, proc, message|
+        define_singleton_method(:"validator_for_#{name}") do |proc, message|
           @validators[name] = { validator: proc,
                                 message: message }
         end
 
-        define_singleton_method(:"validate_#{name}") do |key, arg|
+        define_singleton_method(:"validate_#{name}") do |arg|
           if @validators.has_key?(name) && !@validators[name][:validator].call(arg)
             raise ValidationError, (@validators[name][:message] || "configuration option for '#{name}' failed it's validation")
           end

@@ -38,4 +38,40 @@ describe Statistrano::Config do
     end
   end
 
+  describe "#accessor set" do
+    context "when a validator is set" do
+      let(:subject) do
+        subject = described_class.new options: { string: '', integer: '' },
+                                      validators: {
+                                        string: { validator: lambda { |i| !i.to_s.empty? } },
+                                        integer: { validator: lambda { |i| i.is_a?(Integer) } }
+                                      }
+
+        subject.validators[:integer][:message] = "not an integer"
+
+        subject
+      end
+
+      it "is peachy with a valid value" do
+        expect{
+          subject.validate_string 'a string'
+        }.not_to raise_error
+      end
+
+      it "raises when setting an invalid value" do
+        expect{
+          subject.validate_string ''
+        }.to raise_error Statistrano::Config::ValidationError
+      end
+
+      it "raises with given message" do
+        expect{
+          subject.validate_integer 'foobar'
+        }.to raise_error Statistrano::Config::ValidationError, 'not an integer'
+      end
+
+
+    end
+  end
+
 end
