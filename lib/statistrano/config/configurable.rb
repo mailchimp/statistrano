@@ -32,8 +32,8 @@ module Statistrano
         extending_obj.send :define_method,
                            :config,
                            -> {
-                              @_config ||= Config.new( self.class.configuration.options,
-                                                       self.class.configuration.tasks )
+                              @_config ||= Config.new( options: self.class.configuration.options,
+                                                       tasks: self.class.configuration.tasks )
                            }
       end
 

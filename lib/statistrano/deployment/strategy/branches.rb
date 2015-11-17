@@ -21,6 +21,7 @@ module Statistrano
         task :generate_index, :generate_index, "Generate a branch index"
         task :open,           :open_url,       "Open the current branch URL"
 
+
         # output a list of the releases in manifest
         # @return [Void]
         def list_releases

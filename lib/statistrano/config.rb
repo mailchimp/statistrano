@@ -11,7 +11,7 @@ module Statistrano
     # initalize with the potential for seed options
     # this is required so that when config'd classes
     # are extended we can pass that configuration along
-    def initialize options=nil, tasks=nil
+    def initialize options: nil, tasks: nil
       @options = options.nil? ? {} : options.clone
       @tasks   = tasks.nil?   ? {} : tasks.clone
 
@@ -21,6 +21,8 @@ module Statistrano
     end
 
     private
+
+
 
       def define_option_accessor name
         define_singleton_method(name) do |*args, &block|

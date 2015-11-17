@@ -11,14 +11,14 @@ describe Statistrano::Config do
     end
 
     it "defines an accessor for each given option" do
-      subject = described_class.new foo: 'bar'
+      subject = described_class.new options: { foo: 'bar' }
       expect( subject.foo ).to eq 'bar'
     end
 
     it "uses given options & tasks, but clones so the originals don't get modified" do
       options = { foo: 'bar' }
       tasks   = { foo: 'bar' }
-      subject = described_class.new options, tasks
+      subject = described_class.new options: options, tasks: tasks
 
       subject.foo         = 'baz'
       subject.tasks[:foo] = 'baz'

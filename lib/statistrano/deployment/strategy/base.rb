@@ -84,7 +84,7 @@ module Statistrano
           return @_remotes if @_remotes
 
           @_remotes = config.options[:remotes].map do |remote_options|
-            Remote.new Config.new( config.options.dup.merge(remote_options) )
+            Remote.new Config.new( options: config.options.dup.merge(remote_options) )
           end
           @_remotes.push Remote.new(config) if @_remotes.empty?
 
