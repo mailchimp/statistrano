@@ -11,6 +11,9 @@ describe Statistrano::Config::Configurable do
       option :proc, -> { "hello" }
 
       options :one, :two
+
+      validate :one, lambda { |arg| arg }
+      validate :two, lambda { |arg| arg }, "didn't pass"
     end
   end
 
@@ -44,6 +47,16 @@ describe Statistrano::Config::Configurable do
       names.each do |meth|
         expect( subject.config.public_send meth ).to be_nil
       end
+    end
+  end
+
+  describe "#validate" do
+    it "adds valiator to configuration.validators" do
+      expect( subject.config.validators.keys ).to include :one
+    end
+
+    it "adds validator with description if given" do
+      expect( subject.config.validators[:two][:message] ).to eq "didn't pass"
     end
   end
 

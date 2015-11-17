@@ -1,4 +1,5 @@
-- change the internal method signature of Config to use keyword arguments `options`, and `tasks`
+- feat(config) add option to include invalidators
+- refactor(config) change the internal method signature of Config to use keyword arguments `options`, and `tasks`
 - add a `run_local` method to Remote to wrap `Shell.run_local` to display commands when in verbose mode.
 
 # 1.2.3

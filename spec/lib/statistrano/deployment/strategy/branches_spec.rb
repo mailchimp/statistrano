@@ -14,6 +14,9 @@ describe Statistrano::Deployment::Strategy::Branches do
 
       expect( deployment.config.public_dir ).to eq "first_branch"
     end
+
+    it "prevents the public_dir from being an empty string" do
+    end
   end
 
 end

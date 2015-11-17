@@ -6,11 +6,18 @@ module Statistrano
         @_configuration ||= Config.new()
       end
 
-      def option key, value=nil, proc=nil
+      def option key, value=nil, proc=nil, opts={}
         if proc
           configuration.options[key] = { call: proc }
         else
           configuration.options[key] = value
+        end
+      end
+
+      def validate key, proc, message=nil
+        configuration.validators[key] = { validator: proc }
+        if message
+          configuration.validators[key][:message] = message
         end
       end
 
@@ -33,7 +40,8 @@ module Statistrano
                            :config,
                            -> {
                               @_config ||= Config.new( options: self.class.configuration.options,
-                                                       tasks: self.class.configuration.tasks )
+                                                       tasks: self.class.configuration.tasks,
+                                                       validators: self.class.configuration.validators )
                            }
       end
 
@@ -45,6 +53,7 @@ module Statistrano
         subclass.superclass.class_eval do
           subclass.configuration.options.merge!  subclass.superclass.configuration.options
           subclass.configuration.tasks.merge! subclass.superclass.configuration.tasks
+          subclass.configuration.validators.merge! subclass.superclass.configuration.validators
         end
       end
 
