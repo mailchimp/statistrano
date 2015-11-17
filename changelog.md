@@ -1,3 +1,4 @@
+# 1.3.0
 - feat(config validation) setup validators for some optons that could be descructive if not set:
   ```
   Base: remote_dir
