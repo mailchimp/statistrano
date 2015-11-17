@@ -1,4 +1,9 @@
-- feat(config) add option to include invalidators
+- feat(config validation) setup validators for some optons that could be descructive if not set:
+  ```
+  Base: remote_dir
+  Branches: public_dir
+  Releases: release_count, public_dir, releases_dir
+  ```
 - refactor(config) change the internal method signature of Config to use keyword arguments `options`, and `tasks`
 - add a `run_local` method to Remote to wrap `Shell.run_local` to display commands when in verbose mode.
 

@@ -29,6 +29,9 @@ module Statistrano
 
         option  :verbose, false
 
+        validate :remote_dir, lambda { |d| !d.empty? && d != '/' },
+                 "'remote_dir' must not be empty or '/'"
+
         task :deploy,      :deploy,                  "Deploy to remote"
         task :build,       :invoke_build_task,       "Run build task"
         task :post_deploy, :invoke_post_deploy_task, "Run post deploy task"

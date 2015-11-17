@@ -53,13 +53,22 @@ module Statistrano
           end
 
           if args.length == 1
-            @options[name] = args[0]
+            val = args[0]
+
+            if @validators.has_key?(name)
+              val = val.call if val.respond_to?(:call)
+              send "validate_#{name}", val
+            end
+
+            @options[name] = val
           elsif args.empty?
             if @options[name].respond_to? :fetch
-              @options[name].fetch( :call, -> { @options[name] } ).call
+              opt = @options[name].fetch( :call, -> { @options[name] } ).call
             else
-              @options[name]
+              opt = @options[name]
             end
+
+            opt
           else
             raise ArgumentError, "wrong number of arguments (#{args.length} for 0..1)"
           end

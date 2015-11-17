@@ -12,8 +12,8 @@ describe Statistrano::Config::Configurable do
 
       options :one, :two
 
-      validate :one, lambda { |arg| arg }
-      validate :two, lambda { |arg| arg }, "didn't pass"
+      validate :three, lambda { |arg| arg }
+      validate :four, lambda { |arg| arg }, "didn't pass"
     end
   end
 
@@ -52,11 +52,11 @@ describe Statistrano::Config::Configurable do
 
   describe "#validate" do
     it "adds valiator to configuration.validators" do
-      expect( subject.config.validators.keys ).to include :one
+      expect( subject.config.validators.keys ).to include :three
     end
 
     it "adds validator with description if given" do
-      expect( subject.config.validators[:two][:message] ).to eq "didn't pass"
+      expect( subject.config.validators[:four][:message] ).to eq "didn't pass"
     end
   end
 

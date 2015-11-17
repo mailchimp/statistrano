@@ -14,9 +14,18 @@ describe Statistrano::Deployment::Strategy::Branches do
 
       expect( deployment.config.public_dir ).to eq "first_branch"
     end
+  end
 
-    it "prevents the public_dir from being an empty string" do
-    end
+  it "validates public_dir not empty or '/'" do
+    deployment = described_class.new("name")
+
+    expect{
+      deployment.config.public_dir ""
+    }.to raise_error Statistrano::Config::ValidationError
+
+    expect{
+      deployment.config.public_dir "/"
+    }.to raise_error Statistrano::Config::ValidationError
   end
 
 end

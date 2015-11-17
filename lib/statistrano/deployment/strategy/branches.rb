@@ -16,6 +16,9 @@ module Statistrano
           d.generate_index
         }
 
+        validate :public_dir, lambda { |d| !d.to_s.empty? && d != '/' },
+                 "'public_dir' can't be an empty string or '/'"
+
         task :list,           :list_releases,  "List branches"
         task :prune,          :prune_releases, "Prune a branch"
         task :generate_index, :generate_index, "Generate a branch index"

@@ -6,6 +6,38 @@ describe Statistrano::Deployment::Strategy::Releases do
     expect( Statistrano::Deployment::Strategy.find(:releases) ).to eq described_class
   end
 
+  describe "config validation" do
+    let(:subject) { described_class.new('hello') }
+
+    it "prevents release_dir from being empty or '/'" do
+      expect{
+        subject.config.release_dir ''
+      }.to raise_error Statistrano::Config::ValidationError
+
+      expect{
+        subject.config.release_dir '/'
+      }.to raise_error Statistrano::Config::ValidationError
+    end
+    it "prevents public_dir from being empty or '/'" do
+      expect{
+        subject.config.public_dir ''
+      }.to raise_error Statistrano::Config::ValidationError
+
+      expect{
+        subject.config.public_dir '/'
+      }.to raise_error Statistrano::Config::ValidationError
+    end
+    it "requires release_count to be an integer > 0" do
+      expect{
+        subject.config.release_count 'four'
+      }.to raise_error Statistrano::Config::ValidationError
+
+      expect{
+        subject.config.release_count 0
+      }.to raise_error Statistrano::Config::ValidationError
+    end
+  end
+
   describe "#remotes" do
 
     let(:default_options) do

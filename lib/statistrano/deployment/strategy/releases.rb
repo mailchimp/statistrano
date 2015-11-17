@@ -35,6 +35,15 @@ module Statistrano
 
         option :remotes, []
 
+        validate :release_dir, lambda { |d| !d.to_s.empty? && d != '/' },
+                 "'release_dir' can't be an empty string or '/'"
+
+        validate :public_dir, lambda { |d| !d.to_s.empty? && d != '/' },
+                 "'public_dir' can't be an empty string or '/'"
+
+        validate :release_count, lambda { |c| c.is_a?(Integer) && c > 0 },
+                 "'release_count' must be an integer greater than 0"
+
         task :deploy,   :deploy,           "Deploy to all remotes"
         task :rollback, :rollback_release, "Rollback to the previous release"
         task :prune,    :prune_releases,   "Prune releases to release count"

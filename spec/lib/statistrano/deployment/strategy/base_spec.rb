@@ -13,6 +13,22 @@ describe Statistrano::Deployment::Strategy::Base do
     end
   end
 
+  describe "config validation" do
+    it "doesn't allow remote_dir to be empty" do
+      subject = described_class.new "hello"
+      expect{
+        subject.config.remote_dir ""
+      }.to raise_error Statistrano::Config::ValidationError
+    end
+
+    it "doesn't allow you to set remote_dir as /" do
+      subject = described_class.new "hello"
+      expect{
+        subject.config.remote_dir "/"
+      }.to raise_error Statistrano::Config::ValidationError
+    end
+  end
+
   describe "#deploy" do
 
     before :each do

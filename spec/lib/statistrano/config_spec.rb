@@ -19,13 +19,13 @@ describe Statistrano::Config do
     it "uses given options, tasks, and validators, but clones so the originals don't get modified" do
       options    = { foo: 'bar' }
       tasks      = { foo: 'bar' }
-      validators = { foo: lambda { |arg| arg } }
+      validators = { foo: { validator: lambda { |arg| arg } } }
 
       subject = described_class.new options: options, tasks: tasks, validators: validators
 
       subject.foo              = 'baz'
       subject.tasks[:foo]      = 'baz'
-      subject.validators[:foo] = lambda { |arg| 'baz' }
+      subject.validators[:foo] = { validator: lambda { |arg| 'baz' } }
 
       expect( subject.foo ).to eq 'baz'
       expect( options ).to eq foo: 'bar'
@@ -33,8 +33,8 @@ describe Statistrano::Config do
       expect( subject.tasks ).to eq foo: 'baz'
       expect( tasks ).to eq foo: 'bar'
 
-      expect( subject.validators[:foo].call('arg') ).to eq 'baz'
-      expect( validators[:foo].call('arg') ).to eq 'arg'
+      expect( subject.validators[:foo][:validator].call('arg') ).to eq 'baz'
+      expect( validators[:foo][:validator].call('arg') ).to eq 'arg'
     end
   end
 
@@ -58,16 +58,22 @@ describe Statistrano::Config do
         }.not_to raise_error
       end
 
-      it "raises when setting an invalid value" do
+      it "raises when validating invalid value" do
         expect{
           subject.validate_string ''
         }.to raise_error Statistrano::Config::ValidationError
       end
 
-      it "raises with given message" do
+      it "raises while validating with given message" do
         expect{
           subject.validate_integer 'foobar'
         }.to raise_error Statistrano::Config::ValidationError, 'not an integer'
+      end
+
+      it "raises when set to invalid value" do
+        expect{
+          subject.integer 'foo'
+        }.to raise_error Statistrano::Config::ValidationError
       end
 
 
